@@ -21,8 +21,8 @@ export class userRepository implements userRepositoryInterface {
     try {
       const modifiedFields = user.modifiedFields;
       if (Object.keys(modifiedFields).length === 0) throw new ValidationError();
-      const updatedFields: Record<keyof Omit<userProperties, "">, any> = {} as Record<
-        keyof Omit<userProperties, "">,
+      const updatedFields: Record<keyof Omit<userProperties, "id">, any> = {} as Record<
+        keyof Omit<userProperties, "id">,
         any
       >;
       for (const key in modifiedFields) {

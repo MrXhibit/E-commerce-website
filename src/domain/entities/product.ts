@@ -1,10 +1,10 @@
 export class Product {
   id: string;
   name: string;
-  images:{url:string,id:string}[];
-  description:string;
+  images: { url: string; id: string }[];
+  description: string;
   price: string;
-  category:string;
+  category: string;
   brandName: string;
   modelName: string;
   isListed: boolean = true;
@@ -13,8 +13,15 @@ export class Product {
   updatedAt: string;
   private _modifiedFields = {} as modifiedFields;
   constructor(
-    id: string = "", name: string,images:{url:string,id:string}[], description:string,price: string,category:string,brand: string,model: string,stock: number,
-
+    id: string = "",
+    name: string,
+    images: { url: string; id: string }[],
+    description: string,
+    price: string,
+    category: string,
+    brand: string,
+    model: string,
+    stock: number,
   ) {
     this.id = id;
     this.name = name;
@@ -24,17 +31,23 @@ export class Product {
     this.category = category;
     this.brandName = brand;
     this.modelName = model;
-    this.stock = stock
+    this.stock = stock;
     this.createdAt = new Date().toISOString();
     this.updatedAt = new Date().toISOString();
   }
-  setImage(image:{url:string,id:string}) {
-    this.images.push(image);
+  setName(name: string) {
+    this.name = name;
+    this.updatedAt = new Date().toISOString();
+    this._modifiedFields.name = true;
+    this._modifiedFields.updatedAt = true;
+  }
+  setImages(images: { url: string; id: string }[]) {
+    this.images = images;
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.images = true;
     this._modifiedFields.updatedAt = true;
   }
-  setDescription(description:string) {
+  setDescription(description: string) {
     this.description = description;
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.description = true;
@@ -85,6 +98,7 @@ export class Product {
     product.brandName = this.brandName;
     product.modelName = this.modelName;
     product.stock = this.stock;
+    product.name = this.name;
     product.createdAt = this.createdAt;
     product.updatedAt = this.updatedAt;
     return product;

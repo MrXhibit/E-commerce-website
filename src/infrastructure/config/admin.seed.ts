@@ -1,0 +1,28 @@
+//////////////
+//--Temp file for runing remove later
+//////////
+import { authUtills } from "../utills";
+import { APIError } from "@/domain/entities";
+import AdminModel from "../model/admin.model";
+
+export const createAdmin = async () => {
+  try {
+    const admins = await AdminModel.find();
+    if (admins.length === 0) {
+      const password = "12345678";
+      const email = "admin@gmail.com";
+      const salt = await authUtills.getSalt();
+      const userName = "admin";
+      const hashedPassword = await authUtills.getHashedPassword(password, salt);
+      const newAdmin = new AdminModel({
+        userName,
+        email,
+        password: hashedPassword,
+        salt,
+      });
+      await newAdmin.save();
+    }
+  } catch (error) {
+    throw new APIError();
+  }
+};

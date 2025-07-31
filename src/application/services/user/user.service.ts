@@ -1,14 +1,33 @@
-import { User, ValidationError } from "@/domain/entities";
+import { AuthorizeError, User, ValidationError } from "@/domain/entities";
 import { userRepositoryInterface } from "@/domain/interfaces/repository";
 import { userServiceInterface } from "@/domain/interfaces/services";
 import { authUtillsInterface } from "@/domain/interfaces/utills";
+import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
 import { validUserResponseType } from "@/domain/types";
 
 export class userService implements userServiceInterface {
   constructor(
     private userRepository: userRepositoryInterface,
     private authUtills: authUtillsInterface,
+    private tokenUtils: tokenValidationUtillsInterface,
   ) {}
+  async refreshToken(refreshToken: string): Promise<validUserResponseType> {
+    //cheak the refreshToken valid or not
+    const tokenProps = this.tokenUtils.isValidUserToken(refreshToken);
+    //get user with userid
+    if (tokenProps.isVerified && tokenProps.payload.id) {
+      const user = await this.userRepository.getUserById(tokenProps.payload.id);
+      //generate accesstToken and refresh token
+      const access_token = this.authUtills.generateAcessToken(user.email, user.id);
+      const refresh_token = this.authUtills.generateRefreshToken(user.id);
+      return {
+        access_token,
+        refresh_token,
+        user: user.sanitizeUser(),
+      };
+    }
+    throw new AuthorizeError();
+  }
 
   async registerUser(requestBody: unknown): Promise<validUserResponseType> {
     const userInput = this.authUtills.validateUserRegisterInput(requestBody);
@@ -33,11 +52,15 @@ export class userService implements userServiceInterface {
   async loginUser(requestBody: unknown): Promise<validUserResponseType> {
     //cheak the userInput valid or not
     const userInput = this.authUtills.validateUserLoginInput(requestBody);
-    //get user with email  
+    //get user with email
     const user = await this.userRepository.getUserByEmail(userInput.email);
-    if (!user) throw new ValidationError("invalid email or password"); 
-    const isPasswordValid = await this.authUtills.validatePassword(userInput.password, user.password!, user.salt!);
-    if (!isPasswordValid) throw new ValidationError("invalid email or password"); 
+    if (!user) throw new ValidationError("invalid email or password");
+    const isPasswordValid = await this.authUtills.validatePassword(
+      userInput.password,
+      user.password!,
+      user.salt!,
+    );
+    if (!isPasswordValid) throw new ValidationError("invalid email or password");
     //generate aceess_toekn and refresh_token
     const access_token = this.authUtills.generateAcessToken(user.email, user.id);
     const refresh_token = this.authUtills.generateRefreshToken(user.id);
@@ -52,5 +75,4 @@ export class userService implements userServiceInterface {
   loginViaGoogle(RequestBody: unknown): Promise<validUserResponseType> {
     throw new Error("Method not implemented.");
   }
-
 }

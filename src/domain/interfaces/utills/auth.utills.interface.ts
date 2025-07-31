@@ -1,4 +1,5 @@
-import { userLoginRequestType, userRegisterRequestType } from "@/domain/types";
+import { adminProperties, userProperties } from "@/domain/entities";
+import { adminLoginRequestType, userLoginRequestType, userRegisterRequestType } from "@/domain/types";
 
 export interface authUtillsInterface {
   getSalt(): Promise<string>;
@@ -8,4 +9,5 @@ export interface authUtillsInterface {
   generateRefreshToken(id: string): string;
   validateUserLoginInput(reqBody: any): userLoginRequestType;
   validateUserRegisterInput(reqBody: any): userRegisterRequestType;
+  validateAdminLoginInput(reqBody: any): adminLoginRequestType;
 }

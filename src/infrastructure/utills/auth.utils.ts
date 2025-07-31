@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { authUtillsInterface } from "@/domain/interfaces/utills";
-import { userLoginRequestType, userRegisterRequestType } from "@/domain/types";
+import { adminLoginRequestType, userLoginRequestType, userRegisterRequestType } from "@/domain/types";
 import { ValidationError } from "@/domain/entities/errors";
 import { LoginValidator, RegisterValidator } from "./validator";
-import { env } from "@/infrastructure/config/environment"
+import { env } from "@/infrastructure/config/environment";
 const APP_SCERET = env.APP_SCERET || "my secret";
 
 const getSalt = async () => {
@@ -52,6 +52,12 @@ const validateUserRegisterInput = (reqBody: any): userRegisterRequestType => {
   else return { conformPassword: reqBody.conformPassword, email: reqBody.email, password: reqBody.password };
 };
 
+const validateAdminLoginInput = (reqBody: any): adminLoginRequestType => {
+  const { error } = LoginValidator.validate(reqBody);
+  if (error) throw new ValidationError(error.details[0].message);
+  else return { email: reqBody.email, password: reqBody.password };
+};
+
 export const authUtills: authUtillsInterface = {
   getSalt,
   getHashedPassword,
@@ -60,4 +66,5 @@ export const authUtills: authUtillsInterface = {
   generateRefreshToken,
   validateUserLoginInput,
   validateUserRegisterInput,
+  validateAdminLoginInput,
 };
