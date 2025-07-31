@@ -12,7 +12,7 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
   try {
     const token = req.cookies.access_token_admin;
     const category = await categoryServ.createCategory(req.file, req.body, token);
-    return res.status(201).json(category);
+    return res.status(201).json({ category });
   } catch (error) {
     next(error);
   }
@@ -22,7 +22,7 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
     const token = req.cookies.access_token_admin;
     const id = req.params.id;
     const category = await categoryServ.editCategory(id, req.body, token);
-    return res.status(200).json(category);
+    return res.status(200).json({ category });
   } catch (error) {
     next(error);
   }
@@ -34,7 +34,7 @@ export const listCategory = async (req: Request, res: Response, next: NextFuncti
     let isList;
     req.body.isList === "false" ? (isList = false) : (isList = true);
     const category = await categoryServ.changeListStatus(id, isList, token);
-    return res.status(200).json(category);
+    return res.status(200).json({ category });
   } catch (error) {
     next(error);
   }
@@ -55,7 +55,7 @@ export const getCategoryById = async (req: Request, res: Response, next: NextFun
   try {
     const id = req.params.id;
     const category = await categoryServ.getSingleCategory(id);
-    return res.status(200).json(category);
+    return res.status(200).json({ category });
   } catch (error) {
     next();
   }
@@ -65,7 +65,7 @@ export const uploadCategoryImage = async (req: Request, res: Response, next: Nex
     const id = req.params.id;
     const token = req.cookies.access_token_admin;
     const category = await categoryServ.editCategoryImage(id, req.file, token);
-    return res.status(200).json(category);
+    return res.status(200).json({ category });
   } catch (error) {
     next(error);
   }

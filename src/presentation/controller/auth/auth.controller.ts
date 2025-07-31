@@ -24,7 +24,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
     });
-    return res.status(200).json(user);
+    return res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
@@ -45,7 +45,7 @@ export const userRegister = async (req: Request, res: Response, next: NextFuncti
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
     });
-    return res.status(201).json(user);
+    return res.status(201).json({ user });
   } catch (error) {
     next(error);
   }
@@ -67,7 +67,7 @@ export const userRefreshToken = async (req: Request, res: Response, next: NextFu
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
     });
-    return res.status(200).json(user);
+    return res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
@@ -89,7 +89,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
     });
-    return res.status(200).json(admin);
+    return res.status(200).json({ admin });
   } catch (error) {
     next(error);
   }
@@ -111,7 +111,7 @@ export const adminRefreshToken = async (req: Request, res: Response, next: NextF
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
     });
-    return res.status(200).json(admin);
+    return res.status(200).json({ admin });
   } catch (error) {
     next(error);
   }
