@@ -3,16 +3,11 @@ export class Category {
   name: string;
   parentId: string | undefined;
   isListed: boolean = true;
-  image:{url:string,id:string};
+  image: { url: string; id: string };
   createdAt: string;
   updatedAt: string;
   private _modifiedFields = {} as modifiedFields;
-  constructor(
-    id: string = "",
-    name: string,
-    image:{url:string,id:string},
-    parentId?: string,
-  ) {
+  constructor(id: string = "", name: string, image: { url: string; id: string }, parentId?: string) {
     this.id = id;
     this.name = name;
     this.image = image;
@@ -26,7 +21,7 @@ export class Category {
     this._modifiedFields.name = true;
     this._modifiedFields.updatedAt = true;
   }
-  setImage(image:{url:string,id:string}) {
+  setImage(image: { url: string; id: string }) {
     this.image = image;
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.image = true;
@@ -76,5 +71,5 @@ export type categoryProperties = Omit<
   | "clearModifiedFields"
 >;
 type modifiedFields = {
-  [K in keyof Omit<categoryProperties,"id" >]: boolean;
+  [K in keyof Omit<categoryProperties, "id">]: boolean;
 };
