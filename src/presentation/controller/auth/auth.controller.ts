@@ -5,6 +5,7 @@ import { authUtills } from "@/infrastructure/utills";
 import { tokenUtils } from "@/infrastructure/utills/token.utils";
 import { adminRepository } from "@/infrastructure/repository/admin.repository";
 import { adminService } from "@/application/services/admin/admin.service";
+import { userProperties, ValidationError } from "@/domain/entities";
 const userRepo = new userRepository();
 const userServ = new userService(userRepo, authUtills, tokenUtils);
 const adminRepo = new adminRepository();
@@ -72,7 +73,6 @@ export const userRefreshToken = async (req: Request, res: Response, next: NextFu
     next(error);
   }
 };
-export const googleLogin = (req: Request, res: Response, next: NextFunction) => {};
 
 export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -112,6 +112,29 @@ export const adminRefreshToken = async (req: Request, res: Response, next: NextF
       sameSite: "none",
     });
     return res.status(200).json({ admin });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleLoginSucessController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const passportUser = req.user as Partial<userProperties>;
+    if (!passportUser) throw new ValidationError("failed to login");
+    const result = await userServ.googleSucessess(passportUser);
+    const { access_token, refresh_token, user } = result;
+    res.cookie("access_token", access_token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "none",
+    });
+
+    res.cookie("refresh_token", refresh_token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "none",
+    });
+    return res.status(200).json({ user });
   } catch (error) {
     next(error);
   }

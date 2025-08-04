@@ -1,4 +1,4 @@
-import { AuthorizeError, User, ValidationError } from "@/domain/entities";
+import { AuthorizeError, User, userProperties, ValidationError } from "@/domain/entities";
 import { userRepositoryInterface } from "@/domain/interfaces/repository";
 import { userServiceInterface } from "@/domain/interfaces/services";
 import { authUtillsInterface } from "@/domain/interfaces/utills";
@@ -54,6 +54,8 @@ export class userService implements userServiceInterface {
     const userInput = this.authUtills.validateUserLoginInput(requestBody);
     //get user with email
     const user = await this.userRepository.getUserByEmail(userInput.email);
+    // find user is google loged or normal register
+    if(user?.isGoogleProvided && user.googleId) throw new ValidationError("you allready registerd by google try google login")
     if (!user) throw new ValidationError("invalid email or password");
     const isPasswordValid = await this.authUtills.validatePassword(
       userInput.password,
@@ -72,7 +74,35 @@ export class userService implements userServiceInterface {
       user: user.sanitizeUser(),
     };
   }
-  loginViaGoogle(RequestBody: unknown): Promise<validUserResponseType> {
-    throw new Error("Method not implemented.");
+  async loginViaGoogle(
+    email: string,
+    googleId: string,
+    name: string,
+    profile: string,
+  ): Promise<Partial<userProperties>> {
+    let user = await this.userRepository.getUserByEmail(email);
+    if (!user) {
+      const newUser = new User("", name, email, true, profile, undefined, undefined, googleId);
+      user = await this.userRepository.saveUser(newUser);
+    } else {
+      user.setGoogleId(googleId);
+      user.setProfile(profile);
+      const updatedUser = await this.userRepository.editUser(user);
+      if (updatedUser) user = updatedUser;
+    }
+    return user.sanitizeUser();
+  }
+  async googleSucessess(user: Partial<userProperties>): Promise<validUserResponseType> {
+    if (!user.id) throw new ValidationError();
+    let userDb = await this.userRepository.getUserById(user.id);
+    const access_token = this.authUtills.generateAcessToken(user.email!, user.id);
+    const refresh_token = this.authUtills.generateRefreshToken(user.id);
+    userDb.setRefreshToken(refresh_token);
+    await this.userRepository.editUser(userDb);
+    return {
+      access_token,
+      refresh_token,
+      user: userDb.sanitizeUser(),
+    };
   }
 }
