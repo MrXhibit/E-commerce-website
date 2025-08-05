@@ -1,11 +1,21 @@
-import React from 'react'
-import './Admin.css'
+import { colorModeContext, useMode } from "./theme";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import "./Admin.css";
+import LoginPage from "./pages/LoginPage";
+import Layout from "./Layout";
+
 function AdminApp() {
+  const [theme, colorMode] = useMode();
   return (
-    <div className='admin-app'>
-      <h1>admin page</h1>
-    </div>
-  )
+    <colorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <div className="admin-app">
+          <Layout/>
+        </div>
+      </ThemeProvider>
+    </colorModeContext.Provider>
+  );
 }
 
-export default AdminApp
+export default AdminApp;

@@ -1,11 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap');
 
-.admin-app{
+.admin-app,
+.content{
     height: 100%;
-    width: 100;
+    width: 100%;
     font-family: 'Source Code Pro','sans-sarif';
-    display: flex;
+}
+
+.admin-app{
+   display: flex;
     position: relative;
+
 }
 
 ::-webkit-scrollbar{
