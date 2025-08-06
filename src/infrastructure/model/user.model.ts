@@ -30,18 +30,13 @@ const userSchema: Schema<IUser> = new Schema(
       default: false,
     },
     profile: String,
-    salt: {
-      type: String,
-      unique: true,
-    },
-    refresh_token: {
-      type: String,
-      unique: true,
-    },
+    salt: String,
+    refresh_token: String,
     isGoogleProvided: {
       type: Boolean,
       default: false,
     },
+    googleId: String,
     otp: Number,
     otpExp: String,
   },

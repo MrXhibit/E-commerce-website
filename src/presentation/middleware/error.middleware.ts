@@ -2,16 +2,22 @@ import { Request, Response, NextFunction } from "express";
 import { APIError, AuthorizeError, ForbiddenError, NotFoundError, ValidationError } from "@/domain/entities";
 export const handleError = (error: Error, req: Request, res: Response, next: NextFunction) => {
   let reportedError = true;
-  let staus = 500;
+  let status = 500;
   let data = error.message;
 
   [APIError, AuthorizeError, NotFoundError, ValidationError, ForbiddenError].forEach((typeOfError) => {
     if (error instanceof typeOfError) {
       reportedError = false;
       data = error.message;
-      staus = error.status;
+      status = error.status;
     }
   });
+
+  if (error.name === "AuthenticationError" || error.message.includes("Failed")) {
+    reportedError = false;
+    data = "Google login failed";
+    status = 400;
+  }
 
   if (reportedError) {
     console.error(error);
@@ -19,6 +25,6 @@ export const handleError = (error: Error, req: Request, res: Response, next: Nex
     console.warn(error);
   }
 
-  res.status(staus).json({ error: data });
+  res.status(status).json({ error: data });
   return;
 };

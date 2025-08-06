@@ -5,15 +5,27 @@ import UserModel, { IUser } from "../model/user.model";
 export class userRepository implements userRepositoryInterface {
   async saveUser(user: User): Promise<User> {
     try {
-      const userDb = new UserModel({
-        userName: user.userName,
-        email: user.email,
-        password: user.password,
-        salt: user.salt,
-      });
+      let userDb;
+      if (user.isGoogleProvided && user.googleId) {
+        userDb = new UserModel({
+          userName: user.userName,
+          email: user.email,
+          isGoogleProvided: true,
+          googleId: user.googleId,
+          profile: user.profile,
+        });
+      } else {
+        userDb = new UserModel({
+          userName: user.userName,
+          email: user.email,
+          password: user.password,
+          salt: user.salt,
+        });
+      }
       await userDb.save();
       return this.mapToUser(userDb);
     } catch (error) {
+      console.log(error);
       throw new APIError();
     }
   }
@@ -81,6 +93,7 @@ export class userRepository implements userRepositoryInterface {
     user.isEmailVerified = userDbEntity.isEmailVerified;
     user.refresh_token = userDbEntity.refresh_token;
     user.otp = userDbEntity.otp;
+    user.googleId = userDbEntity.googleId;
     user.otpExp = userDbEntity.otpExp;
     user.createdAt = userDbEntity.createdAt;
     user.updatedAt = userDbEntity.updatedAt;

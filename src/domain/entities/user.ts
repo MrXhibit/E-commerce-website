@@ -8,6 +8,7 @@ export class User {
   salt: string | undefined;
   refresh_token!: string;
   isGoogleProvided: boolean;
+  googleId!: string;
   otp!: number;
   otpExp!: string;
   createdAt: string;
@@ -21,6 +22,7 @@ export class User {
     profile?: string,
     password?: string,
     salt?: string,
+    googleId?: string,
   ) {
     this.id = id;
     this.userName = name;
@@ -28,6 +30,7 @@ export class User {
     if (password) this.password = password;
     if (salt) this.salt = salt;
     if (profile) this.profile = profile;
+    if (googleId) this.googleId = googleId;
     this.isGoogleProvided = isGoogleProvide;
     this.createdAt = new Date().toISOString();
     this.updatedAt = new Date().toISOString();
@@ -50,6 +53,14 @@ export class User {
     this.profile = profile;
     this.updatedAt = new Date().toISOString();
     this.modifiedFields.profile = true;
+    this._modifiedFields.updatedAt = true;
+  }
+  setGoogleId(googleId: string) {
+    this.googleId = googleId;
+    this.isGoogleProvided = true;
+    this.updatedAt = new Date().toISOString();
+    this.modifiedFields.googleId = true;
+    this.modifiedFields.isGoogleProvided = true;
     this._modifiedFields.updatedAt = true;
   }
   setOtp(otp: number) {
@@ -100,6 +111,7 @@ export type userProperties = Omit<
   | "setProfile"
   | "setOtp"
   | "setRefreshToken"
+  | "setGoogleId"
   | "modifiedFields"
   | "clearModifiedFields"
 >;
