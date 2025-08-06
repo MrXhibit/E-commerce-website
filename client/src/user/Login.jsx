@@ -1,10 +1,46 @@
-import React from 'react';
-import { Box, Grid, Paper, Typography, TextField, Button, Divider } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Grid, Paper, Typography, TextField, Button, Divider, Alert, CircularProgress } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const result = await login(formData);
+      if (result.success) {
+        navigate('/');
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError('An error occurred during login. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #232526 0%, #414345 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Paper elevation={8} sx={{ borderRadius: 4, overflow: 'hidden', width: { xs: '100%', sm: 700, md: 900 }, maxWidth: '95vw', display: 'flex', minHeight: 500 }}>
@@ -23,17 +59,59 @@ const Login = () => {
             Don&apos;t have an account?{' '}
             <Link to="/signup" style={{ color: '#b39ddb', textDecoration: 'underline' }}>Sign up</Link>
           </Typography>
-          <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12}>
-              <TextField label="Email" variant="outlined" fullWidth size="small" InputProps={{ style: { background: '#2c2f34', color: 'white' } }} InputLabelProps={{ style: { color: '#bdbdbd' } }} />
+          
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={12}>
+                <TextField 
+                  label="Email" 
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  variant="outlined" 
+                  fullWidth 
+                  size="small" 
+                  InputProps={{ style: { background: '#2c2f34', color: 'white' } }} 
+                  InputLabelProps={{ style: { color: '#bdbdbd' } }} 
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField 
+                  label="Enter your password" 
+                  name="password"
+                  type="password" 
+                  value={formData.password}
+                  onChange={handleChange}
+                  variant="outlined" 
+                  fullWidth 
+                  size="small" 
+                  InputProps={{ style: { background: '#2c2f34', color: 'white' } }} 
+                  InputLabelProps={{ style: { color: '#bdbdbd' } }} 
+                  required
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <TextField label="Enter your password" type="password" variant="outlined" fullWidth size="small" InputProps={{ style: { background: '#2c2f34', color: 'white' } }} InputLabelProps={{ style: { color: '#bdbdbd' } }} />
-            </Grid>
-          </Grid>
-          <Button variant="contained" color="primary" size="large" fullWidth sx={{ mb: 2, fontWeight: 600, borderRadius: 2, py: 1.2 }}>
-            Log in
-          </Button>
+            <Button 
+              type="submit"
+              variant="contained" 
+              color="primary" 
+              size="large" 
+              fullWidth 
+              sx={{ mb: 2, fontWeight: 600, borderRadius: 2, py: 1.2 }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Log in'}
+            </Button>
+          </form>
+          
           <Divider sx={{ my: 2, background: '#444' }}>Or log in with</Divider>
           <Grid container spacing={2}>
             <Grid item xs={6}>
