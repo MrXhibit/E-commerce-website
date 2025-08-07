@@ -6,14 +6,14 @@ import { axiosInstance } from "../utills/axios.instance";
 
 const handleFormSubmit = async (values, { setStatus }) => {
   try {
+
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("image", values.image);
-
-    console.log(values);
-    
+    formData.append("image", values.image);  
+    const response = await axiosInstance.post('/category',formData)
+    if(response.data?.category) setStatus({type:"success",message:"category added"})
   } catch (error) {
-    if (error?.response?.data?.error) setStatus(error.response.data.error);
+    if (error?.response?.data?.error) setStatus({type:"error",message:error.response.data.error});
   }
 };
 const categorySchema = yup.object().shape({
@@ -44,9 +44,14 @@ function AddCategory() {
       >
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, handleSubmit, status }) => (
           <form onSubmit={handleSubmit} encType="multipart/form-data">
-            {status && (
+            {status?.type == "error" && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                {status}
+                {status.message}
+              </Alert>
+            )}
+            {status?.type =="success" && (
+              <Alert severity="success" sx={{ mb: 2 }}>
+                {status.message}
               </Alert>
             )}
 

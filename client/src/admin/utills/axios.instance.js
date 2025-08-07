@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { axiosDeleteAdminFunction } from './axios.delete.admin'
-import { valid } from 'joi';
 export const axiosInstance = axios.create({
   baseURL: 'http://localhost:5000/api/v1',
   withCredentials: true, 
@@ -18,11 +17,8 @@ const processQueue = (error)=>{
 }
 
 axiosInstance.interceptors.response.use(response=>response,async(error)=>{
-  const failedReq = error.config 
-  console.log('from interceptor');
-  
-  if(error?.response?.status === "401" && error?.response?.data?.error === "token expired" && !failedReq._retry){
-    
+  const failedReq = error.config   
+  if(error?.response?.status == "401" && error?.response?.data?.error == "token expired" && !failedReq._retry){
    failedReq._retry = true
    if(isRefreshing){
     return new Promise((resolve,reject)=>{
@@ -33,8 +29,8 @@ axiosInstance.interceptors.response.use(response=>response,async(error)=>{
     })
    }
    isRefreshing = true
-   try {
-     await axiosInstance.post('/auth/admin/refresh-token')
+   try {    
+     await axiosInstance.post('/auth/admin/refresh-token')     
      processQueue(null)
      return axiosInstance(failedReq)
    } catch (error) {
