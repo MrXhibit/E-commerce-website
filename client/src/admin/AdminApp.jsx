@@ -1,20 +1,14 @@
-import { colorModeContext, useMode } from "./theme";
-import { CssBaseline, ThemeProvider } from "@mui/material";
 import "./Admin.css";
-import LoginPage from "./pages/LoginPage";
 import Layout from "./Layout";
+import { GlobalProvider } from "./state/GlobalContext";
 
 function AdminApp() {
-  const [theme, colorMode] = useMode();
   return (
-    <colorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+    <GlobalProvider>
         <div className="admin-app">
           <Layout/>
         </div>
-      </ThemeProvider>
-    </colorModeContext.Provider>
+    </GlobalProvider>
   );
 }
 

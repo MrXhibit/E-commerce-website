@@ -3,12 +3,12 @@ import { useContext } from "react";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LogoutIcon from '@mui/icons-material/Logout';
-import { colorModeContext } from "../../theme";
+import { ThemeContext } from "../../state/GlobalContext";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 
 function TopBar() {
    const theme = useTheme()
-  const colorMode = useContext(colorModeContext)
+  const colorMode = useContext(ThemeContext)
   
   return (
     <Box display={"flex"} justifyContent={"space-between"} p={2}>

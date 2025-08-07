@@ -60,13 +60,11 @@ export const userRefreshToken = async (req: Request, res: Response, next: NextFu
     res.cookie("access_token", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
     return res.status(200).json({ user });
   } catch (error) {
@@ -81,13 +79,11 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
     res.cookie("access_token_admin", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
 
     res.cookie("refresh_token_admin", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
     return res.status(200).json({ admin });
   } catch (error) {

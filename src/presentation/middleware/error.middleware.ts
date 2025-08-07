@@ -13,11 +13,6 @@ export const handleError = (error: Error, req: Request, res: Response, next: Nex
     }
   });
 
-  if (error.name === "AuthenticationError" || error.message.includes("Failed")) {
-    reportedError = false;
-    data = "Google login failed";
-    status = 400;
-  }
 
   if (reportedError) {
     console.error(error);
