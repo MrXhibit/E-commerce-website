@@ -1,12 +1,12 @@
 import { Wishlist } from "@/domain/entities";
 import { wishlistServiceInterface } from "@/domain/interfaces/services";
 import { WishlistRepository } from "@/infrastructure/repository";
-import { ProductRepository } from "@/infrastructure/repository";
+import { productRepository } from "@/infrastructure/repository";
 
 export class WishlistService implements wishlistServiceInterface {
   constructor(
     private wishlistRepository: WishlistRepository,
-    private productRepository: ProductRepository
+    private productRepository: productRepository
   ) {}
 
   async addToWishlist(userId: string, productId: string): Promise<Wishlist> {

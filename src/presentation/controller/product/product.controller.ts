@@ -3,6 +3,7 @@ import { productRepository } from "@/infrastructure/repository";
 import { cloudUtills } from "@/infrastructure/utills/cloud.utils";
 import { productUtills } from "@/infrastructure/utills/product.utils";
 import { tokenUtils } from "@/infrastructure/utills/token.utils";
+import { ResponseUtils } from "@/infrastructure/utills/response.utils";
 import { Request, Response, NextFunction } from "express";
 
 const productRepo = new productRepository();
@@ -20,8 +21,10 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // impliment search sort filter pagination
-    const products = await productServ.getProducts();
-    return res.status(200).json({ products });
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = parseInt(req.query.skip as string) || 0;
+    const products = await productServ.getProducts(limit, skip);
+    return res.status(200).json(ResponseUtils.success(products, 'Products fetched successfully'));
   } catch (error) {
     next(error);
   }

@@ -47,7 +47,7 @@ export class WishlistRepository implements wishlistRepositoryInterface {
   mapToWishlist(wishlistDb: unknown): Wishlist {
     const wishlistData = wishlistDb as IWishlist;
     return new Wishlist(
-      wishlistData._id.toString(),
+      typeof wishlistData._id === "string" ? wishlistData._id : wishlistData._id?.toString?.() ?? "",
       wishlistData.userId,
       wishlistData.items,
       wishlistData.itemCount

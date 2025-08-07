@@ -1,12 +1,12 @@
 import { Cart } from "@/domain/entities";
 import { cartServiceInterface } from "@/domain/interfaces/services";
 import { CartRepository } from "@/infrastructure/repository";
-import { ProductRepository } from "@/infrastructure/repository";
+import { productRepository } from "@/infrastructure/repository";
 
 export class CartService implements cartServiceInterface {
   constructor(
     private cartRepository: CartRepository,
-    private productRepository: ProductRepository
+    private productRepository: productRepository
   ) {}
 
   async addToCart(userId: string, productId: string, quantity: number): Promise<Cart> {

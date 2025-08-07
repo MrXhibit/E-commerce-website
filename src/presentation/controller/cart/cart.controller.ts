@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
 import { CartService } from "@/application/services";
-import { CartRepository, ProductRepository } from "@/infrastructure/repository";
+import { CartRepository, productRepository } from "@/infrastructure/repository";
 
 export class CartController {
   private cartService: CartService;
 
   constructor() {
     const cartRepository = new CartRepository();
-    const productRepository = new ProductRepository();
-    this.cartService = new CartService(cartRepository, productRepository);
+    const productRepositoryInstance = new productRepository();
+    this.cartService = new CartService(cartRepository, productRepositoryInstance);
   }
 
   async addToCart(req: Request, res: Response) {
     try {
       const { productId, quantity } = req.body;
-      const userId = req.user?.id; // Assuming user is attached by auth middleware
+      const userId = (req.user as any)?.id; // Assuming user is attached by auth middleware
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -40,7 +40,7 @@ export class CartController {
 
   async getCart(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -62,7 +62,7 @@ export class CartController {
   async updateCartItem(req: Request, res: Response) {
     try {
       const { productId, quantity } = req.body;
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -89,7 +89,7 @@ export class CartController {
   async removeFromCart(req: Request, res: Response) {
     try {
       const { productId } = req.params;
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -115,7 +115,7 @@ export class CartController {
 
   async clearCart(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });

@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
 import { WishlistService } from "@/application/services";
-import { WishlistRepository, ProductRepository } from "@/infrastructure/repository";
+import { WishlistRepository, productRepository } from "@/infrastructure/repository";
 
 export class WishlistController {
   private wishlistService: WishlistService;
 
   constructor() {
     const wishlistRepository = new WishlistRepository();
-    const productRepository = new ProductRepository();
-    this.wishlistService = new WishlistService(wishlistRepository, productRepository);
+    const productRepositoryInstance = new productRepository();
+    this.wishlistService = new WishlistService(wishlistRepository, productRepositoryInstance);
   }
 
   async addToWishlist(req: Request, res: Response) {
     try {
       const { productId } = req.body;
-      const userId = req.user?.id; // Assuming user is attached by auth middleware
+      const userId = (req.user as any)?.id; // Assuming user is attached by auth middleware
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -40,7 +40,7 @@ export class WishlistController {
 
   async getWishlist(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -62,7 +62,7 @@ export class WishlistController {
   async removeFromWishlist(req: Request, res: Response) {
     try {
       const { productId } = req.params;
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -88,7 +88,7 @@ export class WishlistController {
 
   async clearWishlist(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });

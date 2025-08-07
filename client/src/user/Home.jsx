@@ -7,9 +7,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; 
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -68,7 +66,7 @@ const Home = () => {
       setError(null);
       try {
         const response = await apiService.getProducts(20, 0);
-        if (response.success) {
+        if (response.success && response.data) {
           setProducts(response.data || []);
         } else {
           setError('Failed to load products.');
