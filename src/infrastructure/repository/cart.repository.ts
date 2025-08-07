@@ -46,10 +46,10 @@ export class CartRepository implements cartRepositoryInterface {
     return result.deletedCount > 0;
   }
 
-  mapToCart(cartDb: unknown): Cart {
+  mapToCart(cartDb: ICart): Cart {
     const cartData = cartDb as ICart;
     return new Cart(
-      cartData._id.toString(),
+      cartData.id,
       cartData.userId,
       cartData.items,
       cartData.totalAmount,

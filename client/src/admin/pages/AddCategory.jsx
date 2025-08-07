@@ -9,11 +9,10 @@ const handleFormSubmit = async (values, { setStatus }) => {
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("image", values.image);
-
-    console.log(values);
-    
+    const response = await axiosInstance.post('/category',formData)
+    if(response.data?.category) setStatus({type:"success",message:"category added"})
   } catch (error) {
-    if (error?.response?.data?.error) setStatus(error.response.data.error);
+    if (error?.response?.data?.error) setStatus({type:"error",message:error.response.data.error});
   }
 };
 const categorySchema = yup.object().shape({
@@ -45,8 +44,8 @@ function AddCategory() {
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, handleSubmit, status }) => (
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             {status && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {status}
+              <Alert severity={`${status.type=="success"?"success":"error"}`} sx={{ mb: 2 }}>
+                {status.message}
               </Alert>
             )}
 
