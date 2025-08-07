@@ -44,13 +44,8 @@ function AddCategory() {
       >
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, handleSubmit, status }) => (
           <form onSubmit={handleSubmit} encType="multipart/form-data">
-            {status?.type == "error" && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {status.message}
-              </Alert>
-            )}
-            {status?.type =="success" && (
-              <Alert severity="success" sx={{ mb: 2 }}>
+            {status && (
+              <Alert severity={`${status.type=="success"?"success":"error"}`} sx={{ mb: 2 }}>
                 {status.message}
               </Alert>
             )}
