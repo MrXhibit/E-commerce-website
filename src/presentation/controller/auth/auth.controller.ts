@@ -111,7 +111,7 @@ export const googleLoginSucessController = async (req: Request, res: Response, n
   try {
     const passportUser = req.user as Partial<userProperties>;
     if (!passportUser) throw new ValidationError("failed to login");
-    const result = await userServ.googleSucessess(passportUser);
+    const result = await userServ.googleSucessess(passportUser)
     const { access_token, refresh_token, user } = result;
     res.cookie("access_token", access_token, {
       httpOnly: true,

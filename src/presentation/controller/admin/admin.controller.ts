@@ -24,12 +24,12 @@ export const adminLogout = async(req:Request,res:Response,next:NextFunction)=>{
      const admin = await adminServ.logOutAdmin(token)
       res.cookie("access_token_admin", "", {
       httpOnly: true,
-      maxAge: 1,
+      expires: new Date(0),
     });
 
     res.cookie("refresh_token_admin","", {
       httpOnly: true,
-      maxAge:1,
+      expires:new Date(0),
     });
   return res.status(200).json({admin})  
      

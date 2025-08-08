@@ -12,33 +12,9 @@ import {
 import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../components/global/Header";
-import { axiosInstance } from "../utills/axios.instance";
+import { addProductFormSubmit } from "../services/product.form.service"
+import {useFetchData } from "../hooks/useFetchData"
 
-const categories = [
-  { name: "Electronics", id: "electronics" },
-  { name: "Clothing", id: "clothing" },
-  { name: "Home Appliances", id: "home-appliances" },
-];
-
-const handleFormSubmit = async (values, { setStatus }) => {
-  try {
-    const formData = new FormData();
-    const { name, description, price, category, brand, model, stock, images } = values;
-    formData.append("name", name);
-    formData.append("price", price);
-    formData.append("category", category);
-    formData.append("brand", brand);
-    formData.append("description", description);
-    formData.append("model", model);
-    formData.append("stock", stock);
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
-    console.log(values);
-  } catch (error) {
-    if (error?.response?.data?.error) setStatus(error.response.data.error);
-  }
-};
 
 const productSchema = yup.object().shape({
   name: yup.string().required("required"),
@@ -70,11 +46,13 @@ const productInitialValues = {
 };
 
 function AddProduct() {
+  const {data,error} = useFetchData('/category')
+  const categories = data?.categories || []
   return (
     <Box m="20px">
       <Header title="Product" subtitle="Enter the product details" />
       <Formik
-        onSubmit={handleFormSubmit}
+        onSubmit={addProductFormSubmit}
         initialValues={productInitialValues}
         validationSchema={productSchema}
       >
@@ -175,7 +153,7 @@ function AddProduct() {
                 error={touched.category && Boolean(errors.category)}
               >
                 {categories.map((option) => (
-                  <MenuItem key={option.name} value={option.id}>
+                  <MenuItem key={option.id} value={option.id}>
                     {option.name}
                   </MenuItem>
                 ))}

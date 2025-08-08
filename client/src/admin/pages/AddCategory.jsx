@@ -2,20 +2,8 @@ import { Box, Button, TextField, Alert,FormControl,FormLabel,Typography } from "
 import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../components/global/Header";
-import { axiosInstance } from "../utills/axios.instance";
+import { addCategoryFormSubmit } from "../services/category.service"
 
-const handleFormSubmit = async (values, { setStatus }) => {
-  try {
-
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("image", values.image);  
-    const response = await axiosInstance.post('/category',formData)
-    if(response.data?.category) setStatus({type:"success",message:"category added"})
-  } catch (error) {
-    if (error?.response?.data?.error) setStatus({type:"error",message:error.response.data.error});
-  }
-};
 const categorySchema = yup.object().shape({
   name: yup.string().required("required"),
   image: yup.mixed()
@@ -38,7 +26,7 @@ function AddCategory() {
     <Box m="20px">
       <Header title="Category" subtitle="Enter the category details" />
       <Formik
-        onSubmit={handleFormSubmit}
+        onSubmit={addCategoryFormSubmit}
         initialValues={categoryInitialValues}
         validationSchema={categorySchema}
       >

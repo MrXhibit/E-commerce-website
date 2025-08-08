@@ -5,6 +5,17 @@ import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LogoutIcon from '@mui/icons-material/Logout';
 import { ThemeContext } from "../../state/GlobalContext";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import { axiosInstance } from "../../utills/axios.instance"
+import { axiosDeleteAdminFunction } from "../../utills/axios.delete.admin"
+
+async function logout(){
+  try {
+    await axiosInstance.get('/admin/logout')
+    axiosDeleteAdminFunction()
+  } catch (error) {
+    axiosDeleteAdminFunction()
+  }
+}
 
 function TopBar() {
    const theme = useTheme()
@@ -41,7 +52,7 @@ function TopBar() {
         <IconButton>
           <PersonOutlinedIcon/>
         </IconButton>
-        <IconButton>
+        <IconButton onClick={logout}>
           <LogoutIcon/>
         </IconButton>
 

@@ -2,22 +2,7 @@ import { Box, Button, TextField,Alert } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../components/global/Header";
-import { axiosInstance } from "../utills/axios.instance";
-import { axiosCreateAdminFunction } from "../utills/axios.delete.admin"
-
-
-const handleFormSubmit = async (values,{ setStatus }) => {
-  try {
-    const response = await axiosInstance.post("/auth/admin/login", values);
-     console.log(response.data);
-    if(response?.data?.admin){      
-      const admin = response.data.admin
-      if(axiosCreateAdminFunction) axiosCreateAdminFunction(admin.userName,admin.email,admin.profile)
-    }
-  } catch (error) {
-    if(error?.response?.data?.error) setStatus(error.response.data.error)
-  }
-};
+import { loginFormSubmit } from "../services/auth.service"
 const loginSchema = yup.object().shape({
   email: yup.string().email("invalid email").required("required"),
   password: yup.string().required("required"),
@@ -40,7 +25,7 @@ function LoginPage() {
       flexDirection="column"
     >
       <Header title="Login" subtitle="Enter your admin password and mail" />
-      <Formik onSubmit={handleFormSubmit} initialValues={loginInitialValues} validationSchema={loginSchema}>
+      <Formik onSubmit={loginFormSubmit} initialValues={loginInitialValues} validationSchema={loginSchema}>
         {({ values, errors, touched, handleBlur, handleChange, handleSubmit, status }) => (
           <form onSubmit={handleSubmit}>
             {status && (
