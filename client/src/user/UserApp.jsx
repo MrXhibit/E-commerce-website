@@ -29,6 +29,7 @@ function UserApp() {
             <Route path='/signup' element={<Signup />} />
             <Route path='/products' element={<ProductPage />} />
             <Route path='/products/:id' element={<ProductPage />} /> {/* For product details */}
+            <Route path='/product/:id' element={<ProductPage />} /> {/* For individual product details */}
             <Route path='/cart' element={<CartPage />} />
             <Route path='/wishlist' element={<WishlistPage />} />
             <Route path='/profile' element={<ProfilePage />} />
