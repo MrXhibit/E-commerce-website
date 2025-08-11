@@ -43,20 +43,45 @@ const featuredTabs = [
   { label: 'Top Rated', value: 'top' },
 ];
 
-const categories = [
-  { label: 'Men', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80' },
-  { label: 'Women', image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80' },
-  { label: 'Accessories', image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80' },
-  { label: 'Watches', image: 'https://images.unsplash.com/photo-1517263904808-5dc0d6d4c08e?auto=format&fit=crop&w=400&q=80' },
+const mockProducts = [
+  {
+    _id: 'prod1',
+    name: 'iPhone 15 Pro',
+    price: '999.00',
+    category: 'Electronics',
+    images: [{ url: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400' }],
+    description: 'Latest iPhone with advanced features'
+  },
+  {
+    _id: 'prod2',
+    name: 'MacBook Pro',
+    price: '2499.00',
+    category: 'Electronics',
+    images: [{ url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400' }],
+    description: 'Powerful laptop for professionals'
+  },
+  {
+    _id: 'prod3',
+    name: 'Nike Sneakers',
+    price: '129.99',
+    category: 'Fashion',
+    images: [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400' }],
+    description: 'Comfortable running shoes'
+  },
+  {
+    _id: 'prod4',
+    name: 'Coffee Maker',
+    price: '199.00',
+    category: 'Home',
+    images: [{ url: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400' }],
+    description: 'Premium coffee maker'
+  }
 ];
 
 const Home = () => {
   const [tab, setTab] = useState('new');
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [categoryProducts, setCategoryProducts] = useState({});
   const [loading, setLoading] = useState(true);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -70,52 +95,20 @@ const Home = () => {
       try {
         const response = await apiService.getProducts(20, 0);
         if (response.success && response.data) {
-          setProducts(response.data || []);
+          setProducts(response.data);
         } else {
-          setError('Failed to load products.');
+          console.log('Backend fetch failed, using mock products');
+          setProducts(mockProducts);
         }
       } catch (err) {
-        setError('Failed to load products.');
+        console.log('API call failed, using mock products as fallback');
+        setProducts(mockProducts);
+        setError(null); // Clear error since we have fallback data
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    const fetchCategoriesAndProducts = async () => {
-      setCategoriesLoading(true);
-      try {
-        // Fetch categories
-        const categoriesResponse = await apiService.getCategories(10, 1);
-        if (categoriesResponse.success && categoriesResponse.categorys) {
-          const fetchedCategories = categoriesResponse.categorys;
-          setCategories(fetchedCategories);
-
-          // Fetch products for each category
-          const categoryProductsData = {};
-          for (const category of fetchedCategories) {
-            try {
-              const productsResponse = await apiService.getProductsByCategory(category._id, 8);
-              if (productsResponse.success && productsResponse.data) {
-                categoryProductsData[category._id] = productsResponse.data;
-              }
-            } catch (err) {
-              console.error(`Failed to fetch products for category ${category.name}:`, err);
-              categoryProductsData[category._id] = [];
-            }
-          }
-          setCategoryProducts(categoryProductsData);
-        }
-      } catch (err) {
-        console.error('Failed to fetch categories:', err);
-      } finally {
-        setCategoriesLoading(false);
-      }
-    };
-
-    fetchCategoriesAndProducts();
   }, []);
 
   const handleAddToCart = async (productId, event) => {
@@ -299,120 +292,7 @@ const Home = () => {
             </Box>
           )}
         </Container>
-        {/* Products by Category Carousels */}
-        <Container maxWidth={false} sx={{ py: 6, px: { xs: 1, sm: 3, md: 8, lg: 16 } }}>
-          {categoriesLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-              <Typography variant="h6" sx={{ ml: 2 }}>Loading categories...</Typography>
-            </Box>
-          ) : (
-            categories.map((category) => {
-              const products = categoryProducts[category._id] || [];
-              if (products.length === 0) return null;
-
-              return (
-                <Box key={category._id} sx={{ mb: 6 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-                    <Typography variant="h5" fontWeight={700}>
-                      {category.name}
-                    </Typography>
-                    <Button 
-                      variant="outlined" 
-                      size="small"
-                      onClick={() => navigate(`/products?category=${category._id}`)}
-                    >
-                      View All
-                    </Button>
-                  </Box>
-                  
-                  <Box sx={{ width: '100%' }}>
-                    <Slider {...sliderSettings}>
-                      {products.map(product => (
-                        <Box key={product._id || product.id} sx={{ px: 2 }}>
-                          <Card 
-                            sx={{ 
-                              height: '100%', 
-                              display: 'flex', 
-                              flexDirection: 'column', 
-                              boxShadow: 2,
-                              cursor: 'pointer',
-                              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                              '&:hover': {
-                                transform: 'translateY(-4px)',
-                                boxShadow: 4
-                              }
-                            }}
-                            onClick={() => handleViewProduct(product._id || product.id)}
-                          >
-                            <CardMedia 
-                              component="img" 
-                              height="180" 
-                              image={product.images?.[0]?.url || 'https://source.unsplash.com/featured/?product'} 
-                              alt={product.name}
-                              sx={{ objectFit: 'cover' }}
-                            />
-                            <CardContent sx={{ flexGrow: 1 }}>
-                              <Typography 
-                                variant="subtitle1" 
-                                fontWeight={600}
-                                sx={{ 
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  minHeight: '3em'
-                                }}
-                              >
-                                {product.name}
-                              </Typography>
-                              <Typography variant="h6" color="primary" fontWeight={700} sx={{ mt: 1 }}>
-                                ${product.price}
-                              </Typography>
-                              {product.brandName && (
-                                <Typography variant="body2" color="text.secondary">
-                                  {product.brandName}
-                                </Typography>
-                              )}
-                            </CardContent>
-                            <CardActions sx={{ mt: 'auto', justifyContent: 'space-between' }}>
-                              <Button 
-                                size="small" 
-                                variant="contained" 
-                                endIcon={<ShoppingCartIcon />}
-                                onClick={(e) => handleAddToCart(product._id || product.id, e)}
-                                disabled={actionLoading[`cart-${product._id || product.id}`]}
-                                sx={{ flexGrow: 1, mr: 1 }}
-                              >
-                                {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add to Cart'}
-                              </Button>
-                              <IconButton 
-                                color="primary" 
-                                onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
-                                disabled={actionLoading[`wishlist-${product._id || product.id}`]}
-                                sx={{ 
-                                  border: '1px solid',
-                                  borderColor: 'primary.main',
-                                  '&:hover': {
-                                    backgroundColor: 'primary.light',
-                                    color: 'white'
-                                  }
-                                }}
-                              >
-                                {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                              </IconButton>
-                            </CardActions>
-                          </Card>
-                        </Box>
-                      ))}
-                    </Slider>
-                  </Box>
-                </Box>
-              );
-            })
-          )}
-        </Container>
+        
       </Box>
       <Footer />
       

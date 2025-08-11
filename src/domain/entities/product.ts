@@ -56,7 +56,7 @@ export class Product {
   setPrice(price: string) {
     this.price = price;
     this.updatedAt = new Date().toISOString();
-    this.modifiedFields.price = true;
+    this._modifiedFields.price = true;
     this._modifiedFields.updatedAt = true;
   }
   setCategory(category: string) {
@@ -74,19 +74,19 @@ export class Product {
     this.modelName = model;
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.modelName = true;
-    this.modifiedFields.updatedAt = true;
+    this._modifiedFields.updatedAt = true;
   }
   setIsListed(isListed: boolean) {
     this.isListed = isListed;
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.isListed = true;
-    this.modifiedFields.updatedAt = true;
+    this._modifiedFields.updatedAt = true;
   }
   setStock(stock: number) {
     this.stock = stock;
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.stock = true;
-    this.modifiedFields.updatedAt = true;
+    this._modifiedFields.updatedAt = true;
   }
   sanitizeProduct() {
     const product = {} as Partial<productProperties>;
@@ -95,6 +95,7 @@ export class Product {
     product.description = this.description;
     product.isListed = this.isListed;
     product.price = this.price;
+    product.category = this.category;
     product.brandName = this.brandName;
     product.modelName = this.modelName;
     product.stock = this.stock;

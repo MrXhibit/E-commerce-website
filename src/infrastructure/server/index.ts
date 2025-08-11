@@ -10,7 +10,7 @@ export const createServer = () => {
   const app = express();
   app.use(helmet());
   app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'], // Add common frontend ports
+    origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174'], // Add common frontend ports
     credentials: true
   })); //enable for only frontend url
   app.use(cookieParser());

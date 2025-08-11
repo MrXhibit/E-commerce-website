@@ -23,7 +23,8 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
     // impliment search sort filter pagination
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = parseInt(req.query.skip as string) || 0;
-    const products = await productServ.getProducts(limit, skip);
+    const category = req.query.category as string;
+    const products = await productServ.getProducts(limit, skip, category);
     return res.status(200).json(ResponseUtils.success(products, 'Products fetched successfully'));
   } catch (error) {
     next(error);

@@ -79,6 +79,21 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // Category APIs
+  async getCategories(limit = 20, page = 1) {
+    const response = await fetch(`${this.baseURL}/category?limit=${limit}&page=${page}`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getProductsByCategory(categoryId, limit = 20) {
+    const response = await fetch(`${this.baseURL}/product?category=${categoryId}&limit=${limit}`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
   // Cart APIs
   async getCart() {
     const response = await fetch(`${this.baseURL}/cart`, {

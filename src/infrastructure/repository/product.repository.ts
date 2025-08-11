@@ -34,9 +34,13 @@ export class productRepository implements productRepositoryInterface {
       throw new APIError();
     }
   }
-  async getProducts(limit: number, skip: number): Promise<Product[]> {
+  async getProducts(limit: number, skip: number, category?: string): Promise<Product[]> {
     try {
-      const products = await ProductModel.find({ isListed: true }).limit(limit).skip(skip);
+      const query: any = { isListed: true };
+      if (category) {
+        query.category = category;
+      }
+      const products = await ProductModel.find(query).limit(limit).skip(skip);
       return products.map((product) => this.mapToProduct(product));
     } catch (error) {
       throw new APIError();

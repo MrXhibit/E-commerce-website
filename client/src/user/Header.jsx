@@ -17,6 +17,7 @@ import { Container, Grid, Card, Chip, Collapse } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
+
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -120,6 +121,8 @@ const categories = [
   { name: 'Office', image: 'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=100&h=100&fit=crop', category: 'office' },
   { name: 'Stationery', image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=100&h=100&fit=crop', category: 'office' },
 ];
+
+
 
 const Header = () => {
   const { user, isAuthenticated, logout, cart, wishlist } = useAuth();
@@ -241,7 +244,7 @@ const Header = () => {
           </Box>
         </Toolbar>
 
-        {/* Categories Bar */}
+        {/* Categories Bar - Integrated into Header */}
         <Box sx={{ backgroundColor: 'primary.dark', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <Container maxWidth="xl">
             <Box sx={{ display: 'flex', alignItems: 'center', py: 1 }}>

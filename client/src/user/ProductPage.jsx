@@ -9,66 +9,87 @@ import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import Header from './Header';
 import Footer from './Footer';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
+// Custom CSS for the carousel
+const carouselStyles = {
+  '.slick-prev, .slick-next': {
+    display: 'none !important', // Hide arrows completely
+  },
+  '.slick-track': {
+    display: 'flex',
+    gap: '10px',
+    padding: '10px 0',
+  },
+  '.slick-slide': {
+    height: 'inherit',
+    '& > div': {
+      height: '100%',
+    },
+  },
+};
 
 // Comprehensive categories similar to Amazon
 const categories = [
   // Electronics & Technology
-  { name: 'Computers', image: 'https://source.unsplash.com/featured/?computer', highlight: true, category: 'electronics' },
-  { name: 'Laptops', image: 'https://source.unsplash.com/featured/?laptop', category: 'electronics' },
-  { name: 'Smartphones', image: 'https://source.unsplash.com/featured/?smartphone', category: 'electronics' },
-  { name: 'Headphones', image: 'https://source.unsplash.com/featured/?headphones', category: 'electronics' },
-  { name: 'Gaming', image: 'https://source.unsplash.com/featured/?gaming', category: 'electronics' },
-  { name: 'Cameras', image: 'https://source.unsplash.com/featured/?camera', category: 'electronics' },
-  { name: 'TV & Audio', image: 'https://source.unsplash.com/featured/?television', category: 'electronics' },
-  { name: 'Smart Home', image: 'https://source.unsplash.com/featured/?smart-home', category: 'electronics' },
+  { name: 'Computers', image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=100&h=100&fit=crop', highlight: true, category: 'electronics' },
+  { name: 'Laptops', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=100&h=100&fit=crop', category: 'electronics' },
+  { name: 'Smartphones', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop', category: 'electronics' },
+  { name: 'Headphones', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop', category: 'electronics' },
+  { name: 'Gaming', image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=100&h=100&fit=crop', category: 'electronics' },
+  { name: 'Cameras', image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=100&h=100&fit=crop', category: 'electronics' },
+  { name: 'TV & Audio', image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=100&h=100&fit=crop', category: 'electronics' },
+  { name: 'Smart Home', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop', category: 'electronics' },
   
   // Home & Garden
-  { name: 'Furniture', image: 'https://source.unsplash.com/featured/?furniture', category: 'home' },
-  { name: 'Home Decor', image: 'https://source.unsplash.com/featured/?home-decor', category: 'home' },
-  { name: 'Kitchen', image: 'https://source.unsplash.com/featured/?kitchen', category: 'home' },
-  { name: 'Bedding', image: 'https://source.unsplash.com/featured/?bedding', category: 'home' },
-  { name: 'Garden', image: 'https://source.unsplash.com/featured/?garden', category: 'home' },
-  { name: 'Tools', image: 'https://source.unsplash.com/featured/?tools', category: 'home' },
+  { name: 'Furniture', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=100&h=100&fit=crop', category: 'home' },
+  { name: 'Home Decor', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100&h=100&fit=crop', category: 'home' },
+  { name: 'Kitchen', image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=100&h=100&fit=crop', category: 'home' },
+  { name: 'Bedding', image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=100&h=100&fit=crop', category: 'home' },
+  { name: 'Garden', image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop', category: 'home' },
+  { name: 'Tools', image: 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=100&h=100&fit=crop', category: 'home' },
   
   // Fashion & Beauty
-  { name: 'Clothing', image: 'https://source.unsplash.com/featured/?clothing', category: 'fashion' },
-  { name: 'Shoes', image: 'https://source.unsplash.com/featured/?shoes', category: 'fashion' },
-  { name: 'Jewelry', image: 'https://source.unsplash.com/featured/?jewelry', category: 'fashion' },
-  { name: 'Watches', image: 'https://source.unsplash.com/featured/?watches', category: 'fashion' },
-  { name: 'Beauty', image: 'https://source.unsplash.com/featured/?beauty', category: 'fashion' },
-  { name: 'Bags', image: 'https://source.unsplash.com/featured/?bags', category: 'fashion' },
+  { name: 'Clothing', image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100&h=100&fit=crop', category: 'fashion' },
+  { name: 'Shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop', category: 'fashion' },
+  { name: 'Jewelry', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=100&h=100&fit=crop', category: 'fashion' },
+  { name: 'Watches', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop', category: 'fashion' },
+  { name: 'Beauty', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=100&h=100&fit=crop', category: 'fashion' },
+  { name: 'Bags', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&h=100&fit=crop', category: 'fashion' },
   
   // Sports & Outdoors
-  { name: 'Sports', image: 'https://source.unsplash.com/featured/?sports', category: 'sports' },
-  { name: 'Fitness', image: 'https://source.unsplash.com/featured/?fitness', category: 'sports' },
-  { name: 'Outdoor', image: 'https://source.unsplash.com/featured/?outdoor', category: 'sports' },
-  { name: 'Cycling', image: 'https://source.unsplash.com/featured/?bicycle', category: 'sports' },
+  { name: 'Sports', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop', category: 'sports' },
+  { name: 'Fitness', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop', category: 'sports' },
+  { name: 'Outdoor', image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop', category: 'sports' },
+  { name: 'Cycling', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop', category: 'sports' },
   
   // Health & Personal Care
-  { name: 'Health', image: 'https://source.unsplash.com/featured/?health', category: 'health' },
-  { name: 'Personal Care', image: 'https://source.unsplash.com/featured/?personal-care', category: 'health' },
-  { name: 'Vitamins', image: 'https://source.unsplash.com/featured/?vitamins', category: 'health' },
+  { name: 'Health', image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=100&h=100&fit=crop', category: 'health' },
+  { name: 'Personal Care', image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop', category: 'health' },
+  { name: 'Vitamins', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=100&h=100&fit=crop', category: 'health' },
   
   // Books & Media
-  { name: 'Books', image: 'https://source.unsplash.com/featured/?books', category: 'media' },
-  { name: 'Music', image: 'https://source.unsplash.com/featured/?music', category: 'media' },
-  { name: 'Movies', image: 'https://source.unsplash.com/featured/?movies', category: 'media' },
+  { name: 'Books', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=100&h=100&fit=crop', category: 'media' },
+  { name: 'Music', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop', category: 'media' },
+  { name: 'Movies', image: 'https://images.unsplash.com/photo-1489599904472-af35ff2c7c3f?w=100&h=100&fit=crop', category: 'media' },
   
   // Automotive & Industrial
-  { name: 'Automotive', image: 'https://source.unsplash.com/featured/?car', category: 'automotive' },
-  { name: 'Industrial', image: 'https://source.unsplash.com/featured/?industrial', category: 'automotive' },
+  { name: 'Automotive', image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=100&h=100&fit=crop', category: 'automotive' },
+  { name: 'Industrial', image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=100&h=100&fit=crop', category: 'automotive' },
   
   // Baby & Kids
-  { name: 'Baby', image: 'https://source.unsplash.com/featured/?baby', category: 'kids' },
-  { name: 'Toys', image: 'https://source.unsplash.com/featured/?toys', category: 'kids' },
-  { name: 'Kids Fashion', image: 'https://source.unsplash.com/featured/?kids-clothes', category: 'kids' },
+  { name: 'Baby', image: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=100&h=100&fit=crop', category: 'kids' },
+  { name: 'Toys', image: 'https://images.unsplash.com/photo-1558877385-1c2d7b8e8b8b?w=100&h=100&fit=crop', category: 'kids' },
+  { name: 'Kids Fashion', image: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=100&h=100&fit=crop', category: 'kids' },
   
   // Pet Supplies
-  { name: 'Pet Supplies', image: 'https://source.unsplash.com/featured/?pets', category: 'pets' },
+  { name: 'Pet Supplies', image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=100&h=100&fit=crop', category: 'pets' },
   
   // Office & School
-  { name: 'Office', image: 'https://source.unsplash.com/featured/?office', category: 'office' },
-  { name: 'Stationery', image: 'https://source.unsplash.com/featured/?stationery', category: 'office' },
+  { name: 'Office', image: 'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=100&h=100&fit=crop', category: 'office' },
+  { name: 'Stationery', image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=100&h=100&fit=crop', category: 'office' },
 ];
 
 // Mock product data with proper categorization
@@ -375,8 +396,8 @@ const mockProducts = [
 ];
 
 const ProductPage = () => {
-  const [products, setProducts] = useState(mockProducts); // Start with mock data
-  const [loading, setLoading] = useState(false); // Start with loading false
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -386,8 +407,43 @@ const ProductPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Mock data is already set in initial state
-  console.log('Products in component:', products.length);
+  // Helper function to format price
+  const formatPrice = (price) => {
+    if (typeof price === 'string') {
+      return price.startsWith('$') ? price : `$${price}`;
+    }
+    return `$${price?.toFixed(2) || '0.00'}`;
+  };
+
+  // Function to determine the route for a product - now directing to product detail page
+  const getCategoryRoute = (product) => {
+    // Direct all products to the product detail page
+    return `/products/${product._id || product.id}`;
+  };
+
+  // Fetch products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await apiService.getProducts(50, 0); // Fetch 50 products
+        if (response.success && response.data) {
+          const productsData = response.data;
+          setProducts(productsData);
+        } else {
+          setProducts(mockProducts);
+        }
+      } catch (err) {
+        setProducts(mockProducts);
+        setError(null); // Clear error since we have fallback data
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Handle URL parameters for category filtering
   useEffect(() => {
@@ -441,16 +497,21 @@ const ProductPage = () => {
     }
   };
 
-  const isInWishlist = (productId) => {
-    return wishlist.items.some(item => item.productId === productId);
-  };
-
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
   const handleCategoryClick = (categoryName) => {
     setSelectedCategory(selectedCategory === categoryName ? null : categoryName);
+    // Scroll to products section
+    window.scrollTo({
+      top: document.querySelector('.product-carousels')?.offsetTop - 100 || 0,
+      behavior: 'smooth'
+    });
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlist?.items?.some(item => item.productId === productId) || false;
   };
 
   const filteredProducts = products.filter(product => {
@@ -458,8 +519,10 @@ const ProductPage = () => {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
+    // Fix category filtering to handle both lowercase and uppercase category names
     const matchesCategory = !selectedCategory || 
-      product.category?.toLowerCase().includes(selectedCategory.toLowerCase());
+      (product.category?.toLowerCase() === selectedCategory.toLowerCase()) ||
+      (typeof product.category === 'object' && product.category?.name?.toLowerCase() === selectedCategory.toLowerCase());
     
     return matchesSearch && matchesCategory;
   });
@@ -479,24 +542,14 @@ const ProductPage = () => {
                 <Typography variant="h5" sx={{ mb: 3, opacity: 0.9 }}>
                   From electronics to home essentials, discover millions of products with unbeatable prices and fast delivery.
                 </Typography>
-                <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
-                  {categories.slice(0, 6).map((cat) => (
-                    <Chip 
-                      key={cat.name} 
-                      label={cat.name} 
-                      sx={{ 
-                        backgroundColor: 'rgba(255,255,255,0.2)', 
-                        color: 'white',
-                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
-                      }} 
-                    />
-                  ))}
-                </Stack>
+
               </Grid>
 
             </Grid>
           </Container>
         </Box>
+
+
 
         {/* Search and Filter Section */}
         <Container maxWidth="xl" sx={{ mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
@@ -537,6 +590,8 @@ const ProductPage = () => {
 
 
 
+
+
         {/* Loading/Error State */}
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -553,7 +608,7 @@ const ProductPage = () => {
 
         {/* Product Carousels by Category */}
         {!loading && !error && products.length > 0 && (
-          <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
+          <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }} className="product-carousels">
             {/* Electronics & Technology */}
             <Box sx={{ mb: 6 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -563,20 +618,57 @@ const ProductPage = () => {
                 <Button 
                   variant="outlined" 
                   size="small"
-                  onClick={() => navigate('/products?category=Electronics')}
+                  onClick={() => navigate('/electronics')}
                   sx={{ textTransform: 'none' }}
                 >
                   View All
                 </Button>
               </Box>
-              <Box sx={{ overflowX: 'auto', pb: 2 }}>
-                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
-                  {(() => {
-                    const electronicsProducts = products.filter(product => 
-                      product.category?.toLowerCase() === 'electronics'
-                    );
-                    console.log('Electronics products found:', electronicsProducts.length);
-                    return electronicsProducts.slice(0, 8).map((product) => (
+              <Box sx={{ pb: 2, ...carouselStyles }}>
+                <Slider
+                  dots={false}
+                  infinite={true}
+                  speed={500}
+                  slidesToShow={5}
+                  slidesToScroll={2}
+                  autoplay={true}
+                  autoplaySpeed={5000}
+                  arrows={false}
+                  responsive={[
+                    {
+                      breakpoint: 1280,
+                      settings: {
+                        slidesToShow: 4,
+                        slidesToScroll: 2
+                      }
+                    },
+                    {
+                      breakpoint: 960,
+                      settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 600,
+                      settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 480,
+                      settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                      }
+                    }
+                  ]}
+                >
+                  {products.filter(product => 
+                    product.category?.toLowerCase() === 'electronics' ||
+                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'electronics')
+                  ).slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
                       sx={{ 
@@ -587,12 +679,12 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                      onClick={() => navigate(getCategoryRoute(product))}
                     >
                       <CardMedia 
                         component="img" 
                         height="120" 
-                        image={product.images?.[0]?.url || 'https://source.unsplash.com/featured/?electronics'} 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
                         alt={product.name} 
                       />
                       <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
@@ -612,7 +704,7 @@ const ProductPage = () => {
                           {product.name}
                         </Typography>
                         <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
-                          ${product.price}
+                          {formatPrice(product.price)}
                         </Typography>
                       </CardContent>
                       <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
@@ -636,9 +728,8 @@ const ProductPage = () => {
                         </Button>
                       </CardActions>
                     </Card>
-                    ));
-                  })()}
-                </Stack>
+                  ))}
+                </Slider>
               </Box>
             </Box>
 
@@ -651,17 +742,57 @@ const ProductPage = () => {
                 <Button 
                   variant="outlined" 
                   size="small"
-                  onClick={() => navigate('/products?category=Fashion')}
+                  onClick={() => navigate('/clothing')}
                   sx={{ textTransform: 'none' }}
                 >
                   View All
                 </Button>
               </Box>
-              <Box sx={{ overflowX: 'auto', pb: 2 }}>
-                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+              <Box sx={{ pb: 2, ...carouselStyles }}>
+                <Slider
+                  dots={false}
+                  infinite={true}
+                  speed={500}
+                  slidesToShow={5}
+                  slidesToScroll={2}
+                  autoplay={true}
+                  autoplaySpeed={5000}
+                  arrows={false}
+                  responsive={[
+                    {
+                      breakpoint: 1280,
+                      settings: {
+                        slidesToShow: 4,
+                        slidesToScroll: 2
+                      }
+                    },
+                    {
+                      breakpoint: 960,
+                      settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 600,
+                      settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 480,
+                      settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                      }
+                    }
+                  ]}
+                >
                   {products.filter(product => 
-                    product.category?.toLowerCase() === 'fashion'
-                  ).slice(0, 8).map((product) => (
+                    product.category?.toLowerCase() === 'fashion' ||
+                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'fashion')
+                  ).slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
                       sx={{ 
@@ -672,12 +803,12 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                      onClick={() => navigate(getCategoryRoute(product))}
                     >
                       <CardMedia 
                         component="img" 
                         height="120" 
-                        image={product.images?.[0]?.url || 'https://source.unsplash.com/featured/?fashion'} 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
                         alt={product.name} 
                       />
                       <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
@@ -697,7 +828,7 @@ const ProductPage = () => {
                           {product.name}
                         </Typography>
                         <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
-                          ${product.price}
+                          {formatPrice(product.price)}
                         </Typography>
                       </CardContent>
                       <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
@@ -722,7 +853,7 @@ const ProductPage = () => {
                       </CardActions>
                     </Card>
                   ))}
-                </Stack>
+                </Slider>
               </Box>
             </Box>
 
@@ -735,17 +866,57 @@ const ProductPage = () => {
                 <Button 
                   variant="outlined" 
                   size="small"
-                  onClick={() => navigate('/products?category=Home')}
+                  onClick={() => navigate('/furniture')}
                   sx={{ textTransform: 'none' }}
                 >
                   View All
                 </Button>
               </Box>
-              <Box sx={{ overflowX: 'auto', pb: 2 }}>
-                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+              <Box sx={{ pb: 2, ...carouselStyles }}>
+                <Slider
+                  dots={false}
+                  infinite={true}
+                  speed={500}
+                  slidesToShow={5}
+                  slidesToScroll={2}
+                  autoplay={true}
+                  autoplaySpeed={5000}
+                  arrows={false}
+                  responsive={[
+                    {
+                      breakpoint: 1280,
+                      settings: {
+                        slidesToShow: 4,
+                        slidesToScroll: 2
+                      }
+                    },
+                    {
+                      breakpoint: 960,
+                      settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 600,
+                      settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 480,
+                      settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                      }
+                    }
+                  ]}
+                >
                   {products.filter(product => 
-                    product.category?.toLowerCase() === 'home'
-                  ).slice(0, 8).map((product) => (
+                    product.category?.toLowerCase() === 'home' ||
+                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'home')
+                  ).slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
                       sx={{ 
@@ -756,12 +927,12 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                      onClick={() => navigate(getCategoryRoute(product))}
                     >
                       <CardMedia 
                         component="img" 
                         height="120" 
-                        image={product.images?.[0]?.url || 'https://source.unsplash.com/featured/?home'} 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
                         alt={product.name} 
                       />
                       <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
@@ -781,7 +952,7 @@ const ProductPage = () => {
                           {product.name}
                         </Typography>
                         <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
-                          ${product.price}
+                          {formatPrice(product.price)}
                         </Typography>
                       </CardContent>
                       <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
@@ -806,7 +977,7 @@ const ProductPage = () => {
                       </CardActions>
                     </Card>
                   ))}
-                </Stack>
+                </Slider>
               </Box>
             </Box>
 
@@ -819,17 +990,57 @@ const ProductPage = () => {
                 <Button 
                   variant="outlined" 
                   size="small"
-                  onClick={() => navigate('/products?category=Sports')}
+                  onClick={() => navigate('/sports')}
                   sx={{ textTransform: 'none' }}
                 >
                   View All
                 </Button>
               </Box>
-              <Box sx={{ overflowX: 'auto', pb: 2 }}>
-                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+              <Box sx={{ pb: 2, ...carouselStyles }}>
+                <Slider
+                  dots={false}
+                  infinite={true}
+                  speed={500}
+                  slidesToShow={5}
+                  slidesToScroll={2}
+                  autoplay={true}
+                  autoplaySpeed={5000}
+                  arrows={false}
+                  responsive={[
+                    {
+                      breakpoint: 1280,
+                      settings: {
+                        slidesToShow: 4,
+                        slidesToScroll: 2
+                      }
+                    },
+                    {
+                      breakpoint: 960,
+                      settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 600,
+                      settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                      }
+                    },
+                    {
+                      breakpoint: 480,
+                      settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                      }
+                    }
+                  ]}
+                >
                   {products.filter(product => 
-                    product.category?.toLowerCase() === 'sports'
-                  ).slice(0, 8).map((product) => (
+                    product.category?.toLowerCase() === 'sports' ||
+                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'sports')
+                  ).slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
                       sx={{ 
@@ -840,12 +1051,12 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                      onClick={() => navigate(getCategoryRoute(product))}
                     >
                       <CardMedia 
                         component="img" 
                         height="120" 
-                        image={product.images?.[0]?.url || 'https://source.unsplash.com/featured/?sports'} 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
                         alt={product.name} 
                       />
                       <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
@@ -865,7 +1076,7 @@ const ProductPage = () => {
                           {product.name}
                         </Typography>
                         <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
-                          ${product.price}
+                          {formatPrice(product.price)}
                         </Typography>
                       </CardContent>
                       <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
@@ -890,7 +1101,7 @@ const ProductPage = () => {
                       </CardActions>
                     </Card>
                   ))}
-                </Stack>
+                </Slider>
               </Box>
             </Box>
 
@@ -904,17 +1115,57 @@ const ProductPage = () => {
                   <Button 
                     variant="outlined" 
                     size="small"
-                    onClick={() => navigate('/products')}
+                    onClick={() => navigate('/books')}
                     sx={{ textTransform: 'none' }}
                   >
                     View All
                   </Button>
                 </Box>
-                <Box sx={{ overflowX: 'auto', pb: 2 }}>
-                  <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+                <Box sx={{ pb: 2, ...carouselStyles }}>
+                  <Slider
+                    dots={false}
+                    infinite={true}
+                    speed={500}
+                    slidesToShow={5}
+                    slidesToScroll={2}
+                    autoplay={true}
+                    autoplaySpeed={5000}
+                    arrows={false}
+                    responsive={[
+                      {
+                        breakpoint: 1280,
+                        settings: {
+                          slidesToShow: 4,
+                          slidesToScroll: 2
+                        }
+                      },
+                      {
+                        breakpoint: 960,
+                        settings: {
+                          slidesToShow: 3,
+                          slidesToScroll: 1
+                        }
+                      },
+                      {
+                        breakpoint: 600,
+                        settings: {
+                          slidesToShow: 2,
+                          slidesToScroll: 1
+                        }
+                      },
+                      {
+                        breakpoint: 480,
+                        settings: {
+                          slidesToShow: 1,
+                          slidesToScroll: 1
+                        }
+                      }
+                    ]}
+                  >
                     {products.filter(product => 
-                      !['electronics', 'fashion', 'home', 'sports'].includes(product.category?.toLowerCase())
-                    ).slice(0, 10).map((product) => (
+                    !['electronics', 'fashion', 'home', 'sports'].includes(product.category?.toLowerCase()) && 
+                    !(typeof product.category === 'object' && product.category?.name && ['electronics', 'fashion', 'home', 'sports'].includes(product.category?.name?.toLowerCase()))
+                  ).slice(0, 12).map((product) => (
                       <Card 
                         key={product._id || product.id} 
                         sx={{ 
@@ -925,12 +1176,12 @@ const ProductPage = () => {
                           transition: 'all 0.3s ease',
                           '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                         }} 
-                        onClick={() => navigate(`/products/${product._id || product.id}`)}
+                        onClick={() => navigate(getCategoryRoute(product))}
                       >
                         <CardMedia 
                           component="img" 
                           height="120" 
-                          image={product.images?.[0]?.url || 'https://source.unsplash.com/featured/?product'} 
+                          image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
                           alt={product.name} 
                         />
                         <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
@@ -950,7 +1201,7 @@ const ProductPage = () => {
                             {product.name}
                           </Typography>
                           <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
-                            ${product.price}
+                            {formatPrice(product.price)}
                           </Typography>
                         </CardContent>
                         <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
@@ -975,7 +1226,7 @@ const ProductPage = () => {
                         </CardActions>
                       </Card>
                     ))}
-                  </Stack>
+                  </Slider>
                 </Box>
               </Box>
             )}
@@ -983,6 +1234,27 @@ const ProductPage = () => {
         )}
 
 
+
+        {/* No Products Loaded */}
+        {!loading && !error && products.length === 0 && (
+          <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography variant="h5" color="text.secondary" gutterBottom>
+                No products available
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                We're having trouble loading products. Please try refreshing the page.
+              </Typography>
+              <Button 
+                variant="contained" 
+                size="large"
+                onClick={() => window.location.reload()}
+              >
+                Refresh Page
+              </Button>
+            </Box>
+          </Container>
+        )}
 
         {/* No Products Found */}
         {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
