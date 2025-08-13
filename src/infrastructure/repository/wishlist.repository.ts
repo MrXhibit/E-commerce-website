@@ -44,7 +44,7 @@ export class WishlistRepository implements wishlistRepositoryInterface {
     return result.deletedCount > 0;
   }
 
-  mapToWishlist(wishlistDb: unknown): Wishlist {
+  mapToWishlist(wishlistDb: IWishlist): Wishlist {
     const wishlistData = wishlistDb as IWishlist;
     return new Wishlist(
       typeof wishlistData._id === "string" ? wishlistData._id : wishlistData._id?.toString?.() ?? "",

@@ -2,9 +2,9 @@ import { Router } from "express";
 import authRouter from "./auth/auth.router";
 import categoryRouter from "./category/category.router";
 import productRouter from "./product/product.router";
+import adminRouter from "./admin/admin.router";
 import cartRouter from "./cart/cart.router";
 import wishlistRouter from "./wishlist/wishlist.router";
-import adminRouter from "./admin/admin.router";
 
 const v1Router = Router();
 

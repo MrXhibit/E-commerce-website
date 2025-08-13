@@ -48,6 +48,7 @@ export class Admin {
     admin.userName = this.userName;
     admin.profile = this.profile;
     admin.id = this.id;
+    admin.email = this.email;
     admin.createdAt = this.createdAt;
     admin.updatedAt = this.updatedAt;
     return admin;

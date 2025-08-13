@@ -36,6 +36,7 @@ const uploadMultiFiles = async (
     );
     return images;
   } catch (error) {
+    console.log(error);
     throw new APIError();
   }
 };
@@ -52,6 +53,7 @@ const uploadSingleFile = async (imageFile: Express.Multer.File): Promise<{ url: 
       id: url.public_id,
     };
   } catch (error) {
+    console.log(error);
     throw new APIError();
   }
 };

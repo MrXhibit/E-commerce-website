@@ -19,14 +19,14 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
-      secure: process.env.NODE_ENV === 'production' // Add secure flag
+      secure: process.env.NODE_ENV === 'production'
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
-      secure: process.env.NODE_ENV === 'production' // Add secure flag
+      secure: process.env.NODE_ENV === 'production'
     });
     return res.status(200).json(ResponseUtils.success({ user, accessToken: access_token, refreshToken: refresh_token }, 'Login successful'));
   } catch (error) {
@@ -41,13 +41,11 @@ export const userRegister = async (req: Request, res: Response, next: NextFuncti
     res.cookie("access_token", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
     return res.status(201).json(ResponseUtils.success({ user, accessToken: access_token, refreshToken: refresh_token }, 'Registration successful'));
   } catch (error) {
@@ -63,13 +61,11 @@ export const userRefreshToken = async (req: Request, res: Response, next: NextFu
     res.cookie("access_token", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
     return res.status(200).json({ user });
   } catch (error) {
@@ -84,13 +80,11 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
     res.cookie("access_token_admin", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
 
     res.cookie("refresh_token_admin", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
     return res.status(200).json({ admin });
   } catch (error) {
@@ -106,13 +100,11 @@ export const adminRefreshToken = async (req: Request, res: Response, next: NextF
     res.cookie("access_token_admin", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
 
     res.cookie("refresh_token_admin", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
     return res.status(200).json({ admin });
   } catch (error) {
@@ -124,18 +116,16 @@ export const googleLoginSucessController = async (req: Request, res: Response, n
   try {
     const passportUser = req.user as Partial<userProperties>;
     if (!passportUser) throw new ValidationError("failed to login");
-    const result = await userServ.googleSucessess(passportUser);
+    const result = await userServ.googleSucessess(passportUser)
     const { access_token, refresh_token, user } = result;
     res.cookie("access_token", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
     });
     return res.status(200).json({ user });
   } catch (error) {
