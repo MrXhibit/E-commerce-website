@@ -100,8 +100,8 @@ function SideBar() {
             exact={true}
           />
           <Item
-            title="Categorys"
-            to="/admin/categorys"
+            title="Categories"
+            to="/admin/categories"
             icon={<CategoryIcon />}
             currentPath = {location.pathname}
 

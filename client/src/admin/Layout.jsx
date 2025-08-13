@@ -36,7 +36,7 @@ function Layout() {
         <TopBar />
         <Routes>
           <Route path="/" element={<DashBoard />} />
-          <Route path="/categorys" element={<CategoryList />} />
+          <Route path="/categories" element={<CategoryList />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/add-category" element={<AddCategory />} />
