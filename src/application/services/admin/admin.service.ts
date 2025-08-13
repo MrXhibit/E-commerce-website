@@ -11,6 +11,12 @@ export class adminService implements adminServiceInterface {
     private tokenUtils: tokenValidationUtillsInterface,
     private authUtils: authUtillsInterface,
   ) {}
+  getcurentAdmin(admin_token: string): Promise<Partial<adminProperties>> {
+    throw new Error("Method not implemented.");
+  }
+  logOutAdmin(admin_token: string): Promise<Partial<adminProperties>> {
+    throw new Error("Method not implemented.");
+  }
   async loginAdmin(RequestBody: unknown): Promise<validAdminResponseType> {
     const Input = this.authUtils.validateAdminLoginInput(RequestBody);
     const admin = await this.adminRepo.getAdminByEmail(Input.email);
