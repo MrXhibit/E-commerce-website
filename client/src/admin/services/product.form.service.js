@@ -1,12 +1,17 @@
 import { axiosInstance } from "../utills/axios.instance";
+import { axiosStartLoadingFunction,axiosStopLoadingFunction } from "../utills/axios.delete.admin"
 
 export const addProductFormSubmit = async (values, { setStatus }) => {
+  axiosStartLoadingFunction()
   try {
     const formData = new FormData();
-    const { name, description, price, category, brand, model, stock, images } = values;
+    console.log(values);
+    const { name, description, price,categoryPath, brand, model, stock, images } = values;
+    const finalCategoryId = categoryPath[values.categoryPath.length - 1]?.id;
+
     formData.append("name", name);
     formData.append("price", price);
-    formData.append("category", category);
+    formData.append("category", finalCategoryId);
     formData.append("brand", brand);
     formData.append("description", description);
     formData.append("model", model);
@@ -14,8 +19,12 @@ export const addProductFormSubmit = async (values, { setStatus }) => {
     images.forEach((image) => {
       formData.append("images", image);
     });
-    console.log(values);
+  //  const response = await axiosInstance.post('/product',formData)
+    //if(response.data?.product) setStatus({type:"success",message:"product added"})
+
   } catch (error) {
-    if (error?.response?.data?.error) setStatus(error.response.data.error);
+    if (error?.response?.data?.error) setStatus({type:"error",message:error.response.data.error});
+  } finally {
+    axiosStopLoadingFunction()
   }
 };

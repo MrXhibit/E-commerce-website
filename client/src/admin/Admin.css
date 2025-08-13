@@ -10,7 +10,11 @@
 .admin-app{
    display: flex;
     position: relative;
+    overflow: hidden;
 
+}
+.content{
+    overflow-y: scroll;
 }
 
 ::-webkit-scrollbar{

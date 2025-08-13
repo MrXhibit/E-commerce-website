@@ -12,7 +12,9 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CategoryIcon from '@mui/icons-material/Category';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import { useContext } from "react";
 
+import { AdminContext, ThemeContext } from "../../state/GlobalContext";
 import { tokens } from "../../theme";
 import Item from "../sidebar/Item";
 
@@ -21,10 +23,10 @@ import Item from "../sidebar/Item";
 
 function SideBar() {
   const theme = useTheme();
+  const {admin} = useContext(AdminContext)
   const location = useLocation();
   const colors = tokens(theme.palette.mode);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
+  const [isCollapsed, setIsCollapsed] = useState(false);  
   return (
     <ProSidebar
       rootStyles={{
@@ -75,16 +77,16 @@ function SideBar() {
                 alt="profile-user"
                 width="100px"
                 height="100px"
-                src={`https://png.pngtree.com/png-vector/20231019/ourmid/pngtree-user-profile-avatar-png-image_10211467.png`}
+                src={admin.profile}
                 style={{ cursor: "pointer", borderRadius: "50%" }}
               />
             </Box>
             <Box textAlign="center">
               <Typography variant="h2" color={colors.grey[100]} fontWeight="bold" sx={{ m: "10px 0 0 0" }}>
-                Admin 1
+                {admin.name}
               </Typography>
               <Typography variant="h5" color={colors.greenAccent[500]}>
-                Admin
+                {admin.email}
               </Typography>
             </Box>
           </Box>

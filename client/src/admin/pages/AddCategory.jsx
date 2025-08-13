@@ -1,10 +1,16 @@
+import React, { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Box, Button, TextField, Alert,FormControl,FormLabel,Typography } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../components/global/Header";
 import { addCategoryFormSubmit } from "../services/category.service"
 
-const categorySchema = yup.object().shape({
+
+
+function AddCategory() {
+ const { parentId } = useParams(); 
+  const categorySchema = yup.object().shape({
   name: yup.string().required("required"),
   image: yup.mixed()
   .required("required")
@@ -19,9 +25,9 @@ const categorySchema = yup.object().shape({
 const categoryInitialValues = {
   name: "",
   image: null,
+  parentId
 };
 
-function AddCategory() {
   return (
     <Box m="20px">
       <Header title="Category" subtitle="Enter the category details" />

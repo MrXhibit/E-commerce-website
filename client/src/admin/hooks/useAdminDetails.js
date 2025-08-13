@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { useContext } from 'react';
-import { AdminContext } from '../state/GlobalContext';
+import { AdminContext,LoadingContext } from '../state/GlobalContext';
 import { axiosInstance } from '../utills/axios.instance';
 
  const useAdminDetails = ()=>{
  const { createAdmin,deleteAdmin } = useContext(AdminContext);
+ const { stopLoading  } = useContext(LoadingContext);
  useEffect(()=>{
   const fetchAdmin = async()=>{
    try {
@@ -15,8 +16,9 @@ import { axiosInstance } from '../utills/axios.instance';
     } 
    } catch (error) {
     console.log(error);
-    
      deleteAdmin()
+   } finally{
+    stopLoading()
    }
   }
   fetchAdmin()

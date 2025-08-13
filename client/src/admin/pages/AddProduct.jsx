@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -12,42 +13,102 @@ import {
 import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../components/global/Header";
-import { addProductFormSubmit } from "../services/product.form.service"
-import {useFetchData } from "../hooks/useFetchData"
+import { addProductFormSubmit } from "../services/product.form.service";
+import { useFetchData } from "../hooks/useFetchData";
 
-
-const productSchema = yup.object().shape({
-  name: yup.string().required("required"),
-  description: yup.string().required("required"),
-  price: yup.number().required("required"),
-  category: yup.string().required("required"),
-  brand: yup.string().required("required"),
-  model: yup.string().required("required"),
-  stock: yup.number().required("required"),
-  images: yup
-    .mixed()
-    .required("required")
-    .test("fileType", "Only JPG/PNG files are allowed", (files) =>
-      files ? files.every((file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type)) : false,
-    )
-    .test("fileSize", "Image must be less than 5MB", (files) =>
-      files ? files.every((file) => file.size <= 5 * 1024 * 1024) : false,
-    ),
-});
-const productInitialValues = {
-  name: "",
-  description: "",
-  price: "",
-  category: "",
-  brand: "",
-  model: "",
-  stock: "",
-  images: [],
-};
 
 function AddProduct() {
-  const {data,error} = useFetchData('/category')
-  const categories = data?.categories || []
+  const [ data, error ] = useFetchData("/category");
+  const categories = data?.categories || [];
+  const [allCategories, setAllCategories] = useState([]);
+  const [levels, setLevels] = useState([]);
+  useEffect(() => {
+    if (categories.length > 0) {
+      const flat = flattenCategoriesByLevel(categories);
+      setAllCategories(flat);
+      const level0 = flat.filter((cat) => cat.level === 0);
+      setLevels([level0]);
+    }
+  }, [categories]);
+
+  const productSchema = yup.object().shape({
+    name: yup.string().required("required"),
+    description: yup.string().required("required"),
+    price: yup.number("price only number").required("required"),
+    categoryPath: yup
+      .array()
+      .of(
+        yup.object({
+          id: yup.string().required(),
+          name: yup.string().required(),
+        }),
+      )
+      .min(1, "Category is required")
+      .test("is-final-category", "Please select the most specific category", function (value) {
+        if (!value || value.length === 0) return false;
+        const lastSelected = value[value.length - 1];
+        const hasChildren = allCategories.some(
+          (cat) => cat.level === value.length && cat.path[value.length - 1]?.id === lastSelected.id,
+        );
+        return !hasChildren;
+      }),
+
+    brand: yup.string().required("required"),
+    model: yup.string().required("required"),
+    stock: yup.number().required("required"),
+    images: yup
+      .mixed()
+      .required("required")
+      .test("fileType", "Only JPG/PNG files are allowed", (files) =>
+        files ? files.every((file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type)) : false,
+      )
+      .test("fileSize", "Image must be less than 5MB", (files) =>
+        files ? files.every((file) => file.size <= 5 * 1024 * 1024) : false,
+      ),
+  });
+  const productInitialValues = {
+    name: "",
+    description: "",
+    price: "",
+    categoryPath: [],
+    brand: "",
+    model: "",
+    stock: "",
+    images: [],
+  };
+
+  const flattenCategoriesByLevel = (categories, level = 0, path = []) => {
+  return categories.flatMap((cat) => {
+    const currentPath = [...path, { id: cat.id, name: cat.name }];
+    const flattened = [{ ...cat, level, path: currentPath }];
+    if (cat.children && cat.children.length > 0) {
+      return [...flattened, ...flattenCategoriesByLevel(cat.children, level + 1, currentPath)];
+    }
+    return flattened;
+  });
+};
+
+  const handleCategoryChange = (levelIndex, selectedId, setFieldValue, values) => {
+    const newPath = [...values.categoryPath.slice(0, levelIndex)];
+
+    const selectedCategory = levels[levelIndex].find((cat) => cat.id === selectedId);
+    if (!selectedCategory) return;
+
+    newPath.push({ id: selectedCategory.id, name: selectedCategory.name });
+    setFieldValue("categoryPath", newPath);
+
+    const newLevels = [...levels.slice(0, levelIndex + 1)];
+    
+    const nextLevelOptions = allCategories.filter(
+      (cat) => cat.level === levelIndex + 1 && cat.path[levelIndex]?.id === selectedId,
+    );
+
+    if (nextLevelOptions.length > 0) {
+      newLevels.push(nextLevelOptions);
+    }
+
+    setLevels(newLevels);
+  };
   return (
     <Box m="20px">
       <Header title="Product" subtitle="Enter the product details" />
@@ -59,11 +120,10 @@ function AddProduct() {
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, handleSubmit, status }) => (
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             {status && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {status}
+              <Alert severity={`${status.type == "success" ? "success" : "error"}`} sx={{ mb: 2 }}>
+                {status.message}
               </Alert>
             )}
-
             <TextField
               fullWidth
               variant="filled"
@@ -143,28 +203,38 @@ function AddProduct() {
               helperText={touched.stock && errors.stock}
               sx={{ marginBottom: "20px" }}
             />
-            <FormControl fullWidth sx={{ marginBottom: "20px" }} variant="filled">
-              <FormLabel>Category</FormLabel>
-              <Select
-                name="category"
-                value={values.category}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.category && Boolean(errors.category)}
-              >
-                {categories.map((option) => (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {touched.category && errors.category && (
-                <Typography color="error" variant="body2">
-                  {errors.category}
-                </Typography>
+            {/* category */}
+            {levels.length > 0 &&
+              levels.map(
+                (levelOptions, idx) =>
+                  levelOptions.length > 0 && (
+                    <FormControl fullWidth sx={{ marginBottom: "20px" }} variant="filled" key={idx}>
+                      <FormLabel>{`Category Level ${idx + 1}`}</FormLabel>
+                      <Select
+                        name={`category_level_${idx}`}
+                        value={values.categoryPath[idx]?.id || ""}
+                        onChange={(e) => handleCategoryChange(idx, e.target.value, setFieldValue, values)}
+                      >
+                        {levelOptions.map((cat) => (
+                          <MenuItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ),
               )}
-            </FormControl>
 
+            {touched.categoryPath && errors.categoryPath && (
+              <Typography color="error" variant="body2">
+                {typeof errors.categoryPath === "string" ? errors.categoryPath : errors.categoryPath[0]?.id}
+              </Typography>
+            )}
+            {touched.category && errors.category && (
+              <Typography color="error" variant="body2">
+                {errors.category}
+              </Typography>
+            )}
             <FormControl fullWidth sx={{ marginBottom: "20px" }}>
               <FormLabel htmlFor="images">Upload Images</FormLabel>
               <input
@@ -186,7 +256,6 @@ function AddProduct() {
                 </Typography>
               )}
             </FormControl>
-
             {values.images && values.images.length > 0 && (
               <Box sx={{ mb: 2 }}>
                 <Typography variant="body2">Selected files:</Typography>
@@ -197,8 +266,13 @@ function AddProduct() {
                 </ul>
               </Box>
             )}
-
-            <Button type="submit" color="secondary" variant="contained" fullWidth>
+            <Button
+              type="submit"
+              color="secondary"
+              variant="contained"
+              fullWidth
+              sx={{ marginBottom: "20px" }}
+            >
               submit
             </Button>
           </form>

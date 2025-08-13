@@ -1,15 +1,20 @@
 import { axiosInstance } from "../utills/axios.instance";
-
+import { axiosStartLoadingFunction, axiosStopLoadingFunction } from "../utills/axios.delete.admin";
 export const addCategoryFormSubmit = async (values, { setStatus }) => {
+  setStatus("")
+  axiosStartLoadingFunction();
   try {
-
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("image", values.image);  
-    const response = await axiosInstance.post('/category',formData)
-    if(response.data?.category) setStatus({type:"success",message:"category added"})
+    formData.append("image", values.image);
+    if (values.parentId !== undefined && values.parentId !== null) {
+      formData.append("parentId", values.parentId);
+    }
+    const response = await axiosInstance.post("/category", formData);
+    if (response.data?.category) setStatus({ type: "success", message: "category added" });
   } catch (error) {
-    if (error?.response?.data?.error) setStatus({type:"error",message:error.response.data.error});
+    if (error?.response?.data?.error) setStatus({ type: "error", message: error.response.data.error });
+  } finally {
+    axiosStopLoadingFunction();
   }
 };
-
