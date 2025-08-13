@@ -14,23 +14,23 @@ const categoriesData = [
     isListed: true
   },
   {
-    name: "Clothing",
-    image: {
-      url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500",
-      id: "clothing_img_1"
-    },
-    isListed: true
-  },
-  {
-    name: "Home & Garden",
+    name: "Home", // Changed from "Home & Garden"
     image: {
       url: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500",
-      id: "home_garden_img_1"
+      id: "home_img_1"
     },
     isListed: true
   },
   {
-    name: "Sports & Outdoors",
+    name: "Fashion", // Changed from "Clothing"
+    image: {
+      url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500",
+      id: "fashion_img_1"
+    },
+    isListed: true
+  },
+  {
+    name: "Sports", // Changed from "Sports & Outdoors"
     image: {
       url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500",
       id: "sports_img_1"
@@ -38,18 +38,18 @@ const categoriesData = [
     isListed: true
   },
   {
-    name: "Books",
+    name: "Health", // Changed from "Beauty & Personal Care"
     image: {
-      url: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500",
-      id: "books_img_1"
+      url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500",
+      id: "health_img_1"
     },
     isListed: true
   },
   {
-    name: "Beauty & Personal Care",
+    name: "Media", // Changed from "Books"
     image: {
-      url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500",
-      id: "beauty_img_1"
+      url: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500",
+      id: "media_img_1"
     },
     isListed: true
   }
@@ -119,7 +119,7 @@ const electronicsProducts = [
   }
 ];
 
-const clothingProducts = [
+const fashionProducts = [
   {
     name: "Classic Denim Jacket",
     description: "Timeless denim jacket perfect for layering in any season",
@@ -296,11 +296,11 @@ function generateRandomProduct(categoryId: string, categoryName: string): any {
   const adjectives = ["Premium", "Deluxe", "Professional", "Advanced", "Classic", "Modern", "Eco-Friendly"];
   const productTypes = {
     "Electronics": ["Gadget", "Device", "Accessory", "Component", "Tool"],
-    "Clothing": ["Apparel", "Wear", "Garment", "Outfit", "Accessory"],
-    "Home & Garden": ["Decor", "Tool", "Accessory", "Furniture", "Appliance"],
-    "Sports & Outdoors": ["Equipment", "Gear", "Accessory", "Tool", "Apparel"],
-    "Books": ["Guide", "Manual", "Reference", "Novel", "Textbook"],
-    "Beauty & Personal Care": ["Product", "Treatment", "Care", "Essential", "Solution"]
+    "Fashion": ["Apparel", "Wear", "Garment", "Outfit", "Accessory"],
+    "Home": ["Decor", "Tool", "Accessory", "Furniture", "Appliance"],
+    "Sports": ["Equipment", "Gear", "Accessory", "Tool", "Apparel"],
+    "Media": ["Guide", "Manual", "Reference", "Novel", "Textbook"],
+    "Health": ["Product", "Treatment", "Care", "Essential", "Solution"]
   };
 
   const randomBrand = brands[Math.floor(Math.random() * brands.length)];
@@ -346,24 +346,31 @@ async function generateMockData() {
     // Prepare products with category references
     const allProducts = [];
     
-    // Add predefined products
-    const categoryMap = {
-      "Electronics": electronicsProducts,
-      "Clothing": clothingProducts,
-      "Home & Garden": homeGardenProducts,
-      "Sports & Outdoors": sportsProducts,
-      "Books": booksProducts,
-      "Beauty & Personal Care": beautyProducts
+    // Map categories to their respective product arrays
+    const categoryProductMap: Record<string, any[]> = {
+        "Electronics": electronicsProducts,
+        "Home": homeGardenProducts,
+        "Fashion": fashionProducts,
+        "Sports": sportsProducts,
+        "Health": beautyProducts,
+        "Media": booksProducts
     };
 
     for (const category of createdCategories) {
-      const categoryProducts = categoryMap[category.name as keyof typeof categoryMap] || [];
+      const categoryProducts = categoryProductMap[category.name] || [];
       
       // Add predefined products for this category
       for (const product of categoryProducts) {
         allProducts.push({
-          ...product,
-          category: category._id
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          brandName: product.brandName,
+          modelName: product.modelName,
+          stock: product.stock,
+          images: product.images,
+          category: category._id,
+          isListed: product.isListed !== undefined ? product.isListed : true
         });
       }
 
@@ -397,5 +404,11 @@ async function generateMockData() {
   }
 }
 
-// Run the script
-generateMockData();
+const productTypes: Record<string, string[]> = {
+    "electronics": ["Gadget", "Device", "Accessory", "Component", "Tool"],
+    "home": ["Furniture", "Decor", "Appliance", "Tool", "Storage"],
+    "fashion": ["Clothing", "Accessory", "Footwear", "Jewelry", "Bag"],
+    "sports": ["Equipment", "Apparel", "Accessory", "Gear", "Supplement"],
+    "health": ["Supplement", "Device", "Care", "Fitness", "Wellness"],
+    "media": ["Book", "Movie", "Game", "Music", "Magazine"]
+};

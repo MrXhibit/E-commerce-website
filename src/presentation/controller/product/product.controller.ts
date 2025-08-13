@@ -34,7 +34,7 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
   try {
     const id = req.params.id;
     const product = await productServ.getSingleProduct(id);
-    return res.status(200).json({ product });
+    return res.status(200).json(ResponseUtils.success(product, 'Product fetched successfully'));
   } catch (error) {
     next(error);
   }

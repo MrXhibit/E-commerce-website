@@ -4,6 +4,10 @@ import ProductModel from "../model/product.model";
 
 export const seedData = async () => {
   try {
+    // Comment out or remove all seeding logic
+    console.log("Auto-seeding disabled. Use npm run generate-mock-data instead.");
+    return;
+    
     // Check if data already exists
     const existingCategories = await CategoryModel.find();
     const existingProducts = await ProductModel.find();
@@ -28,6 +32,10 @@ export const seedData = async () => {
         {
           name: "Home & Garden",
           image: { url: "https://via.placeholder.com/300x200?text=Home+Garden", id: "home-img" }
+        },
+        {
+          name: "Sports",
+          image: { url: "https://via.placeholder.com/300x200?text=Sports", id: "sports-img" }
         }
       ];
 
@@ -46,10 +54,14 @@ export const seedData = async () => {
       console.log("Seeding products...");
       
       // Get categories for product assignment
+      // Get categories for product assignment
       const categories = await CategoryModel.find();
-      const electronicsCategory = categories.find(cat => cat.name === "Electronics");
-      const clothingCategory = categories.find(cat => cat.name === "Clothing");
-      const booksCategory = categories.find(cat => cat.name === "Books");
+      const electronicsCategory = categories.find(cat => cat.name === "Electronics"); // Keep as is
+      const clothingCategory = categories.find(cat => cat.name === "Fashion"); // Changed from "Clothing"
+      const booksCategory = categories.find(cat => cat.name === "Media"); // Changed from "Books"
+      const homeCategory = categories.find(cat => cat.name === "Home"); // Changed from "Home & Garden"
+      const sportsCategory = categories.find(cat => cat.name === "Sports"); // Keep as is
+      const healthCategory = categories.find(cat => cat.name === "Health"); // Add this new category
 
       // Create sample products
       const products = [
@@ -61,7 +73,7 @@ export const seedData = async () => {
           ],
           description: "Latest iPhone with advanced features and powerful performance.",
           price: "999.99",
-          category: (electronicsCategory as any)?._id?.toString() || "",
+          category: electronicsCategory?._id || "",
           brandName: "Apple",
           modelName: "iPhone 15 Pro",
           stock: 50,
@@ -75,7 +87,7 @@ export const seedData = async () => {
           ],
           description: "Premium Android smartphone with excellent camera and display.",
           price: "899.99",
-          category: (electronicsCategory as any)?._id?.toString() || "",
+          category: electronicsCategory?._id || "",
           brandName: "Samsung",
           modelName: "Galaxy S24",
           stock: 30,
@@ -88,7 +100,7 @@ export const seedData = async () => {
           ],
           description: "Lightweight laptop with M3 chip for exceptional performance.",
           price: "1299.99",
-          category: (electronicsCategory as any)?._id?.toString() || "",
+          category: electronicsCategory?._id || "",
           brandName: "Apple",
           modelName: "MacBook Air M3",
           stock: 25,
@@ -101,7 +113,7 @@ export const seedData = async () => {
           ],
           description: "Comfortable running shoes with excellent cushioning.",
           price: "149.99",
-          category: (clothingCategory as any)?._id?.toString() || "",
+          category: clothingCategory?._id || "",
           brandName: "Nike",
           modelName: "Air Max 270",
           stock: 100,
@@ -114,7 +126,7 @@ export const seedData = async () => {
           ],
           description: "Classic American novel by F. Scott Fitzgerald.",
           price: "12.99",
-          category: (booksCategory as any)?._id?.toString() || "",
+          category: booksCategory?._id || "",
           brandName: "Scribner",
           modelName: "Classic Edition",
           stock: 200,
@@ -127,10 +139,75 @@ export const seedData = async () => {
           ],
           description: "High-quality wireless headphones with noise cancellation.",
           price: "199.99",
-          category: (electronicsCategory as any)?._id?.toString() || "",
+          category: electronicsCategory?._id || "",
           brandName: "Sony",
           modelName: "WH-1000XM5",
           stock: 75,
+          isListed: true
+        },
+        {
+          name: "Gaming Laptop",
+          images: [
+            { url: "https://via.placeholder.com/400x400?text=Gaming+Laptop", id: "gaming-laptop-1" }
+          ],
+          description: "High-performance gaming laptop with RTX graphics.",
+          price: "1599.99",
+          category: electronicsCategory?._id || "",
+          brandName: "ASUS",
+          modelName: "ROG Strix",
+          stock: 15,
+          isListed: true
+        },
+        {
+          name: "Coffee Maker",
+          images: [
+            { url: "https://via.placeholder.com/400x400?text=Coffee+Maker", id: "coffee-maker-1" }
+          ],
+          description: "Automatic drip coffee maker with programmable timer.",
+          price: "89.99",
+          category: homeCategory?._id || "",
+          brandName: "Cuisinart",
+          modelName: "DCC-3200",
+          stock: 40,
+          isListed: true
+        },
+        {
+          name: "Dining Table",
+          images: [
+            { url: "https://via.placeholder.com/400x400?text=Dining+Table", id: "dining-table-1" }
+          ],
+          description: "Modern wooden dining table for 6 people.",
+          price: "599.99",
+          category: homeCategory?._id || "",
+          brandName: "West Elm",
+          modelName: "Mid-Century",
+          stock: 8,
+          isListed: true
+        },
+        {
+          name: "Running Shoes",
+          images: [
+            { url: "https://via.placeholder.com/400x400?text=Running+Shoes", id: "running-shoes-1" }
+          ],
+          description: "Lightweight running shoes for daily training.",
+          price: "129.99",
+          category: sportsCategory?._id || "",
+          brandName: "Adidas",
+          modelName: "Ultraboost 22",
+          stock: 60,
+          isListed: true
+        },
+        {
+          name: "Yoga Mat",
+          images: [
+            { url: "https://via.placeholder.com/400x400?text=Yoga+Mat", id: "yoga-mat-1" }
+          ],
+          description: "Non-slip yoga mat for all types of yoga practice.",
+          price: "39.99",
+          category: sportsCategory?._id || "",
+          brandName: "Manduka",
+          modelName: "PRO",
+          stock: 80,
           isListed: true
         }
       ];

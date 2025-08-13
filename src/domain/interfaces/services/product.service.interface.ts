@@ -1,8 +1,10 @@
 import { productProperties } from "@/domain/entities";
+import { ProductSearchFilters, ProductSearchResult } from "@/domain/types/product.request.type";
 
 export interface ProductServiceInterface {
   createProduct(files: any, reqBody: any, adminToken: string): Promise<Partial<productProperties>>;
   getProducts(limit?: number, skip?: number, category?: string): Promise<Partial<productProperties>[]>;
+  searchProducts(filters: ProductSearchFilters): Promise<ProductSearchResult>;
   editProduct(id: string, reqBody: any, adminToken: string): Promise<Partial<productProperties>>;
   uploadImages(id: string, files: any, adminToken: string): Promise<Partial<productProperties>>;
   deletemage(

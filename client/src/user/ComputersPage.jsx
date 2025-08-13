@@ -458,9 +458,9 @@ const ComputersPage = () => {
             })}
           </Box>
           
-          <Grid container spacing={3} sx={{ mb: 4, alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <Grid container spacing={3}>
             {/* Filters */}
-            <Grid item xs={12} md={3} sx={{ mb: { xs: 3, md: 0 } }}>
+            <Grid item xs={12} md={3}>
               <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
                 <Typography variant="h6" gutterBottom>Filters</Typography>
                 <Divider sx={{ mb: 2 }} />
@@ -549,7 +549,7 @@ const ComputersPage = () => {
               
               {/* Products Grid */}
               {filteredProducts.length > 0 ? (
-                <Grid container spacing={{ xs: 2, sm: 3, md: 4 }} alignItems="stretch">
+                <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
                   {filteredProducts.map((product) => (
                     <Grid item xs={12} sm={6} md={4} lg={4} key={product._id}>
                       <Card 
@@ -643,25 +643,26 @@ const ComputersPage = () => {
                 </Box>
               )}
             </Grid>
-        </Grid>
-          {/* Loading/Error State */}
-          {loading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
-          )}
-          {error && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Alert severity="error">{error}</Alert>
-            </Box>
-          )}
+          </Grid>
         </Container>
+
+        {/* Loading/Error State */}
+        {loading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress />
+          </Box>
+        )}
+        {error && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
+        )}
 
         {/* Products Grid */}
         {!loading && !error && (
           <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
             {filteredProducts.length > 0 ? (
-              <Grid container spacing={{ xs: 2, sm: 3, md: 4 }} alignItems="stretch">
+              <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
                 {filteredProducts.map((product) => (
                   <Grid item xs={6} sm={4} md={3} lg={2.4} key={product._id || product.id}>
                     <Card 
@@ -674,7 +675,7 @@ const ComputersPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                      onClick={() => navigate(`/product/${product._id || product.id}`)}
                     >
                       <CardMedia 
                         component="img" 
@@ -768,10 +769,24 @@ const ComputersPage = () => {
             )}
           </Container>
         )}
-        
-        {/* Related Products Section */}
-        {!loading && !error && products.length > 0 && (
-          <Container maxWidth="xl" sx={{ mb: 8, px: { xs: 2, sm: 3, md: 4 }, mt: 6 }}>
+      </Box>
+      <Footer />
+      
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Related Products Section */}
+      {!loading && !error && products.length > 0 && (
+        <Box sx={{ backgroundColor: '#f5f5f5', py: 6 }}>
+          <Container maxWidth="xl">
             <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4, fontWeight: 600 }}>
               You May Also Like
             </Typography>
@@ -853,20 +868,8 @@ const ComputersPage = () => {
               </Carousel>
             </Box>
           </Container>
+        </Box>
       )}
-      </Box>
-      <Footer />
-      
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

@@ -347,26 +347,41 @@ const ProductPage = () => {
                       </CardActions>
                     </Card>
                     ));
-                  })()}
+                  })()} 
                 </Stack>
               </Box>
             </Box>
 
-            {/* All Products */}
+            {/* Home & Garden */}
             <Box sx={{ mb: 6 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main' }}>
-                  🛍️ All Products
+                  🏠 Home & Garden
                 </Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => navigate('/home')}
+                  sx={{ textTransform: 'none' }}
+                >
+                  View All
+                </Button>
               </Box>
-              <Grid container spacing={3}>
-                {filteredProducts.map((product) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={product._id || product.id}>
+              <Box sx={{ overflowX: 'auto', pb: 2 }}>
+                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+                  {(() => {
+                    const homeProducts = products.filter(product => 
+                      product.category?.name?.toLowerCase() === 'home' ||
+                      product.category?.toLowerCase() === 'home' ||
+                      product.category?.name?.toLowerCase() === 'furniture' ||
+                      product.category?.toLowerCase() === 'furniture'
+                    );
+                    return homeProducts.slice(0, 8).map((product) => (
                     <Card 
+                      key={product._id || product.id} 
                       sx={{ 
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
+                        minWidth: { xs: 160, sm: 180, md: 200 }, 
+                        maxWidth: { xs: 160, sm: 180, md: 200 }, 
                         boxShadow: 2, 
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
@@ -376,55 +391,415 @@ const ProductPage = () => {
                     >
                       <CardMedia 
                         component="img" 
-                        height="200" 
+                        height="120" 
                         image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
                         alt={product.name} 
                       />
-                      <CardContent sx={{ flexGrow: 1 }}>
+                      <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
                         <Typography 
-                          variant="h6" 
+                          variant="subtitle2" 
                           fontWeight={600} 
                           sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.9rem' },
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
-                            minHeight: '3em',
-                            mb: 1
+                            minHeight: '2.4em'
                           }}
                         >
                           {product.name}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {product.description}
-                        </Typography>
-                        <Typography variant="h6" color="primary.main" fontWeight={700}>
+                        <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
                           {formatPrice(product.price)}
                         </Typography>
                       </CardContent>
-                      <CardActions sx={{ p: 2, pt: 0 }}>
+                      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
                         <IconButton 
                           color="primary" 
+                          size="small"
                           onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
                           disabled={actionLoading[`wishlist-${product._id || product.id}`]}
                         >
                           {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         </IconButton>
                         <Button 
+                          size="small" 
                           variant="contained" 
                           endIcon={<ShoppingCartIcon />}
                           onClick={(e) => handleAddToCart(product._id || product.id, e)}
                           disabled={actionLoading[`cart-${product._id || product.id}`]}
-                          sx={{ ml: 'auto' }}
+                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, ml: 'auto' }}
                         >
-                          {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add to Cart'}
+                          {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add'}
                         </Button>
                       </CardActions>
                     </Card>
-                  </Grid>
-                ))}
-              </Grid>
+                    ));
+                  })()} 
+                </Stack>
+              </Box>
+            </Box>
+
+            {/* Fashion & Beauty */}
+            <Box sx={{ mb: 6 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main' }}>
+                  👗 Fashion & Beauty
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => navigate('/fashion')}
+                  sx={{ textTransform: 'none' }}
+                >
+                  View All
+                </Button>
+              </Box>
+              <Box sx={{ overflowX: 'auto', pb: 2 }}>
+                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+                  {(() => {
+                    const fashionProducts = products.filter(product => 
+                      product.category?.name?.toLowerCase() === 'fashion' ||
+                      product.category?.toLowerCase() === 'fashion' ||
+                      product.category?.name?.toLowerCase() === 'clothing' ||
+                      product.category?.toLowerCase() === 'clothing'
+                    );
+                    return fashionProducts.slice(0, 8).map((product) => (
+                    <Card 
+                      key={product._id || product.id} 
+                      sx={{ 
+                        minWidth: { xs: 160, sm: 180, md: 200 }, 
+                        maxWidth: { xs: 160, sm: 180, md: 200 }, 
+                        boxShadow: 2, 
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
+                      }} 
+                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                    >
+                      <CardMedia 
+                        component="img" 
+                        height="120" 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
+                        alt={product.name} 
+                      />
+                      <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
+                        <Typography 
+                          variant="subtitle2" 
+                          fontWeight={600} 
+                          sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            minHeight: '2.4em'
+                          }}
+                        >
+                          {product.name}
+                        </Typography>
+                        <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
+                          {formatPrice(product.price)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
+                        <IconButton 
+                          color="primary" 
+                          size="small"
+                          onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
+                          disabled={actionLoading[`wishlist-${product._id || product.id}`]}
+                        >
+                          {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        </IconButton>
+                        <Button 
+                          size="small" 
+                          variant="contained" 
+                          endIcon={<ShoppingCartIcon />}
+                          onClick={(e) => handleAddToCart(product._id || product.id, e)}
+                          disabled={actionLoading[`cart-${product._id || product.id}`]}
+                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, ml: 'auto' }}
+                        >
+                          {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add'}
+                        </Button>
+                      </CardActions>
+                    </Card>
+                    ));
+                  })()} 
+                </Stack>
+              </Box>
+            </Box>
+
+            {/* Sports & Outdoors */}
+            <Box sx={{ mb: 6 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main' }}>
+                  ⚽ Sports & Outdoors
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => navigate('/sports')}
+                  sx={{ textTransform: 'none' }}
+                >
+                  View All
+                </Button>
+              </Box>
+              <Box sx={{ overflowX: 'auto', pb: 2 }}>
+                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+                  {(() => {
+                    const sportsProducts = products.filter(product => 
+                      product.category?.name?.toLowerCase() === 'sports' ||
+                      product.category?.toLowerCase() === 'sports' ||
+                      product.category?.name?.toLowerCase() === 'fitness' ||
+                      product.category?.toLowerCase() === 'fitness'
+                    );
+                    return sportsProducts.slice(0, 8).map((product) => (
+                    <Card 
+                      key={product._id || product.id} 
+                      sx={{ 
+                        minWidth: { xs: 160, sm: 180, md: 200 }, 
+                        maxWidth: { xs: 160, sm: 180, md: 200 }, 
+                        boxShadow: 2, 
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
+                      }} 
+                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                    >
+                      <CardMedia 
+                        component="img" 
+                        height="120" 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
+                        alt={product.name} 
+                      />
+                      <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
+                        <Typography 
+                          variant="subtitle2" 
+                          fontWeight={600} 
+                          sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            minHeight: '2.4em'
+                          }}
+                        >
+                          {product.name}
+                        </Typography>
+                        <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
+                          {formatPrice(product.price)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
+                        <IconButton 
+                          color="primary" 
+                          size="small"
+                          onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
+                          disabled={actionLoading[`wishlist-${product._id || product.id}`]}
+                        >
+                          {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        </IconButton>
+                        <Button 
+                          size="small" 
+                          variant="contained" 
+                          endIcon={<ShoppingCartIcon />}
+                          onClick={(e) => handleAddToCart(product._id || product.id, e)}
+                          disabled={actionLoading[`cart-${product._id || product.id}`]}
+                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, ml: 'auto' }}
+                        >
+                          {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add'}
+                        </Button>
+                      </CardActions>
+                    </Card>
+                    ));
+                  })()} 
+                </Stack>
+              </Box>
+            </Box>
+
+            {/* Health & Personal Care */}
+            <Box sx={{ mb: 6 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main' }}>
+                  💊 Health & Personal Care
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => navigate('/health')}
+                  sx={{ textTransform: 'none' }}
+                >
+                  View All
+                </Button>
+              </Box>
+              <Box sx={{ overflowX: 'auto', pb: 2 }}>
+                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+                  {(() => {
+                    const healthProducts = products.filter(product => 
+                      product.category?.name?.toLowerCase() === 'health' ||
+                      product.category?.toLowerCase() === 'health' ||
+                      product.category?.name?.toLowerCase() === 'personal care' ||
+                      product.category?.toLowerCase() === 'personal care'
+                    );
+                    return healthProducts.slice(0, 8).map((product) => (
+                    <Card 
+                      key={product._id || product.id} 
+                      sx={{ 
+                        minWidth: { xs: 160, sm: 180, md: 200 }, 
+                        maxWidth: { xs: 160, sm: 180, md: 200 }, 
+                        boxShadow: 2, 
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
+                      }} 
+                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                    >
+                      <CardMedia 
+                        component="img" 
+                        height="120" 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
+                        alt={product.name} 
+                      />
+                      <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
+                        <Typography 
+                          variant="subtitle2" 
+                          fontWeight={600} 
+                          sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            minHeight: '2.4em'
+                          }}
+                        >
+                          {product.name}
+                        </Typography>
+                        <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
+                          {formatPrice(product.price)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
+                        <IconButton 
+                          color="primary" 
+                          size="small"
+                          onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
+                          disabled={actionLoading[`wishlist-${product._id || product.id}`]}
+                        >
+                          {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        </IconButton>
+                        <Button 
+                          size="small" 
+                          variant="contained" 
+                          endIcon={<ShoppingCartIcon />}
+                          onClick={(e) => handleAddToCart(product._id || product.id, e)}
+                          disabled={actionLoading[`cart-${product._id || product.id}`]}
+                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, ml: 'auto' }}
+                        >
+                          {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add'}
+                        </Button>
+                      </CardActions>
+                    </Card>
+                    ));
+                  })()} 
+                </Stack>
+              </Box>
+            </Box>
+
+            {/* Books & Media */}
+            <Box sx={{ mb: 6 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main' }}>
+                  📚 Books & Media
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => navigate('/books')}
+                  sx={{ textTransform: 'none' }}
+                >
+                  View All
+                </Button>
+              </Box>
+              <Box sx={{ overflowX: 'auto', pb: 2 }}>
+                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
+                  {(() => {
+                    const mediaProducts = products.filter(product => 
+                      product.category?.name?.toLowerCase() === 'books' ||
+                      product.category?.toLowerCase() === 'books' ||
+                      product.category?.name?.toLowerCase() === 'media' ||
+                      product.category?.toLowerCase() === 'media'
+                    );
+                    return mediaProducts.slice(0, 8).map((product) => (
+                    <Card 
+                      key={product._id || product.id} 
+                      sx={{ 
+                        minWidth: { xs: 160, sm: 180, md: 200 }, 
+                        maxWidth: { xs: 160, sm: 180, md: 200 }, 
+                        boxShadow: 2, 
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
+                      }} 
+                      onClick={() => navigate(`/products/${product._id || product.id}`)}
+                    >
+                      <CardMedia 
+                        component="img" 
+                        height="120" 
+                        image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
+                        alt={product.name} 
+                      />
+                      <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
+                        <Typography 
+                          variant="subtitle2" 
+                          fontWeight={600} 
+                          sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            minHeight: '2.4em'
+                          }}
+                        >
+                          {product.name}
+                        </Typography>
+                        <Typography variant="body2" color="primary.main" fontWeight={600} sx={{ mt: 1 }}>
+                          {formatPrice(product.price)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions sx={{ p: { xs: 1, sm: 1.5 }, pt: 0 }}>
+                        <IconButton 
+                          color="primary" 
+                          size="small"
+                          onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
+                          disabled={actionLoading[`wishlist-${product._id || product.id}`]}
+                        >
+                          {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        </IconButton>
+                        <Button 
+                          size="small" 
+                          variant="contained" 
+                          endIcon={<ShoppingCartIcon />}
+                          onClick={(e) => handleAddToCart(product._id || product.id, e)}
+                          disabled={actionLoading[`cart-${product._id || product.id}`]}
+                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, ml: 'auto' }}
+                        >
+                          {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add'}
+                        </Button>
+                      </CardActions>
+                    </Card>
+                    ));
+                  })()} 
+                </Stack>
+              </Box>
             </Box>
           </Container>
         )}

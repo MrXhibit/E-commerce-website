@@ -4,3 +4,4 @@ export * from "./category/category.controller";
 export * from "./product/product.controller";
 export * from "./cart/cart.controller";
 export * from "./wishlist/wishlist.controller";
+export * from "./admin/admin.controller";

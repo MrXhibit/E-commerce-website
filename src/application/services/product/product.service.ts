@@ -4,6 +4,7 @@ import { ProductServiceInterface } from "@/domain/interfaces/services";
 import { cloudUtillsInterface } from "@/domain/interfaces/utills";
 import { productUtilsInterface } from "@/domain/interfaces/utills/product.utills.interface";
 import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
+import { ProductSearchFilters, ProductSearchResult } from "@/domain/types/product.request.type";
 
 export class productService implements ProductServiceInterface {
   constructor(
@@ -125,6 +126,37 @@ export class productService implements ProductServiceInterface {
     const updatedProduct = await this.productRepo.editProduct(product);
     return updatedProduct.sanitizeProduct();
   }
+  async searchProducts(filters: ProductSearchFilters): Promise<ProductSearchResult> {
+    const { query, category, minPrice, maxPrice, brand, model, limit = 20, skip = 0 } = filters;
+
+    const products = await this.productRepo.searchProducts(
+      query,
+      category,
+      minPrice,
+      maxPrice,
+      brand,
+      model,
+      limit,
+      skip
+    );
+
+    const totalProducts = await this.productRepo.countProducts(
+      query,
+      category,
+      minPrice,
+      maxPrice,
+      brand,
+      model
+    );
+
+    return {
+      products: products.map((product) => product.sanitizeProduct()),
+      total: totalProducts,
+      pageSize: limit,
+      skip,
+    };
+  }
+
   async getSingleProduct(id: string): Promise<Partial<productProperties>> {
     const product = await this.productRepo.getSingleProduct(id);
     return product.sanitizeProduct();

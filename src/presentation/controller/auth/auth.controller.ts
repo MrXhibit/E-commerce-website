@@ -19,12 +19,14 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
+      secure: process.env.NODE_ENV === 'production' // Add secure flag
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
+      secure: process.env.NODE_ENV === 'production' // Add secure flag
     });
     return res.status(200).json(ResponseUtils.success({ user, accessToken: access_token, refreshToken: refresh_token }, 'Login successful'));
   } catch (error) {
@@ -55,7 +57,7 @@ export const userRegister = async (req: Request, res: Response, next: NextFuncti
 
 export const userRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.cookies.refresh_token;
+    const token = req.cookies.refresh_token; // Expects from cookies
     const result = await userServ.refreshToken(token);
     const { access_token, refresh_token, user } = result;
     res.cookie("access_token", access_token, {

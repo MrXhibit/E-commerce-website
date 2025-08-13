@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { WishlistController } from "@/presentation/controller/wishlist/wishlist.controller";
+import { authenticateUser } from "@/presentation/middleware/auth.middleware";
 
 const router = Router();
 const wishlistController = new WishlistController();
+
+// Apply authentication middleware to all wishlist routes
+router.use(authenticateUser);
 
 // Add item to wishlist
 router.post("/add", wishlistController.addToWishlist.bind(wishlistController));
@@ -16,4 +20,4 @@ router.delete("/remove/:productId", wishlistController.removeFromWishlist.bind(w
 // Clear entire wishlist
 router.delete("/clear", wishlistController.clearWishlist.bind(wishlistController));
 
-export default router; 
+export default router;

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress, Grid, Alert, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { updateCartItem, removeFromCart, clearCart } from '../store/slices/cartSlice';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -13,7 +14,10 @@ const CREDITS = 8.0;
 const TIP_PRESETS = [2, 4, 7];
 
 const CartPage = () => {
-  const { cart, updateCartItem, removeFromCart, clearCart, isAuthenticated } = useAuth();
+  // REPLACE useAuth with Redux
+  const dispatch = useAppDispatch();
+  const { items: cartItems, totalAmount, itemCount, isLoading } = useAppSelector((state) => state.cart);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const [delivery, setDelivery] = useState('delivery');
   const [tip, setTip] = useState(0);
@@ -29,40 +33,19 @@ const CartPage = () => {
   }, [isAuthenticated, navigate]);
 
   const handleQuantityChange = async (productId, delta) => {
-    const item = cart.items.find(item => item.productId === productId);
+    const item = cartItems.find(item => item.productId === productId);
     if (item) {
       const newQuantity = Math.max(1, item.quantity + delta);
-      setLoading(true);
-      try {
-        await updateCartItem(productId, newQuantity);
-      } catch (error) {
-        console.error('Failed to update quantity:', error);
-      } finally {
-        setLoading(false);
-      }
+      dispatch(updateCartItem({ productId, quantity: newQuantity }));
     }
   };
 
   const handleRemove = async (productId) => {
-    setLoading(true);
-    try {
-      await removeFromCart(productId);
-    } catch (error) {
-      console.error('Failed to remove item:', error);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(removeFromCart(productId));
   };
 
   const handleClearCart = async () => {
-    setLoading(true);
-    try {
-      await clearCart();
-    } catch (error) {
-      console.error('Failed to clear cart:', error);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(clearCart());
   };
 
   const handleTipPreset = (value) => {
@@ -75,7 +58,7 @@ const CartPage = () => {
     setTip(Number(e.target.value) || 0);
   };
 
-  const subtotal = cart.totalAmount || 0;
+  const subtotal = totalAmount || 0;
   const deliveryFee = delivery === 'delivery' ? DELIVERY_FEE : 0;
   const credits = useCredits ? CREDITS : 0;
   const total = subtotal + deliveryFee + SERVICE_FEE + TAX + tip - credits;
@@ -99,7 +82,7 @@ const CartPage = () => {
             </Box>
           )}
 
-          {cart.items.length === 0 ? (
+          {cartItems.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
                 Your cart is empty
@@ -119,10 +102,10 @@ const CartPage = () => {
               <Grid item xs={12} md={8} lg={8}>
                 <Paper sx={{ p: 3, mb: 3 }}>
                   <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-                    My Cart ({cart.items.length})
+                    My Cart ({cartItems.length})
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
-                  {cart.items.map(item => (
+                  {cartItems.map(item => (
                     <Box key={item.productId} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <img 
@@ -203,7 +186,7 @@ const CartPage = () => {
                   <Typography variant="h6" fontWeight={700} gutterBottom>Your Order</Typography>
                   <Divider sx={{ mb: 2 }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">Subtotal ({cart.itemCount} items)</Typography>
+                    <Typography variant="body2">Subtotal ({itemCount} items)</Typography>
                     <Typography variant="body2">${subtotal.toFixed(2)}</Typography>
                   </Box>
                   {/* Delivery */}

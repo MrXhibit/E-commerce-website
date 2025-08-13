@@ -6,6 +6,9 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useAppDispatch } from '../store/hooks';
+import { fetchCart } from '../store/slices/cartSlice';
+import { fetchWishlist } from '../store/slices/wishlistSlice';
 import apiService from '../services/api';
 import Header from './Header';
 import Footer from './Footer';
@@ -397,12 +400,14 @@ const mockProducts = [
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const dispatch = useAppDispatch();
   const { isAuthenticated, addToCart, addToWishlist, wishlist } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -415,34 +420,184 @@ const ProductPage = () => {
     return `$${price?.toFixed(2) || '0.00'}`;
   };
 
-  // Function to determine the route for a product - now directing to product detail page
+  // Function to determine the category page route for a product
   const getCategoryRoute = (product) => {
-    // Direct all products to the product detail page
+    const productName = product.name?.toLowerCase() || '';
+    const productCategory = product.category?.toLowerCase() || '';
+    const productSubcategory = product.subcategory?.toLowerCase() || '';
+    const productDescription = product.description?.toLowerCase() || '';
+
+    // Check for specific individual category pages first
+    if (productSubcategory === 'computers' || 
+        productName.includes('computer') || 
+        productName.includes('desktop') || 
+        productName.includes('pc') || 
+        productName.includes('workstation')) {
+      return '/computers';
+    }
+    
+    if (productSubcategory === 'laptops' || 
+        productName.includes('laptop') || 
+        productName.includes('notebook') || 
+        productName.includes('ultrabook') || 
+        productName.includes('macbook')) {
+      return '/laptops';
+    }
+    
+    if (productSubcategory === 'smartphones' || 
+        productName.includes('phone') || 
+        productName.includes('smartphone') || 
+        productName.includes('mobile') || 
+        productName.includes('iphone') || 
+        productName.includes('android')) {
+      return '/smartphones';
+    }
+    
+    if (productSubcategory === 'headphones' || 
+        productName.includes('headphones') || 
+        productName.includes('earbuds') || 
+        productName.includes('headset') || 
+        productName.includes('airpods')) {
+      return '/headphones';
+    }
+    
+    if (productSubcategory === 'clothing' || 
+        productName.includes('shirt') || 
+        productName.includes('dress') || 
+        productName.includes('pants') || 
+        productName.includes('jacket') || 
+        productName.includes('jeans')) {
+      return '/clothing';
+    }
+
+    // Map to other category pages based on product characteristics
+    if (productName.includes('gaming') || productName.includes('console') || productName.includes('playstation') || productName.includes('xbox')) {
+      return '/gaming';
+    }
+    
+    if (productName.includes('camera') || productName.includes('photography') || productName.includes('lens')) {
+      return '/cameras';
+    }
+    
+    if (productName.includes('tv') || productName.includes('television') || productName.includes('speaker') || productName.includes('audio')) {
+      return '/tv-audio';
+    }
+    
+    if (productName.includes('smart') && (productName.includes('home') || productName.includes('alexa') || productName.includes('google'))) {
+      return '/smart-home';
+    }
+    
+    if (productName.includes('furniture') || productName.includes('chair') || productName.includes('table') || productName.includes('sofa') || productName.includes('bed')) {
+      return '/furniture';
+    }
+    
+    if (productName.includes('kitchen') || productName.includes('cooking') || productName.includes('mixer') || productName.includes('coffee')) {
+      return '/kitchen';
+    }
+    
+    if (productName.includes('shoes') || productName.includes('sneakers') || productName.includes('boots')) {
+      return '/shoes';
+    }
+    
+    if (productName.includes('jewelry') || productName.includes('necklace') || productName.includes('ring') || productName.includes('diamond')) {
+      return '/jewelry';
+    }
+    
+    if (productName.includes('watch') || productName.includes('timepiece')) {
+      return '/watches';
+    }
+    
+    if (productName.includes('beauty') || productName.includes('makeup') || productName.includes('cosmetics')) {
+      return '/beauty';
+    }
+    
+    if (productName.includes('bag') || productName.includes('handbag') || productName.includes('backpack')) {
+      return '/bags';
+    }
+
+    // Default fallback based on general category
+    if (productCategory === 'electronics') {
+      return '/computers'; // Default electronics to computers
+    }
+    
+    if (productCategory === 'fashion') {
+      return '/clothing'; // Default fashion to clothing
+    }
+    
+    if (productCategory === 'home') {
+      return '/furniture'; // Default home to furniture
+    }
+
+    // Ultimate fallback - go to general products page
     return `/products/${product._id || product.id}`;
   };
 
-  // Fetch products from backend
+  // Fetch products and categories from backend
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiService.getProducts(50, 0); // Fetch 50 products
-        if (response.success && response.data) {
-          const productsData = response.data;
-          setProducts(productsData);
+        
+        // Fetch both products and categories in parallel
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          apiService.getProducts(50, 0), // Fetch 50 products
+          apiService.getCategories(50, 1) // Fetch 50 categories
+        ]);
+        
+        // Handle products response
+        if (productsResponse && productsResponse.success && productsResponse.data) {
+          const productsData = productsResponse.data;
+          if (productsData.length > 0) {
+            setProducts(productsData);
+            console.log('✅ Loaded', productsData.length, 'products from backend API');
+          } else {
+            // API returned empty array, use mock products as fallback
+            setProducts(mockProducts);
+            console.log('⚠️ API returned empty products array, using mock products');
+          }
         } else {
+          // API response not successful, use mock products as fallback
           setProducts(mockProducts);
+          console.log('⚠️ Products API response not successful, using mock products');
         }
+
+        // Handle categories response
+        if (categoriesResponse && categoriesResponse.categorys) {
+          const categoriesData = categoriesResponse.categorys;
+          if (categoriesData.length > 0) {
+            // Transform backend categories to match frontend format
+            const transformedCategories = categoriesData.map(cat => ({
+              name: cat.name,
+              image: cat.image?.url || 'https://via.placeholder.com/100x100?text=Category',
+              category: cat.name.toLowerCase(),
+              _id: cat._id
+            }));
+            setCategories(transformedCategories);
+            console.log('✅ Loaded', categoriesData.length, 'categories from backend API');
+          } else {
+            // Use empty array as fallback
+            setCategories([]);
+            console.log('⚠️ API returned empty categories array');
+          }
+        } else {
+          // Use empty array as fallback
+          setCategories([]);
+          console.log('⚠️ Categories API response not successful');
+        }
+        
       } catch (err) {
+        console.error('Error fetching data:', err);
+        console.log('Using fallback data');
         setProducts(mockProducts);
+        setCategories(categories);
         setError(null); // Clear error since we have fallback data
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   // Handle URL parameters for category filtering
@@ -465,6 +620,8 @@ const ProductPage = () => {
       const result = await addToCart(productId, 1);
       if (result.success) {
         setSnackbar({ open: true, message: 'Added to cart successfully!', severity: 'success' });
+        // Sync Redux state
+        dispatch(fetchCart());
       } else {
         setSnackbar({ open: true, message: result.message || 'Failed to add to cart', severity: 'error' });
       }
@@ -487,6 +644,8 @@ const ProductPage = () => {
       const result = await addToWishlist(productId);
       if (result.success) {
         setSnackbar({ open: true, message: 'Added to wishlist successfully!', severity: 'success' });
+        // Sync Redux state
+        dispatch(fetchWishlist());
       } else {
         setSnackbar({ open: true, message: result.message || 'Failed to add to wishlist', severity: 'error' });
       }
@@ -519,10 +678,8 @@ const ProductPage = () => {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Fix category filtering to handle both lowercase and uppercase category names
     const matchesCategory = !selectedCategory || 
-      (product.category?.toLowerCase() === selectedCategory.toLowerCase()) ||
-      (typeof product.category === 'object' && product.category?.name?.toLowerCase() === selectedCategory.toLowerCase());
+      product.category?.toLowerCase() === selectedCategory.toLowerCase();
     
     return matchesSearch && matchesCategory;
   });
@@ -588,14 +745,64 @@ const ProductPage = () => {
           )}
         </Container>
 
+        {/* Category Navigation */}
+        {!loading && categories.length > 0 && (
+          <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Typography variant="h4" fontWeight={700} sx={{ mb: 3, color: 'primary.main', textAlign: 'center' }}>
+              Shop by Category ({categories.length} categories)
+            </Typography>
+            <Grid container spacing={2} justifyContent="center">
+              {categories.map((category) => (
+                <Grid item xs={6} sm={4} md={3} lg={2} key={category._id}>
+                  <Card 
+                    sx={{ 
+                      height: '100%',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': { 
+                        transform: 'translateY(-4px)', 
+                        boxShadow: 4,
+                        backgroundColor: 'primary.light',
+                        color: 'primary.contrastText'
+                      }
+                    }}
+                    onClick={() => handleCategoryClick(category.name)}
+                  >
+                    <CardMedia 
+                      component="img" 
+                      height="120" 
+                      image={category.image} 
+                      alt={category.name}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <CardContent sx={{ textAlign: 'center', p: 2 }}>
+                      <Typography 
+                        variant="subtitle1" 
+                        fontWeight={600}
+                        sx={{ 
+                          fontSize: { xs: '0.9rem', sm: '1rem' },
+                          lineHeight: 1.2
+                        }}
+                      >
+                        {category.name}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        )}
+
 
 
 
 
         {/* Loading/Error State */}
         {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 8 }}>
             <CircularProgress />
+            <Typography variant="body2" sx={{ mt: 2 }}>Loading products and categories...</Typography>
           </Box>
         )}
         {error && (
@@ -604,71 +811,159 @@ const ProductPage = () => {
           </Box>
         )}
 
+        {/* Debug Info */}
+        {!loading && (
+          <Container maxWidth="xl" sx={{ mb: 2, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+              Debug: Products: {products.length}, Categories: {categories.length}, Loading: {loading.toString()}
+            </Typography>
+          </Container>
+        )}
+
+        {/* Main Product Grid */}
+        {!loading && !error && filteredProducts.length > 0 && (
+          <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Typography variant="h4" fontWeight={700} sx={{ mb: 4, color: 'primary.main' }}>
+              All Products
+            </Typography>
+            <Grid container spacing={3}>
+              {filteredProducts.map((product) => (
+                <Grid item xs={6} sm={4} md={3} lg={2.4} key={product._id || product.id}>
+                  <Card 
+                    sx={{ 
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      boxShadow: 2, 
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
+                    }} 
+                    onClick={() => navigate(`/product/${product._id || product.id}`)}
+                  >
+                    <CardMedia 
+                      component="img" 
+                      height="200" 
+                      image={product.images?.[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'} 
+                      alt={product.name} 
+                    />
+                    <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                      <Typography 
+                        variant="h6" 
+                        fontWeight={600} 
+                        sx={{ 
+                          fontSize: '1rem',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          mb: 1
+                        }}
+                      >
+                        {product.name}
+                      </Typography>
+                      <Typography variant="body2" color="primary.main" fontWeight={600}>
+                        {formatPrice(product.price)}
+                      </Typography>
+                    </CardContent>
+                    <CardActions sx={{ p: 2, pt: 0 }}>
+                      <IconButton 
+                        color="primary" 
+                        size="small"
+                        onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
+                        disabled={actionLoading[`wishlist-${product._id || product.id}`]}
+                      >
+                        {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                      </IconButton>
+                      <Button 
+                        size="small" 
+                        variant="contained" 
+                        endIcon={<ShoppingCartIcon />}
+                        onClick={(e) => handleAddToCart(product._id || product.id, e)}
+                        disabled={actionLoading[`cart-${product._id || product.id}`]}
+                        sx={{ ml: 'auto' }}
+                      >
+                        {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add'}
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        )}
+
 
 
         {/* Product Carousels by Category */}
         {!loading && !error && products.length > 0 && (
           <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }} className="product-carousels">
-            {/* Electronics & Technology */}
-            <Box sx={{ mb: 6 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main' }}>
-                  📱 Electronics & Technology
-                </Typography>
-                <Button 
-                  variant="outlined" 
-                  size="small"
-                  onClick={() => navigate('/electronics')}
-                  sx={{ textTransform: 'none' }}
-                >
-                  View All
-                </Button>
-              </Box>
-              <Box sx={{ pb: 2, ...carouselStyles }}>
-                <Slider
-                  dots={false}
-                  infinite={true}
-                  speed={500}
-                  slidesToShow={5}
-                  slidesToScroll={2}
-                  autoplay={true}
-                  autoplaySpeed={5000}
-                  arrows={false}
-                  responsive={[
-                    {
-                      breakpoint: 1280,
-                      settings: {
-                        slidesToShow: 4,
-                        slidesToScroll: 2
-                      }
-                    },
-                    {
-                      breakpoint: 960,
-                      settings: {
-                        slidesToShow: 3,
-                        slidesToScroll: 1
-                      }
-                    },
-                    {
-                      breakpoint: 600,
-                      settings: {
-                        slidesToShow: 2,
-                        slidesToScroll: 1
-                      }
-                    },
-                    {
-                      breakpoint: 480,
-                      settings: {
-                        slidesToShow: 1,
-                        slidesToScroll: 1
-                      }
-                    }
-                  ]}
-                >
-                  {products.filter(product => 
-                    product.category?.toLowerCase() === 'electronics' ||
-                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'electronics')
-                  ).slice(0, 12).map((product) => (
+            {/* Dynamic Category Carousels */}
+            {categories.map((category) => {
+              const categoryProducts = products.filter(product => 
+                product.category?.toLowerCase() === category.name.toLowerCase()
+              );
+              
+              if (categoryProducts.length === 0) return null;
+              
+              return (
+                <Box key={category._id} sx={{ mb: 6 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main' }}>
+                      {category.name}
+                    </Typography>
+                    <Button 
+                      variant="outlined" 
+                      size="small"
+                      onClick={() => handleCategoryClick(category.name)}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      View All
+                    </Button>
+                  </Box>
+                  <Box sx={{ pb: 2, ...carouselStyles }}>
+                    <Slider
+                      dots={false}
+                      infinite={true}
+                      speed={500}
+                      slidesToShow={5}
+                      slidesToScroll={2}
+                      autoplay={true}
+                      autoplaySpeed={5000}
+                      arrows={false}
+                      responsive={[
+                        {
+                          breakpoint: 1280,
+                          settings: {
+                            slidesToShow: 4,
+                            slidesToScroll: 2
+                          }
+                        },
+                        {
+                          breakpoint: 960,
+                          settings: {
+                            slidesToShow: 3,
+                            slidesToScroll: 1
+                          }
+                        },
+                        {
+                          breakpoint: 600,
+                          settings: {
+                            slidesToShow: 2,
+                            slidesToScroll: 1
+                          }
+                        },
+                        {
+                          breakpoint: 480,
+                          settings: {
+                            slidesToShow: 1,
+                            slidesToScroll: 1
+                          }
+                        }
+                      ]}
+                    >
+                      {categoryProducts.slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
                       sx={{ 
@@ -679,7 +974,7 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(getCategoryRoute(product))}
+                      onClick={() => navigate(`/product/${product._id || product.id}`)}
                     >
                       <CardMedia 
                         component="img" 
@@ -728,11 +1023,18 @@ const ProductPage = () => {
                         </Button>
                       </CardActions>
                     </Card>
-                  ))}
-                </Slider>
-              </Box>
-            </Box>
+                      ))}
+                    </Slider>
+                  </Box>
+                </Box>
+              );
+            })}
+          </Container>
+        )}
 
+        {/* Legacy carousels - keeping for reference but they won't show since we have dynamic ones above */}
+        {false && (
+          <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
             {/* Fashion & Clothing */}
             <Box sx={{ mb: 6 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -790,8 +1092,7 @@ const ProductPage = () => {
                   ]}
                 >
                   {products.filter(product => 
-                    product.category?.toLowerCase() === 'fashion' ||
-                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'fashion')
+                    product.category?.toLowerCase() === 'fashion'
                   ).slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
@@ -803,7 +1104,7 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(getCategoryRoute(product))}
+                      onClick={() => navigate(`/product/${product._id || product.id}`)}
                     >
                       <CardMedia 
                         component="img" 
@@ -914,8 +1215,7 @@ const ProductPage = () => {
                   ]}
                 >
                   {products.filter(product => 
-                    product.category?.toLowerCase() === 'home' ||
-                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'home')
+                    product.category?.toLowerCase() === 'home'
                   ).slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
@@ -927,7 +1227,7 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(getCategoryRoute(product))}
+                      onClick={() => navigate(`/product/${product._id || product.id}`)}
                     >
                       <CardMedia 
                         component="img" 
@@ -1038,8 +1338,7 @@ const ProductPage = () => {
                   ]}
                 >
                   {products.filter(product => 
-                    product.category?.toLowerCase() === 'sports' ||
-                    (typeof product.category === 'object' && product.category?.name?.toLowerCase() === 'sports')
+                    product.category?.toLowerCase() === 'sports'
                   ).slice(0, 12).map((product) => (
                     <Card 
                       key={product._id || product.id} 
@@ -1051,7 +1350,7 @@ const ProductPage = () => {
                         transition: 'all 0.3s ease',
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                       }} 
-                      onClick={() => navigate(getCategoryRoute(product))}
+                      onClick={() => navigate(`/product/${product._id || product.id}`)}
                     >
                       <CardMedia 
                         component="img" 
@@ -1163,9 +1462,8 @@ const ProductPage = () => {
                     ]}
                   >
                     {products.filter(product => 
-                    !['electronics', 'fashion', 'home', 'sports'].includes(product.category?.toLowerCase()) && 
-                    !(typeof product.category === 'object' && product.category?.name && ['electronics', 'fashion', 'home', 'sports'].includes(product.category?.name?.toLowerCase()))
-                  ).slice(0, 12).map((product) => (
+                      !['electronics', 'fashion', 'home', 'sports'].includes(product.category?.toLowerCase())
+                    ).slice(0, 12).map((product) => (
                       <Card 
                         key={product._id || product.id} 
                         sx={{ 
@@ -1176,7 +1474,7 @@ const ProductPage = () => {
                           transition: 'all 0.3s ease',
                           '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
                         }} 
-                        onClick={() => navigate(getCategoryRoute(product))}
+                        onClick={() => navigate(`/product/${product._id || product.id}`)}
                       >
                         <CardMedia 
                           component="img" 

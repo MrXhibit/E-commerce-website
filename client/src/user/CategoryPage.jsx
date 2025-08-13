@@ -346,9 +346,9 @@ const CategoryPage = () => {
     return `$${price?.toFixed(2) || '0.00'}`;
   };
 
-  // Fetch products for this category
+  // Use mock products for this category
   useEffect(() => {
-    const fetchProducts = async () => {
+    const loadCategoryProducts = () => {
       if (!categoryConfig) {
         setError('Category not found');
         setLoading(false);
@@ -359,34 +359,7 @@ const CategoryPage = () => {
         setLoading(true);
         setError(null);
         
-        // Try to fetch from API first
-        const response = await apiService.getProducts(50, 0);
-        if (response.success && response.data) {
-          const productsData = response.data;
-          // Filter products by category and subcategory
-          const filteredProducts = productsData.filter(product => {
-            const matchesSubcategory = product.subcategory?.toLowerCase() === category.toLowerCase();
-            const matchesKeywords = categoryConfig.keywords.some(keyword => 
-              product.name?.toLowerCase().includes(keyword.toLowerCase()) ||
-              product.description?.toLowerCase().includes(keyword.toLowerCase())
-            );
-            return matchesSubcategory || matchesKeywords;
-          });
-          setProducts(filteredProducts);
-        } else {
-          // Fallback to mock data
-          const filteredMockProducts = mockProducts.filter(product => {
-            const matchesSubcategory = product.subcategory?.toLowerCase() === category.toLowerCase();
-            const matchesKeywords = categoryConfig.keywords.some(keyword => 
-              product.name?.toLowerCase().includes(keyword.toLowerCase()) ||
-              product.description?.toLowerCase().includes(keyword.toLowerCase())
-            );
-            return matchesSubcategory || matchesKeywords;
-          });
-          setProducts(filteredMockProducts);
-        }
-      } catch (err) {
-        // Fallback to mock data
+        // Use mock data directly instead of API call
         const filteredMockProducts = mockProducts.filter(product => {
           const matchesSubcategory = product.subcategory?.toLowerCase() === category.toLowerCase();
           const matchesKeywords = categoryConfig.keywords.some(keyword => 
@@ -395,15 +368,19 @@ const CategoryPage = () => {
           );
           return matchesSubcategory || matchesKeywords;
         });
+        
         setProducts(filteredMockProducts);
-        setError(null);
+        console.log('Using mock products data for category:', category);
+      } catch (err) {
+        console.error('Error loading mock products for category:', err);
+        setError('Failed to load products');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
-  }, [category, categoryConfig]);
+    loadCategoryProducts();
+   }, [category, categoryConfig]);
 
   const handleAddToCart = async (productId, event) => {
     event.stopPropagation();

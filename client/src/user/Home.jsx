@@ -11,7 +11,9 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { useAuth } from '../contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { addToCart } from '../store/slices/cartSlice';
+import { addToWishlist } from '../store/slices/wishlistSlice';
 import apiService from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -85,7 +87,12 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const { isAuthenticated, addToCart, addToWishlist, wishlist } = useAuth();
+  
+  // Redux hooks
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -120,12 +127,8 @@ const Home = () => {
 
     setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: true }));
     try {
-      const result = await addToCart(productId, 1);
-      if (result.success) {
-        setSnackbar({ open: true, message: 'Added to cart successfully!', severity: 'success' });
-      } else {
-        setSnackbar({ open: true, message: result.message || 'Failed to add to cart', severity: 'error' });
-      }
+      const result = await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
+      setSnackbar({ open: true, message: 'Added to cart successfully!', severity: 'success' });
     } catch (error) {
       setSnackbar({ open: true, message: 'Failed to add to cart', severity: 'error' });
     } finally {
@@ -142,12 +145,8 @@ const Home = () => {
 
     setActionLoading(prev => ({ ...prev, [`wishlist-${productId}`]: true }));
     try {
-      const result = await addToWishlist(productId);
-      if (result.success) {
-        setSnackbar({ open: true, message: 'Added to wishlist successfully!', severity: 'success' });
-      } else {
-        setSnackbar({ open: true, message: result.message || 'Failed to add to wishlist', severity: 'error' });
-      }
+      const result = await dispatch(addToWishlist(productId)).unwrap();
+      setSnackbar({ open: true, message: 'Added to wishlist successfully!', severity: 'success' });
     } catch (error) {
       setSnackbar({ open: true, message: 'Failed to add to wishlist', severity: 'error' });
     } finally {
@@ -156,7 +155,7 @@ const Home = () => {
   };
 
   const isInWishlist = (productId) => {
-    return wishlist.items.some(item => item.productId === productId);
+    return wishlistItems.some(item => item.productId === productId);
   };
 
   const handleCloseSnackbar = () => {

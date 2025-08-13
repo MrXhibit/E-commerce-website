@@ -27,9 +27,13 @@ import {
   FavoriteBorder as FavoriteBorderIcon,
   Share as ShareIcon,
   ArrowBack as ArrowBackIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import Header from './Header';
+import Footer from './Footer';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -44,6 +48,7 @@ const ProductDetailPage = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [actionLoading, setActionLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Check if product is in wishlist
   const isInWishlist = wishlist?.items?.some(item => item.product._id === id);
@@ -56,23 +61,175 @@ const ProductDetailPage = () => {
     return `$${price?.toFixed(2) || '0.00'}`;
   };
 
+  // Carousel navigation functions
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === 0 ? (product.images?.length || 1) - 1 : prev - 1
+    );
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === (product.images?.length || 1) - 1 ? 0 : prev + 1
+    );
+  };
+
+  const handleImageSelect = (index) => {
+    setCurrentImageIndex(index);
+  };
+
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        console.log('Fetching product with ID:', id);
         const response = await apiService.getProductById(id);
-        setProduct(response.product);
+        
+        console.log('API Response:', response);
+        
+        if (response.success && response.data) {
+          setProduct(response.data);
+        } else if (response.product) {
+          // Fallback to old format if needed
+          setProduct(response.product);
+        } else {
+          throw new Error('Product data not found in response');
+        }
         
         // Fetch related products based on category
-        if (response.product?.category) {
-          const relatedResponse = await apiService.getProductsByCategory(response.product.category, 4);
-          // Filter out the current product from related products
-          const filteredRelated = relatedResponse.products.filter(p => p._id !== id);
-          setRelatedProducts(filteredRelated.slice(0, 4)); // Limit to 4 related products
+        const currentProduct = response.success ? response.data : response.product;
+        if (currentProduct?.category) {
+          try {
+            const relatedResponse = await apiService.getProductsByCategory(currentProduct.category, 8);
+            if (relatedResponse.success && relatedResponse.data) {
+              const filteredRelated = relatedResponse.data.filter(p => p._id !== id);
+              setRelatedProducts(filteredRelated.slice(0, 4));
+            }
+          } catch (relatedError) {
+            console.warn('Failed to fetch related products:', relatedError);
+          }
         }
       } catch (err) {
         console.error('Error fetching product details:', err);
-        setError(err.message || 'Failed to load product details');
+        setError(`Failed to load product: ${err.message}`);
+        
+        // Keep the existing fallback to mock data for computers
+        const mockProducts = [
+          { 
+            _id: 'comp1', 
+            name: 'Dell XPS Desktop', 
+            price: 1299, 
+            category: 'Electronics', 
+            subcategory: 'computers', 
+            images: [
+              { url: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=400' },
+              { url: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400' },
+              { url: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400' },
+              { url: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400' }
+            ], 
+            description: 'High-performance desktop computer with Intel Core i7, 16GB RAM, 1TB SSD. Perfect for professional work, gaming, and creative tasks. Features advanced cooling system and premium build quality.', 
+            rating: 4.7, 
+            stock: 15, 
+            brandName: 'Dell', 
+            modelName: 'XPS 8950' 
+          },
+          { 
+            _id: 'comp2', 
+            name: 'HP Pavilion Desktop', 
+            price: 899, 
+            category: 'Electronics', 
+            subcategory: 'computers', 
+            images: [
+              { url: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400' },
+              { url: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=400' },
+              { url: 'https://images.unsplash.com/photo-1591405351990-4726e331f141?w=400' }
+            ], 
+            description: 'Reliable desktop for everyday use with AMD Ryzen 5, 8GB RAM, 512GB SSD. Ideal for home office, web browsing, and light productivity tasks.', 
+            rating: 4.3, 
+            stock: 22, 
+            brandName: 'HP', 
+            modelName: 'Pavilion TP01' 
+          },
+          { 
+            _id: 'comp3', 
+            name: 'Gaming PC Build', 
+            price: 1899, 
+            category: 'Electronics', 
+            subcategory: 'computers', 
+            images: [
+              { url: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400' },
+              { url: 'https://images.unsplash.com/photo-1593640495253-23196b27a87f?w=400' },
+              { url: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=400' },
+              { url: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400' },
+              { url: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400' }
+            ], 
+            description: 'Custom gaming desktop computer with RTX 4070, Intel i9, 32GB RAM. Built for high-performance gaming, streaming, and content creation. RGB lighting included.', 
+            rating: 4.9, 
+            stock: 7, 
+            brandName: 'Custom', 
+            modelName: 'Gaming Rig Pro' 
+          },
+          { 
+            _id: 'comp4', 
+            name: 'Apple Mac Mini M2', 
+            price: 699, 
+            category: 'Electronics', 
+            subcategory: 'computers', 
+            images: [
+              { url: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400' },
+              { url: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=400' },
+              { url: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400' }
+            ], 
+            description: 'Compact desktop with Apple M2 chip, 8GB RAM, 256GB SSD. Ultra-quiet operation with incredible performance per watt. Perfect for creative professionals.', 
+            rating: 4.6, 
+            stock: 18, 
+            brandName: 'Apple', 
+            modelName: 'Mac Mini M2' 
+          },
+          { 
+            _id: 'comp5', 
+            name: 'Lenovo ThinkCentre', 
+            price: 749, 
+            category: 'Electronics', 
+            subcategory: 'computers', 
+            images: [
+              { url: 'https://images.unsplash.com/photo-1591405351990-4726e331f141?w=400' },
+              { url: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400' }
+            ], 
+            description: 'Business desktop with Intel Core i5, 16GB RAM, 512GB SSD. Enterprise-grade reliability with comprehensive security features. Ideal for business environments.', 
+            rating: 4.2, 
+            stock: 25, 
+            brandName: 'Lenovo', 
+            modelName: 'ThinkCentre M70q' 
+          },
+          { 
+            _id: 'comp6', 
+            name: 'ASUS ROG Gaming Desktop', 
+            price: 2199, 
+            category: 'Electronics', 
+            subcategory: 'computers', 
+            images: [
+              { url: 'https://images.unsplash.com/photo-1593640495253-23196b27a87f?w=400' },
+              { url: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400' },
+              { url: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=400' }
+            ], 
+            description: 'Premium gaming PC with RTX 4080, AMD Ryzen 9, 64GB RAM. Extreme performance for 4K gaming and professional workloads. Advanced cooling and premium components.', 
+            rating: 4.8, 
+            stock: 5, 
+            brandName: 'ASUS', 
+            modelName: 'ROG Strix GT35' 
+          }
+        ];
+        
+        const mockProduct = mockProducts.find(p => p._id === id);
+        if (mockProduct) {
+          setProduct(mockProduct);
+          const related = mockProducts.filter(p => p._id !== id).slice(0, 4);
+          setRelatedProducts(related);
+          setError(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -82,6 +239,11 @@ const ProductDetailPage = () => {
       fetchProductDetails();
     }
   }, [id]);
+
+  // Reset image index when product changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [product]);
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -153,44 +315,60 @@ const ProductDetailPage = () => {
 
   if (loading) {
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Loading product details...
-        </Typography>
-      </Container>
+      <>
+        <Header />
+        <Container sx={{ py: 8, textAlign: 'center' }}>
+          <CircularProgress />
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Loading product details...
+          </Typography>
+        </Container>
+        <Footer />
+      </>
     );
   }
 
   if (error) {
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
-        <Typography variant="h5" color="error" gutterBottom>
-          Error Loading Product
-        </Typography>
-        <Typography variant="body1">{error}</Typography>
-        <Button variant="contained" onClick={handleGoBack} sx={{ mt: 3 }}>
-          Go Back
-        </Button>
-      </Container>
+      <>
+        <Header />
+        <Container sx={{ py: 8, textAlign: 'center' }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            Error Loading Product
+          </Typography>
+          <Typography variant="body1">{error}</Typography>
+          <Button variant="contained" onClick={handleGoBack} sx={{ mt: 3 }}>
+            Go Back
+          </Button>
+        </Container>
+        <Footer />
+      </>
     );
   }
 
   if (!product) {
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
-        <Typography variant="h5" gutterBottom>
-          Product Not Found
-        </Typography>
-        <Button variant="contained" onClick={handleGoBack} sx={{ mt: 3 }}>
-          Go Back
-        </Button>
-      </Container>
+      <>
+        <Header />
+        <Container sx={{ py: 8, textAlign: 'center' }}>
+          <Typography variant="h5" gutterBottom>
+            Product Not Found
+          </Typography>
+          <Button variant="contained" onClick={handleGoBack} sx={{ mt: 3 }}>
+            Go Back
+          </Button>
+        </Container>
+        <Footer />
+      </>
     );
   }
 
+  const productImages = product.images || [{ url: 'https://via.placeholder.com/400x400?text=No+Image' }];
+
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <>
+      <Header />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Breadcrumbs navigation */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <IconButton onClick={handleGoBack} sx={{ mr: 1 }}>
@@ -213,31 +391,126 @@ const ProductDetailPage = () => {
       </Box>
 
       <Grid container spacing={4}>
-        {/* Product Images */}
+        {/* Product Images with Carousel */}
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 2, borderRadius: 2, overflow: 'hidden' }}>
-            <Card sx={{ mb: 2 }}>
-              <CardMedia
-                component="img"
-                image={product.images?.[0]?.url || 'https://via.placeholder.com/400x400?text=No+Image'}
-                alt={product.name}
-                sx={{ height: 400, objectFit: 'contain' }}
-              />
-            </Card>
-            <Grid container spacing={1}>
-              {product.images?.slice(0, 4).map((image, index) => (
-                <Grid item xs={3} key={index}>
-                  <Card sx={{ cursor: 'pointer' }}>
-                    <CardMedia
-                      component="img"
-                      image={image.url}
-                      alt={`${product.name} - view ${index + 1}`}
-                      sx={{ height: 80, objectFit: 'cover' }}
+            {/* Main Image with Carousel */}
+            <Box sx={{ position: 'relative', mb: 2 }}>
+              <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                <CardMedia
+                  component="img"
+                  image={productImages[currentImageIndex]?.url}
+                  alt={`${product.name} - view ${currentImageIndex + 1}`}
+                  sx={{ 
+                    height: 400, 
+                    objectFit: 'contain',
+                    transition: 'all 0.3s ease-in-out'
+                  }}
+                />
+              </Card>
+              
+              {/* Navigation Arrows */}
+              {productImages.length > 1 && (
+                <>
+                  <IconButton
+                    onClick={handlePrevImage}
+                    sx={{
+                      position: 'absolute',
+                      left: 8,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      },
+                      boxShadow: 2
+                    }}
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={handleNextImage}
+                    sx={{
+                      position: 'absolute',
+                      right: 8,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      },
+                      boxShadow: 2
+                    }}
+                  >
+                    <ChevronRightIcon />
+                  </IconButton>
+                </>
+              )}
+              
+              {/* Image Indicators */}
+              {productImages.length > 1 && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 16,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    gap: 1,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    borderRadius: 2,
+                    p: 1
+                  }}
+                >
+                  {productImages.map((_, index) => (
+                    <Box
+                      key={index}
+                      onClick={() => handleImageSelect(index)}
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: index === currentImageIndex ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          backgroundColor: 'white'
+                        }
+                      }}
                     />
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                  ))}
+                </Box>
+              )}
+            </Box>
+            
+            {/* Thumbnail Images */}
+            {productImages.length > 1 && (
+              <Grid container spacing={1}>
+                {productImages.slice(0, 4).map((image, index) => (
+                  <Grid item xs={3} key={index}>
+                    <Card 
+                      sx={{ 
+                        cursor: 'pointer',
+                        border: index === currentImageIndex ? 2 : 0,
+                        borderColor: 'primary.main',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          transform: 'scale(1.05)'
+                        }
+                      }}
+                      onClick={() => handleImageSelect(index)}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={image.url}
+                        alt={`${product.name} - thumbnail ${index + 1}`}
+                        sx={{ height: 80, objectFit: 'cover' }}
+                      />
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </Paper>
         </Grid>
 
@@ -276,6 +549,9 @@ const ProductDetailPage = () => {
                   <strong>Stock:</strong> {product.stock} units
                 </Typography>
               )}
+              <Typography variant="subtitle1" gutterBottom sx={{ color: 'success.main' }}>
+                <strong>Estimated Delivery:</strong> {new Date(Date.now() + 3*24*60*60*1000).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+              </Typography>
             </Box>
             
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -402,7 +678,7 @@ const ProductDetailPage = () => {
                     '&:hover': { transform: 'scale(1.03)' },
                     cursor: 'pointer'
                   }}
-                  onClick={() => navigate(`/products/${relatedProduct._id}`)}
+                  onClick={() => navigate(`/product/${relatedProduct._id}`)}
                 >
                   <CardMedia
                     component="img"
@@ -434,7 +710,9 @@ const ProductDetailPage = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

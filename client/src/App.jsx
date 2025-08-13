@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
 import './App.css'
 
 const AdminApp = lazy(() => import('./admin/AdminApp'))
@@ -8,12 +9,14 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path='/admin/*' element={<AdminApp/>}/>
-          <Route path='/*' element={<UserApp/>}/>
-        </Routes>
-      </Suspense>
+      <AuthProvider>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path='/admin/*' element={<AdminApp/>}/>
+            <Route path='/*' element={<UserApp/>}/>
+          </Routes>
+        </Suspense>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

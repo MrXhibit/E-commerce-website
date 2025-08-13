@@ -1,21 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Grid, Paper, Typography, TextField, Button, Checkbox, FormControlLabel, Divider, Alert, CircularProgress } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { registerUser, clearError } from '../store/slices/authSlice';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     userName: '',
     email: '',
-    password: ''
+    password: '',
+    conformPassword: '' // ADD THIS FIELD
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const { register } = useAuth();
+  
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { loading, error, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    // Clear any previous errors when component mounts
+    dispatch(clearError());
+  }, [dispatch]);
 
   const handleChange = (e) => {
     setFormData({
@@ -27,24 +40,25 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agreedToTerms) {
-      setError('Please agree to the Terms & Conditions');
       return;
     }
     
-    setLoading(true);
-    setError('');
-
-    try {
-      const result = await register(formData);
-      if (result.success) {
-        navigate('/');
-      } else {
-        setError(result.message);
-      }
-    } catch (err) {
-      setError('An error occurred during registration. Please try again.');
-    } finally {
-      setLoading(false);
+    // ADD PASSWORD VALIDATION
+    if (formData.password !== formData.conformPassword) {
+      // You could set a local error state here if needed
+      return;
+    }
+    
+    dispatch(clearError());
+    // Send the data that backend expects
+    const registrationData = {
+      email: formData.email,
+      password: formData.password,
+      conformPassword: formData.conformPassword
+    };
+    const result = await dispatch(registerUser(registrationData));
+    if (result.type === 'auth/registerUser/fulfilled') {
+      navigate('/');
     }
   };
 
@@ -119,6 +133,24 @@ const Signup = () => {
                   required
                 />
               </Grid>
+              {/* ADD CONFIRM PASSWORD FIELD */}
+              <Grid item xs={12}>
+                <TextField 
+                  label="Confirm Password" 
+                  name="conformPassword"
+                  type="password" 
+                  value={formData.conformPassword}
+                  onChange={handleChange}
+                  variant="outlined" 
+                  fullWidth 
+                  size="small" 
+                  InputProps={{ style: { background: '#2c2f34', color: 'white' } }} 
+                  InputLabelProps={{ style: { color: '#bdbdbd' } }} 
+                  required
+                  error={formData.password !== formData.conformPassword && formData.conformPassword !== ''}
+                  helperText={formData.password !== formData.conformPassword && formData.conformPassword !== '' ? 'Passwords do not match' : ''}
+                />
+              </Grid>
             </Grid>
             <FormControlLabel
               control={
@@ -138,7 +170,7 @@ const Signup = () => {
               size="large" 
               fullWidth 
               sx={{ mb: 2, fontWeight: 600, borderRadius: 2, py: 1.2 }}
-              disabled={loading}
+              disabled={loading || !agreedToTerms}
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : 'Create account'}
             </Button>

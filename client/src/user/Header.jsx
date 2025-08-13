@@ -12,11 +12,13 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { alpha, styled } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
+// Remove the old context import
 import { useAuth } from '../contexts/AuthContext';
 import { Container, Grid, Card, Chip, Collapse } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { logoutUser } from '../store/slices/authSlice';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -125,17 +127,19 @@ const categories = [
 
 
 const Header = () => {
-  const { user, isAuthenticated, logout, cart, wishlist } = useAuth();
+  const dispatch = useAppDispatch();
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { itemCount: cartItemCount } = useAppSelector((state) => state.cart);
+  const { itemCount: wishlistItemCount } = useAppSelector((state) => state.wishlist);
   const navigate = useNavigate();
   const [showCategories, setShowCategories] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    dispatch(logoutUser());
     navigate('/');
   };
 
   const handleCategoryClick = (categoryName) => {
-    // Navigate to products page with category filter
     navigate(`/products?category=${encodeURIComponent(categoryName)}`);
     setShowCategories(false);
   };
@@ -173,7 +177,7 @@ const Header = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
             <IconButton color="inherit" component={Link} to="/wishlist" sx={{ position: 'relative' }}>
               <FavoriteBorderIcon />
-              {wishlist.itemCount > 0 && (
+              {wishlistItemCount > 0 && (
                 <Box
                   sx={{
                     position: 'absolute',
@@ -191,13 +195,13 @@ const Header = () => {
                     fontWeight: 'bold',
                   }}
                 >
-                  {wishlist.itemCount}
+                  {wishlistItemCount}
                 </Box>
               )}
             </IconButton>
             <IconButton color="inherit" component={Link} to="/cart" sx={{ position: 'relative' }}>
               <ShoppingCartIcon />
-              {cart.itemCount > 0 && (
+              {cartItemCount > 0 && (
                 <Box
                   sx={{
                     position: 'absolute',
@@ -215,7 +219,7 @@ const Header = () => {
                     fontWeight: 'bold',
                   }}
                 >
-                  {cart.itemCount}
+                  {cartItemCount}
                 </Box>
               )}
             </IconButton>

@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Button, Divider, Link, TextField, Alert, CircularProgress } from '@mui/material';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { removeFromWishlist, clearWishlist } from '../store/slices/wishlistSlice';
+import { addToCart } from '../store/slices/cartSlice';
 import Header from './Header';
 import Footer from './Footer';
 
 const WishlistPage = () => {
-  const { wishlist, removeFromWishlist, clearWishlist, addToCart, isAuthenticated } = useAuth();
+  // REPLACE useAuth with Redux
+  const dispatch = useAppDispatch();
+  const { items: wishlistItems, loading } = useAppSelector((state) => state.wishlist);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -17,55 +22,41 @@ const WishlistPage = () => {
   }, [isAuthenticated, navigate]);
 
   const handleRemove = async (productId) => {
-    setLoading(true);
-    try {
-      await removeFromWishlist(productId);
-    } catch (error) {
-      console.error('Failed to remove from wishlist:', error);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(removeFromWishlist(productId));
   };
 
   const handleAddToCart = async (productId) => {
-    setLoading(true);
+    setActionLoading(true);
     try {
-      const result = await addToCart(productId, 1);
-      if (result.success) {
+      const result = await dispatch(addToCart({ productId, quantity: 1 }));
+      if (result.type === 'cart/addToCart/fulfilled') {
         alert('Item added to cart successfully!');
       } else {
-        alert(result.message || 'Failed to add to cart');
+        alert('Failed to add to cart');
       }
     } catch (error) {
       alert('Failed to add item to cart');
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
 
   const handleAddAllToCart = async () => {
-    setLoading(true);
+    setActionLoading(true);
     try {
-      for (const item of wishlist.items) {
-        await addToCart(item.productId, 1);
+      for (const item of wishlistItems) {
+        await dispatch(addToCart({ productId: item.productId, quantity: 1 }));
       }
       alert('All items added to cart successfully!');
     } catch (error) {
       alert('Failed to add some items to cart');
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
 
   const handleClearWishlist = async () => {
-    setLoading(true);
-    try {
-      await clearWishlist();
-    } catch (error) {
-      console.error('Failed to clear wishlist:', error);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(clearWishlist());
   };
 
   if (!isAuthenticated) {
@@ -88,7 +79,7 @@ const WishlistPage = () => {
             </Box>
           )}
 
-          {wishlist.items.length === 0 ? (
+          {wishlistItems.length === 0 ? (
             <Box sx={{ textAlign: 'center', mt: 4 }}>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
                 Your wishlist is empty.
@@ -104,7 +95,7 @@ const WishlistPage = () => {
             </Box>
           ) : (
             <>
-              {wishlist.items.map(item => (
+              {wishlistItems.map(item => (
                 <Box key={item.productId} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
                   {/* Info left */}
                   <Box sx={{ flex: 1 }}>
@@ -116,13 +107,13 @@ const WishlistPage = () => {
                       variant="outlined" 
                       sx={{ mt: 2, mb: 1, borderRadius: 0, textTransform: 'none', width: 180 }} 
                       onClick={() => handleAddToCart(item.productId)}
-                      disabled={loading}
+                      disabled={actionLoading}
                     >
                       Add to bag
                     </Button>
                     <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                       <Link component="button" underline="hover" sx={{ fontSize: 14 }} onClick={() => alert('Edit feature coming soon!')}>Edit</Link>
-                      <Link component="button" underline="hover" sx={{ fontSize: 14 }} onClick={() => handleRemove(item.productId)} disabled={loading}>Remove item</Link>
+                      <Link component="button" underline="hover" sx={{ fontSize: 14 }} onClick={() => handleRemove(item.productId)} disabled={actionLoading}>Remove item</Link>
                       <Link component="button" underline="hover" sx={{ fontSize: 14 }} onClick={() => alert('Add comment feature coming soon!')}>Add comment</Link>
                     </Box>
                   </Box>
@@ -157,7 +148,7 @@ const WishlistPage = () => {
                     color="inherit" 
                     sx={{ background: 'black', color: 'white', px: 5, py: 1.5, borderRadius: 0, fontWeight: 700, fontSize: 16 }} 
                     onClick={handleAddAllToCart}
-                    disabled={loading}
+                    disabled={actionLoading}
                   >
                     Add all to bag
                   </Button>
