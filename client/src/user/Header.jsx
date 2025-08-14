@@ -12,7 +12,6 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { alpha, styled } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
-// Remove the old context import
 import { useAuth } from '../contexts/AuthContext';
 import { Container, Grid, Card, Chip, Collapse } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -133,6 +132,7 @@ const Header = () => {
   const { itemCount: wishlistItemCount } = useAppSelector((state) => state.wishlist);
   const navigate = useNavigate();
   const [showCategories, setShowCategories] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -142,6 +142,18 @@ const Header = () => {
   const handleCategoryClick = (categoryName) => {
     navigate(`/products?category=${encodeURIComponent(categoryName)}`);
     setShowCategories(false);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearchKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      if (searchQuery.trim()) {
+        navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      }
+    }
   };
 
   return (
@@ -156,11 +168,18 @@ const Header = () => {
           
           {/* Centered Search Bar */}
           <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            {/* Update the search section */}
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
-              <StyledInputBase placeholder="Search products..." inputProps={{ 'aria-label': 'search' }} />
+              <StyledInputBase 
+                placeholder="Search products..." 
+                inputProps={{ 'aria-label': 'search' }}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
+              />
             </Search>
           </Box>
           

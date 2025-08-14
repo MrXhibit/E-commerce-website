@@ -11,11 +11,13 @@ import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
+import productSearchService from '../services/productSearch.service';
 import Header from './Header';
 import Footer from './Footer';
 
 const ElectronicsPage = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
