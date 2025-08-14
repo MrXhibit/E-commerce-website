@@ -23,4 +23,10 @@ router.delete("/remove/:productId", cartController.removeFromCart.bind(cartContr
 // Clear entire cart
 router.delete("/clear", cartController.clearCart.bind(cartController));
 
+// Apply coupon to cart
+router.post("/coupon/apply", cartController.applyCoupon.bind(cartController));
+
+// Remove coupon from cart
+router.delete("/coupon/remove", cartController.removeCoupon.bind(cartController));
+
 export default router;

@@ -1,12 +1,13 @@
 import { Cart } from "@/domain/entities";
 import { cartServiceInterface } from "@/domain/interfaces/services";
-import { CartRepository } from "@/infrastructure/repository";
-import { productRepository } from "@/infrastructure/repository";
+import { CartRepository, productRepository } from "@/infrastructure/repository";
+import { CouponService } from "../coupon/coupon.service";
 
 export class CartService implements cartServiceInterface {
   constructor(
     private cartRepository: CartRepository,
-    private productRepository: productRepository
+    private productRepository: productRepository,
+    private couponService: CouponService
   ) {}
 
   async addToCart(userId: string, productId: string, quantity: number): Promise<Cart> {
@@ -77,4 +78,31 @@ export class CartService implements cartServiceInterface {
     cart.clearCart();
     return await this.cartRepository.updateCart(cart);
   }
-} 
+
+  async applyCoupon(userId: string, couponCode: string): Promise<Cart> {
+    const cart = await this.cartRepository.getCartByUserId(userId);
+    
+    if (!cart) {
+      throw new Error("Cart not found");
+    }
+
+    const coupon = await this.couponService.applyCoupon(couponCode);
+    
+    if (!cart.applyCoupon(coupon)) {
+      throw new Error("Coupon cannot be applied to this order");
+    }
+
+    return await this.cartRepository.updateCart(cart);
+  }
+
+  async removeCoupon(userId: string): Promise<Cart> {
+    const cart = await this.cartRepository.getCartByUserId(userId);
+    
+    if (!cart) {
+      throw new Error("Cart not found");
+    }
+
+    cart.removeCoupon();
+    return await this.cartRepository.updateCart(cart);
+  }
+}

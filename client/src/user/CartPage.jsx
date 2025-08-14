@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress, Grid, Alert, CircularProgress } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Box, Container, Typography, Paper, Button, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { updateCartItem, removeFromCart, clearCart } from '../store/slices/cartSlice';
@@ -14,17 +13,21 @@ const CREDITS = 8.0;
 const TIP_PRESETS = [2, 4, 7];
 
 const CartPage = () => {
-  // REPLACE useAuth with Redux
   const dispatch = useAppDispatch();
   const { items: cartItems, totalAmount, itemCount, isLoading } = useAppSelector((state) => state.cart);
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, token } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
+  
   const [delivery, setDelivery] = useState('delivery');
   const [tip, setTip] = useState(0);
   const [customTip, setCustomTip] = useState('');
   const [useCredits, setUseCredits] = useState(false);
   const [coupon, setCoupon] = useState('');
   const [loading, setLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -58,13 +61,73 @@ const CartPage = () => {
     setTip(Number(e.target.value) || 0);
   };
 
+  const handleApplyCoupon = async () => {
+    if (!coupon.trim()) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+
+    setLoading(true);
+    setCouponError('');
+    setCouponSuccess('');
+
+    try {
+      const response = await fetch('/api/v1/cart/coupon/apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ couponCode: coupon })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAppliedCoupon(data.data.appliedCoupon);
+        setDiscountAmount(data.data.discountAmount || 0);
+        setCouponSuccess('Coupon applied successfully!');
+        setCoupon('');
+      } else {
+        setCouponError(data.message);
+      }
+    } catch (error) {
+      setCouponError('Failed to apply coupon');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/v1/cart/coupon/remove', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setAppliedCoupon(null);
+        setDiscountAmount(0);
+        setCouponSuccess('Coupon removed successfully!');
+      }
+    } catch (error) {
+      setCouponError('Failed to remove coupon');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const subtotal = totalAmount || 0;
   const deliveryFee = delivery === 'delivery' ? DELIVERY_FEE : 0;
   const credits = useCredits ? CREDITS : 0;
-  const total = subtotal + deliveryFee + SERVICE_FEE + TAX + tip - credits;
+  const total = subtotal + deliveryFee + SERVICE_FEE + TAX + tip - credits - discountAmount;
 
   if (!isAuthenticated) {
-    return null; // Will redirect to login
+    return null;
   }
 
   return (
@@ -171,16 +234,55 @@ const CartPage = () => {
                   </Button>
                 </Paper>
               </Grid>
+              
               {/* Cart Summary & Coupon */}
               <Grid item xs={12} md={4} lg={4}>
                 {/* Coupon */}
                 <Paper sx={{ p: 2, mb: 3 }}>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Coupons</Typography>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <TextField placeholder="Coupon code" value={coupon} onChange={e => setCoupon(e.target.value)} size="small" sx={{ flex: 1 }} />
-                    <Button variant="contained" color="inherit" sx={{ background: 'black', color: 'white', borderRadius: 0, px: 3, fontWeight: 700 }}>APPLY NOW</Button>
-                  </Box>
+                  
+                  {appliedCoupon ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" color="success.main">
+                        {appliedCoupon.code} applied (-${discountAmount.toFixed(2)})
+                      </Typography>
+                      <Button size="small" onClick={handleRemoveCoupon}>Remove</Button>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <TextField 
+                        placeholder="Coupon code" 
+                        value={coupon} 
+                        onChange={e => setCoupon(e.target.value)} 
+                        size="small" 
+                        sx={{ flex: 1 }}
+                        error={!!couponError}
+                      />
+                      <Button 
+                        variant="contained" 
+                        color="inherit" 
+                        sx={{ background: 'black', color: 'white', borderRadius: 0, px: 3, fontWeight: 700 }}
+                        onClick={handleApplyCoupon}
+                        disabled={loading}
+                      >
+                        APPLY NOW
+                      </Button>
+                    </Box>
+                  )}
+                  
+                  {couponError && (
+                    <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                      {couponError}
+                    </Typography>
+                  )}
+                  
+                  {couponSuccess && (
+                    <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+                      {couponSuccess}
+                    </Typography>
+                  )}
                 </Paper>
+                
                 {/* Order Summary */}
                 <Paper sx={{ p: 3 }}>
                   <Typography variant="h6" fontWeight={700} gutterBottom>Your Order</Typography>
@@ -189,6 +291,15 @@ const CartPage = () => {
                     <Typography variant="body2">Subtotal ({itemCount} items)</Typography>
                     <Typography variant="body2">${subtotal.toFixed(2)}</Typography>
                   </Box>
+                  
+                  {/* Add discount line in order summary */}
+                  {discountAmount > 0 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="body2" color="success.main">Discount</Typography>
+                      <Typography variant="body2" color="success.main">-${discountAmount.toFixed(2)}</Typography>
+                    </Box>
+                  )}
+                  
                   {/* Delivery */}
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="body2" fontWeight={700} sx={{ mb: 1 }}>Delivery</Typography>
@@ -197,6 +308,7 @@ const CartPage = () => {
                       <FormControlLabel value="pickup" control={<Radio />} label={<Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Pick Up</span></Box>} />
                     </RadioGroup>
                   </Box>
+                  
                   {/* Tip */}
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="body2" fontWeight={700} sx={{ mb: 1 }}>Tip</Typography>
@@ -210,16 +322,19 @@ const CartPage = () => {
                     </Stack>
                     <Typography variant="body2" color="text.secondary">Total: ${tip.toFixed(2)}</Typography>
                   </Box>
+                  
                   {/* Service Fee */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography variant="body2">Service Fee</Typography>
                     <Typography variant="body2">${SERVICE_FEE.toFixed(2)}</Typography>
                   </Box>
+                  
                   {/* Tax */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography variant="body2">Tax</Typography>
                     <Typography variant="body2">${TAX.toFixed(2)}</Typography>
                   </Box>
+                  
                   {/* Credits */}
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <Checkbox checked={useCredits} onChange={e => setUseCredits(e.target.checked)} sx={{ p: 0, mr: 1 }} />
@@ -227,11 +342,13 @@ const CartPage = () => {
                     <Box sx={{ flex: 1 }} />
                     <Typography variant="body2">${CREDITS.toFixed(2)}</Typography>
                   </Box>
+                  
                   <Divider sx={{ my: 2 }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, mb: 2 }}>
                     <Typography variant="body1">Total Payable</Typography>
                     <Typography variant="body1">${total.toFixed(2)}</Typography>
                   </Box>
+                  
                   <Button 
                     variant="contained" 
                     color="primary" 

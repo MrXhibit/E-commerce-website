@@ -1,3 +1,5 @@
+import { Coupon } from './coupon';
+
 export class Cart {
   id: string;
   userId: string;
@@ -7,6 +9,8 @@ export class Cart {
   createdAt: string;
   updatedAt: string;
   private _modifiedFields = {} as modifiedFields;
+  appliedCoupon?: Coupon;
+  discountAmount: number;
 
   constructor(
     id: string = "",
@@ -22,6 +26,7 @@ export class Cart {
     this.itemCount = itemCount;
     this.createdAt = new Date().toISOString();
     this.updatedAt = new Date().toISOString();
+    this.discountAmount = 0;
   }
 
   addItem(productId: string, quantity: number, product: any) {
@@ -94,8 +99,39 @@ export class Cart {
     this._modifiedFields.updatedAt = true;
   }
 
+  applyCoupon(coupon: Coupon): boolean {
+    if (!coupon.isValid()) {
+      return false;
+    }
+
+    const subtotal = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    if (subtotal < coupon.minimumOrderAmount) {
+      return false;
+    }
+
+    this.appliedCoupon = coupon;
+    this.discountAmount = coupon.calculateDiscount(subtotal);
+    this.updateTotals();
+    this._modifiedFields.appliedCoupon = true;
+    this._modifiedFields.discountAmount = true;
+    this._modifiedFields.totalAmount = true;
+    this._modifiedFields.updatedAt = true;
+    return true;
+  }
+
+  removeCoupon(): void {
+    this.appliedCoupon = undefined;
+    this.discountAmount = 0;
+    this.updateTotals();
+    this._modifiedFields.appliedCoupon = true;
+    this._modifiedFields.discountAmount = true;
+    this._modifiedFields.totalAmount = true;
+    this._modifiedFields.updatedAt = true;
+  }
+
   private updateTotals() {
-    this.totalAmount = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const subtotal = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    this.totalAmount = subtotal - this.discountAmount;
     this.itemCount = this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
@@ -106,6 +142,8 @@ export class Cart {
     cart.items = this.items;
     cart.totalAmount = this.totalAmount;
     cart.itemCount = this.itemCount;
+    cart.appliedCoupon = this.appliedCoupon;
+    cart.discountAmount = this.discountAmount;
     cart.createdAt = this.createdAt;
     cart.updatedAt = this.updatedAt;
     return cart;
@@ -143,6 +181,8 @@ export type cartProperties = Omit<
   | "removeItem"
   | "clearCart"
   | "updateTotals"
+  | "applyCoupon"
+  | "removeCoupon"
   | "sanitizeCart"
   | "modifiedFields"
   | "clearModifiedFields"
@@ -150,4 +190,4 @@ export type cartProperties = Omit<
 
 type modifiedFields = {
   [K in keyof Omit<cartProperties, "id">]: boolean;
-}; 
+};

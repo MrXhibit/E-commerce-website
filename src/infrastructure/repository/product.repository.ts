@@ -14,9 +14,11 @@ export class productRepository implements productRepositoryInterface {
       if (!product) return null;
       return this.mapToProduct(product);
     } catch (error) {
-      throw new APIError();
+      console.error('Error in getUniqueProduct:', error);
+      throw new APIError(`Failed to get unique product: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+  
   async saveProduct(product: Product): Promise<Product> {
     try {
       const productDb = new ProductModel({
@@ -32,9 +34,11 @@ export class productRepository implements productRepositoryInterface {
       await productDb.save();
       return this.mapToProduct(productDb);
     } catch (error) {
-      throw new APIError();
+      console.error('Error in saveProduct:', error);
+      throw new APIError(`Failed to save product: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+  
   async getProducts(limit: number, skip: number, category?: string): Promise<Product[]> {
     try {
       const query: any = { isListed: true };
@@ -44,7 +48,8 @@ export class productRepository implements productRepositoryInterface {
       const products = await ProductModel.find(query).populate('category', 'name').limit(limit).skip(skip);
       return products.map((product) => this.mapToProduct(product));
     } catch (error) {
-      throw new APIError();
+      console.error('Error in getProducts:', error);
+      throw new APIError(`Failed to get products: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -186,7 +191,11 @@ export class productRepository implements productRepositoryInterface {
       if (!product) throw new ValidationError("product id didnt exist");
       return this.mapToProduct(product);
     } catch (error) {
-      throw new APIError();
+      if (error instanceof ValidationError) {
+        throw error; // Re-throw validation errors as-is
+      }
+      console.error('Error in getSingleProduct:', error);
+      throw new APIError(`Failed to get single product: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
   mapToProduct(productDb: IProduct): Product {

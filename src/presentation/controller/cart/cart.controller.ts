@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { CartService } from "@/application/services";
 import { CartRepository, productRepository } from "@/infrastructure/repository";
+import { CouponRepository } from "@/infrastructure/repository/coupon.repository";
+import { CouponService } from "@/application/services/coupon/coupon.service";
 
 export class CartController {
   private cartService: CartService;
@@ -8,7 +10,9 @@ export class CartController {
   constructor() {
     const cartRepository = new CartRepository();
     const productRepo = new productRepository();
-    this.cartService = new CartService(cartRepository, productRepo);
+    const couponRepository = new CouponRepository();
+    const couponService = new CouponService(couponRepository);
+    this.cartService = new CartService(cartRepository, productRepo, couponService);
   }
 
   async addToCart(req: Request, res: Response) {
@@ -136,6 +140,57 @@ export class CartController {
       res.status(500).json({
         success: false,
         message: error.message || "Failed to clear cart"
+      });
+    }
+  }
+
+  async applyCoupon(req: Request, res: Response) {
+    try {
+      const { couponCode } = req.body;
+      const user = req.user as any;
+      const userId = user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      if (!couponCode) {
+        return res.status(400).json({ message: "Coupon code is required" });
+      }
+
+      const cart = await this.cartService.applyCoupon(userId, couponCode);
+      res.status(200).json({
+        success: true,
+        message: "Coupon applied successfully",
+        data: cart.sanitizeCart()
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: error.message || "Failed to apply coupon"
+      });
+    }
+  }
+
+  async removeCoupon(req: Request, res: Response) {
+    try {
+      const user = req.user as any;
+      const userId = user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const cart = await this.cartService.removeCoupon(userId);
+      res.status(200).json({
+        success: true,
+        message: "Coupon removed successfully",
+        data: cart.sanitizeCart()
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to remove coupon"
       });
     }
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions, Button, IconButton, Chip, Stack, Divider, Paper, CircularProgress, Alert, TextField, Snackbar, InputAdornment } from '@mui/material';
+import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions, Button, IconButton, Chip, Stack, Divider, Paper, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Pagination } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -15,6 +15,8 @@ import Footer from './Footer';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import ProductSearch from './components/ProductSearch';
+import productSearchService from '../services/productSearch.service';
 
 // Custom CSS for the carousel
 const carouselStyles = {
@@ -401,12 +403,16 @@ const mockProducts = [
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const productsPerPage = 20;
   const dispatch = useAppDispatch();
   const { isAuthenticated, addToCart, addToWishlist, wishlist } = useAuth();
   const navigate = useNavigate();
@@ -532,73 +538,51 @@ const ProductPage = () => {
     return `/products/${product._id || product.id}`;
   };
 
-  // Fetch products and categories from backend
+  // Load initial data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Fetch both products and categories in parallel
-        const [productsResponse, categoriesResponse] = await Promise.all([
-          apiService.getProducts(50, 0), // Fetch 50 products
-          apiService.getCategories(50, 1) // Fetch 50 categories
-        ]);
-        
-        // Handle products response
-        if (productsResponse && productsResponse.success && productsResponse.data) {
-          const productsData = productsResponse.data;
-          if (productsData.length > 0) {
-            setProducts(productsData);
-            console.log('✅ Loaded', productsData.length, 'products from backend API');
-          } else {
-            // API returned empty array, use mock products as fallback
-            setProducts(mockProducts);
-            console.log('⚠️ API returned empty products array, using mock products');
-          }
-        } else {
-          // API response not successful, use mock products as fallback
-          setProducts(mockProducts);
-          console.log('⚠️ Products API response not successful, using mock products');
-        }
-
-        // Handle categories response
-        if (categoriesResponse && categoriesResponse.categorys) {
-          const categoriesData = categoriesResponse.categorys;
-          if (categoriesData.length > 0) {
-            // Transform backend categories to match frontend format
-            const transformedCategories = categoriesData.map(cat => ({
-              name: cat.name,
-              image: cat.image?.url || 'https://via.placeholder.com/100x100?text=Category',
-              category: cat.name.toLowerCase(),
-              _id: cat._id
-            }));
-            setCategories(transformedCategories);
-            console.log('✅ Loaded', categoriesData.length, 'categories from backend API');
-          } else {
-            // Use empty array as fallback
-            setCategories([]);
-            console.log('⚠️ API returned empty categories array');
-          }
-        } else {
-          // Use empty array as fallback
-          setCategories([]);
-          console.log('⚠️ Categories API response not successful');
-        }
-        
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        console.log('Using fallback data');
-        setProducts(mockProducts);
-        setCategories(categories);
-        setError(null); // Clear error since we have fallback data
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    loadInitialData();
   }, []);
+
+  const loadInitialData = async () => {
+    setLoading(true);
+    try {
+      const [productsResponse, categoriesResponse] = await Promise.all([
+        productSearchService.getProducts(productsPerPage, 0),
+        productSearchService.getCategories()
+      ]);
+      
+      setProducts(productsResponse.data || []);
+      setCategories(categoriesResponse.data || []);
+      setTotalProducts(productsResponse.total || 0);
+    } catch (err) {
+      setError('Failed to load products');
+      console.error('Error loading initial data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (filters) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await productSearchService.searchProducts({
+        ...filters,
+        skip: (currentPage - 1) * productsPerPage
+      });
+      
+      setSearchResults(response.data);
+      setProducts(response.data.products || []);
+      setTotalProducts(response.data.total || 0);
+    } catch (err) {
+      setError('Search failed. Please try again.');
+      console.error('Search error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayProducts = searchResults ? searchResults.products : products;
 
   // Handle URL parameters for category filtering
   useEffect(() => {
@@ -673,7 +657,7 @@ const ProductPage = () => {
     return wishlist?.items?.some(item => item.productId === productId) || false;
   };
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = displayProducts.filter(product => {
     const matchesSearch = searchTerm === '' || 
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -688,6 +672,30 @@ const ProductPage = () => {
     <>
       <Header />
       <Box sx={{ background: '#fafbfc', minHeight: '100vh' }}>
+        {/* Search Component */}
+        <Container maxWidth="xl" sx={{ py: 4 }}>
+          <ProductSearch
+            onSearch={handleSearch}
+            categories={categories}
+            loading={loading}
+          />
+
+          {/* Results Summary */}
+          {searchResults && (
+            <Box mb={2}>
+              <Typography variant="h6">
+                {totalProducts} {totalProducts === 1 ? 'result' : 'results'} found
+              </Typography>
+            </Box>
+          )}
+
+          {/* Error Display */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+        </Container>
         {/* Hero Banner */}
         <Box sx={{ backgroundColor: 'primary.main', py: 6, mb: 4, color: 'primary.contrastText' }}>
           <Container>
@@ -1555,34 +1563,32 @@ const ProductPage = () => {
         )}
 
         {/* No Products Found */}
-        {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
+        {!loading && !error && displayProducts.length === 0 && (
           <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
             <Box sx={{ textAlign: 'center', py: 8 }}>
-              <Typography variant="h5" color="text.secondary" gutterBottom>
+              <Typography variant="h6" color="text.secondary">
                 No products found
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                {searchTerm && selectedCategory 
-                  ? `No products match "${searchTerm}" in ${selectedCategory} category`
-                  : searchTerm 
-                    ? `No products match "${searchTerm}"`
-                    : `No products found in ${selectedCategory} category`
-                }
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Try adjusting your search criteria
               </Typography>
-              <Button 
-                variant="outlined" 
-                size="large"
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategory(null);
-                }}
-              >
-                Clear Filters
-              </Button>
             </Box>
           </Container>
         )}
 
+        {/* Pagination */}
+        {totalProducts > productsPerPage && (
+          <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Pagination
+                count={Math.ceil(totalProducts / productsPerPage)}
+                page={currentPage}
+                onChange={(e, page) => setCurrentPage(page)}
+                color="primary"
+              />
+            </Box>
+          </Container>
+        )}
 
       </Box>
       <Footer />

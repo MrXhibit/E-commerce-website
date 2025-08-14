@@ -6,6 +6,13 @@ import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token
 import { validAdminResponseType } from "@/domain/types";
 
 export class adminService implements adminServiceInterface {
+  async getcurentAdmin(id: string): Promise<adminProperties> {
+    throw new Error("Method not implemented.");
+  }
+
+  async logOutAdmin(admin_token: string): Promise<Partial<adminProperties>> {
+    throw new Error("Method not implemented.");
+  }
   constructor(
     private adminRepo: adminRepositoryInterface,
     private tokenUtils: tokenValidationUtillsInterface,

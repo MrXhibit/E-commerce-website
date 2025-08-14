@@ -20,12 +20,47 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 };
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // impliment search sort filter pagination
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = parseInt(req.query.skip as string) || 0;
     const category = req.query.category as string;
     const products = await productServ.getProducts(limit, skip, category);
     return res.status(200).json(ResponseUtils.success(products, 'Products fetched successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Add new search endpoint
+export const searchProducts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {
+      query,
+      category,
+      brand,
+      model,
+      minPrice,
+      maxPrice,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      limit = 20,
+      skip = 0
+    } = req.query;
+
+    const searchFilters = {
+      query: query as string,
+      category: category as string,
+      brand: brand as string,
+      model: model as string,
+      minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+      sortBy: sortBy as 'name' | 'price' | 'createdAt' | 'rating',
+      sortOrder: sortOrder as 'asc' | 'desc',
+      limit: parseInt(limit as string),
+      skip: parseInt(skip as string)
+    };
+
+    const result = await productServ.searchProducts(searchFilters);
+    return res.status(200).json(ResponseUtils.success(result, 'Products searched successfully'));
   } catch (error) {
     next(error);
   }
