@@ -32,7 +32,7 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",
-      data: { user: sanitizedUser }
+      data: { user: sanitizedUser },
     });
   } catch (error) {
     next(error);
@@ -55,7 +55,7 @@ export const getUserProfile = async (req: Request, res: Response, next: NextFunc
     return res.status(200).json({
       success: true,
       message: "Profile retrieved successfully",
-      data: { user: sanitizedUser }
+      data: { user: sanitizedUser },
     });
   } catch (error) {
     next(error);
@@ -86,9 +86,9 @@ export const uploadProfileImage = async (req: Request, res: Response, next: Next
       success: true,
       message: "Profile image updated successfully",
       data: {
-      user: sanitizedUser,
-      imageUrl 
-      }
+        user: sanitizedUser,
+        imageUrl,
+      },
     });
   } catch (error) {
     next(error);
@@ -114,7 +114,7 @@ export const removeProfileImage = async (req: Request, res: Response, next: Next
     return res.status(200).json({
       success: true,
       message: "Profile image removed successfully",
-      user: sanitizedUser 
+      user: sanitizedUser,
     });
   } catch (error) {
     next(error);

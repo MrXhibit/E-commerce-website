@@ -13,7 +13,7 @@ export class Cart {
     userId: string,
     items: CartItem[] = [],
     totalAmount: number = 0,
-    itemCount: number = 0
+    itemCount: number = 0,
   ) {
     this.id = id;
     this.userId = userId;
@@ -25,8 +25,8 @@ export class Cart {
   }
 
   addItem(productId: string, quantity: number, product: any) {
-    const existingItem = this.items.find(item => item.productId === productId);
-    
+    const existingItem = this.items.find((item) => item.productId === productId);
+
     if (existingItem) {
       existingItem.quantity += quantity;
       existingItem.totalPrice = existingItem.quantity * existingItem.price;
@@ -42,12 +42,12 @@ export class Cart {
           images: product.images,
           price: product.price,
           brandName: product.brandName,
-          modelName: product.modelName
-        }
+          modelName: product.modelName,
+        },
       };
       this.items.push(newItem);
     }
-    
+
     this.updateTotals();
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.items = true;
@@ -57,7 +57,7 @@ export class Cart {
   }
 
   updateItemQuantity(productId: string, quantity: number) {
-    const item = this.items.find(item => item.productId === productId);
+    const item = this.items.find((item) => item.productId === productId);
     if (item) {
       if (quantity <= 0) {
         this.removeItem(productId);
@@ -75,7 +75,7 @@ export class Cart {
   }
 
   removeItem(productId: string) {
-    this.items = this.items.filter(item => item.productId !== productId);
+    this.items = this.items.filter((item) => item.productId !== productId);
     this.updateTotals();
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.items = true;
@@ -150,4 +150,4 @@ export type cartProperties = Omit<
 
 type modifiedFields = {
   [K in keyof Omit<cartProperties, "id">]: boolean;
-}; 
+};

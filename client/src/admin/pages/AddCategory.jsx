@@ -1,32 +1,30 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Button, TextField, Alert,FormControl,FormLabel,Typography } from "@mui/material";
+import { Box, Button, TextField, Alert, FormControl, FormLabel, Typography } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../components/global/Header";
-import { addCategoryFormSubmit } from "../services/category.service"
-
-
+import { addCategoryFormSubmit } from "../services/category.service";
 
 function AddCategory() {
- const { parentId } = useParams(); 
+  const { parentId } = useParams();
   const categorySchema = yup.object().shape({
-  name: yup.string().required("required"),
-  image: yup.mixed()
-  .required("required")
-  .test("fileType", "Only JPG/PNG files are allowed", (file) =>
-      file ? ["image/jpeg", "image/png", "image/jpg"].includes(file.type) : false
-    )
-    .test("fileSize", "Image must be less than 5MB", (file) =>
-      file ? file.size <= 5 * 1024 * 1024 : false
-    ),
-
-});
-const categoryInitialValues = {
-  name: "",
-  image: null,
-  parentId
-};
+    name: yup.string().required("required"),
+    image: yup
+      .mixed()
+      .required("required")
+      .test("fileType", "Only JPG/PNG files are allowed", (file) =>
+        file ? ["image/jpeg", "image/png", "image/jpg"].includes(file.type) : false,
+      )
+      .test("fileSize", "Image must be less than 5MB", (file) =>
+        file ? file.size <= 5 * 1024 * 1024 : false,
+      ),
+  });
+  const categoryInitialValues = {
+    name: "",
+    image: null,
+    parentId,
+  };
 
   return (
     <Box m="20px">
@@ -39,7 +37,7 @@ const categoryInitialValues = {
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, handleSubmit, status }) => (
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             {status && (
-              <Alert severity={`${status.type=="success"?"success":"error"}`} sx={{ mb: 2 }}>
+              <Alert severity={`${status.type == "success" ? "success" : "error"}`} sx={{ mb: 2 }}>
                 {status.message}
               </Alert>
             )}

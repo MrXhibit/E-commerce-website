@@ -2,65 +2,56 @@ import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { useContext } from "react";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
 import { ThemeContext } from "../../state/GlobalContext";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import { axiosInstance } from "../../utills/axios.instance"
-import { axiosDeleteAdminFunction } from "../../utills/axios.delete.admin"
+import { axiosInstance } from "../../utills/axios.instance";
+import { axiosDeleteAdminFunction } from "../../utills/axios.delete.admin";
 
-async function logout(){
+async function logout() {
   try {
-    await axiosInstance.get('/admin/logout')
-    axiosDeleteAdminFunction()
+    await axiosInstance.get("/admin/logout");
+    axiosDeleteAdminFunction();
   } catch (error) {
-    axiosDeleteAdminFunction()
+    axiosDeleteAdminFunction();
   }
 }
 
 function TopBar() {
-   const theme = useTheme()
-  const colorMode = useContext(ThemeContext)
-  
+  const theme = useTheme();
+  const colorMode = useContext(ThemeContext);
+
   return (
     <Box display={"flex"} justifyContent={"space-between"} p={2}>
       {/* logo */}
       <Box>
-       <Typography 
-       variant="h3"
-       component={"div"}
-       sx={
-        {
-          color : 'primery.main',
-          textTransform : "uppercase",
-          letterSpacing : 2,
-          cursor : "pointer"
-        }
-       }
-        >E Commerce</Typography>
+        <Typography
+          variant="h3"
+          component={"div"}
+          sx={{
+            color: "primery.main",
+            textTransform: "uppercase",
+            letterSpacing: 2,
+            cursor: "pointer",
+          }}
+        >
+          E Commerce
+        </Typography>
       </Box>
       {/* links */}
       <Box display={"flex"}>
-      <IconButton onClick={colorMode.toggleColorMode}>
-        {
-          theme.palette.mode === "dark" ? (
-            <DarkModeOutlinedIcon/>
-          ) : (
-            <LightModeOutlinedIcon/>
-          )
-        }        
-      </IconButton>
+        <IconButton onClick={colorMode.toggleColorMode}>
+          {theme.palette.mode === "dark" ? <DarkModeOutlinedIcon /> : <LightModeOutlinedIcon />}
+        </IconButton>
         <IconButton>
-          <PersonOutlinedIcon/>
+          <PersonOutlinedIcon />
         </IconButton>
         <IconButton onClick={logout}>
-          <LogoutIcon/>
+          <LogoutIcon />
         </IconButton>
-
-
       </Box>
     </Box>
-  )
- 
+  );
 }
 
-export default TopBar
+export default TopBar;

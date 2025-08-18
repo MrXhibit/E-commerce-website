@@ -7,12 +7,7 @@ export class Wishlist {
   updatedAt: string;
   private _modifiedFields = {} as modifiedFields;
 
-  constructor(
-    id: string = "",
-    userId: string,
-    items: WishlistItem[] = [],
-    itemCount: number = 0
-  ) {
+  constructor(id: string = "", userId: string, items: WishlistItem[] = [], itemCount: number = 0) {
     this.id = id;
     this.userId = userId;
     this.items = items;
@@ -22,8 +17,8 @@ export class Wishlist {
   }
 
   addItem(productId: string, product: any) {
-    const existingItem = this.items.find(item => item.productId === productId);
-    
+    const existingItem = this.items.find((item) => item.productId === productId);
+
     if (!existingItem) {
       const newItem: WishlistItem = {
         productId,
@@ -35,9 +30,9 @@ export class Wishlist {
           brandName: product.brandName,
           modelName: product.modelName,
           description: product.description,
-          stock: product.stock
+          stock: product.stock,
         },
-        addedAt: new Date().toISOString()
+        addedAt: new Date().toISOString(),
       };
       this.items.push(newItem);
       this.updateItemCount();
@@ -49,7 +44,7 @@ export class Wishlist {
   }
 
   removeItem(productId: string) {
-    this.items = this.items.filter(item => item.productId !== productId);
+    this.items = this.items.filter((item) => item.productId !== productId);
     this.updateItemCount();
     this.updatedAt = new Date().toISOString();
     this._modifiedFields.items = true;
@@ -119,4 +114,4 @@ export type wishlistProperties = Omit<
 
 type modifiedFields = {
   [K in keyof Omit<wishlistProperties, "id">]: boolean;
-}; 
+};

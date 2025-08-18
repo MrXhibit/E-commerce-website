@@ -7,7 +7,6 @@ import { useFetchData } from "../hooks/useFetchData";
 import RenderRow from "../components/category/RenderRow";
 
 function CategoryList() {
-
   const [data, error] = useFetchData("/category");
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);

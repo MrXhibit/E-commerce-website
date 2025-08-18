@@ -6,7 +6,7 @@ import { productRepository } from "@/infrastructure/repository";
 export class CartService implements cartServiceInterface {
   constructor(
     private cartRepository: CartRepository,
-    private productRepository: productRepository
+    private productRepository: productRepository,
   ) {}
 
   async addToCart(userId: string, productId: string, quantity: number): Promise<Cart> {
@@ -18,7 +18,7 @@ export class CartService implements cartServiceInterface {
 
     // Get existing cart or create new one
     let cart = await this.cartRepository.getCartByUserId(userId);
-    
+
     if (!cart) {
       cart = new Cart("", userId);
     }
@@ -36,7 +36,7 @@ export class CartService implements cartServiceInterface {
 
   async getCart(userId: string): Promise<Cart> {
     const cart = await this.cartRepository.getCartByUserId(userId);
-    
+
     if (!cart) {
       // Return empty cart if none exists
       return new Cart("", userId);
@@ -47,7 +47,7 @@ export class CartService implements cartServiceInterface {
 
   async updateCartItem(userId: string, productId: string, quantity: number): Promise<Cart> {
     const cart = await this.cartRepository.getCartByUserId(userId);
-    
+
     if (!cart) {
       throw new Error("Cart not found");
     }
@@ -58,7 +58,7 @@ export class CartService implements cartServiceInterface {
 
   async removeFromCart(userId: string, productId: string): Promise<Cart> {
     const cart = await this.cartRepository.getCartByUserId(userId);
-    
+
     if (!cart) {
       throw new Error("Cart not found");
     }
@@ -69,7 +69,7 @@ export class CartService implements cartServiceInterface {
 
   async clearCart(userId: string): Promise<Cart> {
     const cart = await this.cartRepository.getCartByUserId(userId);
-    
+
     if (!cart) {
       throw new Error("Cart not found");
     }
@@ -77,4 +77,4 @@ export class CartService implements cartServiceInterface {
     cart.clearCart();
     return await this.cartRepository.updateCart(cart);
   }
-} 
+}

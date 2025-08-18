@@ -10,7 +10,7 @@ export class CartRepository implements cartRepositoryInterface {
       totalAmount: cart.totalAmount,
       itemCount: cart.itemCount,
       createdAt: cart.createdAt,
-      updatedAt: cart.updatedAt
+      updatedAt: cart.updatedAt,
     };
 
     const savedCart = await CartModel.create(cartData);
@@ -29,9 +29,9 @@ export class CartRepository implements cartRepositoryInterface {
         items: cart.items,
         totalAmount: cart.totalAmount,
         itemCount: cart.itemCount,
-        updatedAt: cart.updatedAt
+        updatedAt: cart.updatedAt,
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedCart) {
@@ -48,11 +48,11 @@ export class CartRepository implements cartRepositoryInterface {
 
   mapToCart(cartDb: ICart): Cart {
     return new Cart(
-      typeof cartDb._id === "string" ? cartDb._id : cartDb._id?.toString?.() ?? "",
+      typeof cartDb._id === "string" ? cartDb._id : (cartDb._id?.toString?.() ?? ""),
       cartDb.userId,
       cartDb.items,
       cartDb.totalAmount,
-      cartDb.itemCount
+      cartDb.itemCount,
     );
   }
 }

@@ -5,4 +5,4 @@ export interface wishlistServiceInterface {
   getWishlist(userId: string): Promise<Wishlist>;
   removeFromWishlist(userId: string, productId: string): Promise<Wishlist>;
   clearWishlist(userId: string): Promise<Wishlist>;
-} 
+}

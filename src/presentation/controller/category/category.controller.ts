@@ -45,8 +45,8 @@ export const getCategory = async (req: Request, res: Response, next: NextFunctio
     let page;
     req.query.limit ? (limit = parseInt(req.query.limit as string)) : (limit = 10);
     req.query.page ? (page = parseInt(req.query.page as string)) : (page = 1);
-   const token = req.cookies.access_token_admin;
-    const categories = await categoryServ.getCategory(limit, page,token);
+    const token = req.cookies.access_token_admin;
+    const categories = await categoryServ.getCategory(limit, page, token);
     return res.status(200).json({ categories });
   } catch (error) {
     next(error);

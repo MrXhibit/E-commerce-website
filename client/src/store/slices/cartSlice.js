@@ -1,23 +1,20 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import apiService from '../../services/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import apiService from "../../services/api";
 
-export const fetchCart = createAsyncThunk(
-  'cart/fetchCart',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await apiService.getCart();
-      if (response.success) {
-        return response.data;
-      }
-      return rejectWithValue(response.message);
-    } catch (error) {
-      return rejectWithValue(error.message);
+export const fetchCart = createAsyncThunk("cart/fetchCart", async (_, { rejectWithValue }) => {
+  try {
+    const response = await apiService.getCart();
+    if (response.success) {
+      return response.data;
     }
+    return rejectWithValue(response.message);
+  } catch (error) {
+    return rejectWithValue(error.message);
   }
-);
+});
 
 export const addToCart = createAsyncThunk(
-  'cart/addToCart',
+  "cart/addToCart",
   async ({ productId, quantity = 1 }, { rejectWithValue }) => {
     try {
       const response = await apiService.addToCart(productId, quantity);
@@ -28,11 +25,11 @@ export const addToCart = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const updateCartItem = createAsyncThunk(
-  'cart/updateCartItem',
+  "cart/updateCartItem",
   async ({ productId, quantity }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateCartItem(productId, quantity);
@@ -43,11 +40,11 @@ export const updateCartItem = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const removeFromCart = createAsyncThunk(
-  'cart/removeFromCart',
+  "cart/removeFromCart",
   async (productId, { rejectWithValue }) => {
     try {
       const response = await apiService.removeFromCart(productId);
@@ -58,23 +55,20 @@ export const removeFromCart = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
-export const clearCartAsync = createAsyncThunk(
-  'cart/clearCartAsync',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await apiService.clearCart();
-      if (response.success) {
-        return response.data;
-      }
-      return rejectWithValue(response.message);
-    } catch (error) {
-      return rejectWithValue(error.message);
+export const clearCartAsync = createAsyncThunk("cart/clearCartAsync", async (_, { rejectWithValue }) => {
+  try {
+    const response = await apiService.clearCart();
+    if (response.success) {
+      return response.data;
     }
+    return rejectWithValue(response.message);
+  } catch (error) {
+    return rejectWithValue(error.message);
   }
-);
+});
 
 const initialState = {
   items: [],
@@ -85,7 +79,7 @@ const initialState = {
 };
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
     clearCart: (state) => {

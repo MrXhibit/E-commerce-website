@@ -29,12 +29,12 @@ export class WishlistController {
       res.status(200).json({
         success: true,
         message: "Item added to wishlist successfully",
-        data: wishlist.sanitizeWishlist()
+        data: wishlist.sanitizeWishlist(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to add item to wishlist"
+        message: error.message || "Failed to add item to wishlist",
       });
     }
   }
@@ -51,12 +51,12 @@ export class WishlistController {
       const wishlist = await this.wishlistService.getWishlist(userId);
       res.status(200).json({
         success: true,
-        data: wishlist.sanitizeWishlist()
+        data: wishlist.sanitizeWishlist(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to get wishlist"
+        message: error.message || "Failed to get wishlist",
       });
     }
   }
@@ -79,12 +79,12 @@ export class WishlistController {
       res.status(200).json({
         success: true,
         message: "Item removed from wishlist successfully",
-        data: wishlist.sanitizeWishlist()
+        data: wishlist.sanitizeWishlist(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to remove item from wishlist"
+        message: error.message || "Failed to remove item from wishlist",
       });
     }
   }
@@ -102,12 +102,12 @@ export class WishlistController {
       res.status(200).json({
         success: true,
         message: "Wishlist cleared successfully",
-        data: wishlist.sanitizeWishlist()
+        data: wishlist.sanitizeWishlist(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to clear wishlist"
+        message: error.message || "Failed to clear wishlist",
       });
     }
   }

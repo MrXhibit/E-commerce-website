@@ -1,9 +1,52 @@
-import { APIError, Product, productProperties, ValidationError } from "@/domain/entities";
+import { APIError, categoryProperties, Product, productProperties, ValidationError } from "@/domain/entities";
 import { productRepositoryInterface } from "@/domain/interfaces/repository";
 import { ProductSearchFilters, ProductSearchResult } from "@/domain/types/product.request.type";
 import ProductModel, { IProduct } from "../model/product.model";
+import { Types } from "mongoose";
+import CategoryModel from "../model/category.model";
 
 export class productRepository implements productRepositoryInterface {
+  getPopulatedProduct(productId: string): Promise<Product> {
+    throw new Error("Method not implemented.");
+  }
+  async getPopulatedProducts(
+    limit: number,
+    skip: number,
+    category?: string,
+    search?: string,
+    brand?: string,
+    model?: string,
+    minPrice?: number,
+    maxPrice?: number,
+  ): Promise<Product[]> {
+    try {
+      const query: any = {};
+      if (category) {
+        const categoryId = new Types.ObjectId(category);
+        const allCategories = await CategoryModel.find({
+          $or: [{ _id: categoryId }, { ancestors: categoryId }],
+        }).select("_id");
+        const categoryIds = allCategories.map((cat) => cat._id);
+        query.category = { $in: categoryIds };
+      }
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { brand: { $regex: search, $options: "i" } },
+          { model: { $regex: search, $options: "i" } },
+        ];
+      }
+      if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) query.price.$gte = minPrice;
+        if (maxPrice) query.price.$lte = maxPrice;
+      }
+      const products = await ProductModel.find(query).populate("category").limit(limit).skip(skip);
+      return products.map((product) => this.mapToProduct(product));
+    } catch (error) {
+      throw new APIError();
+    }
+  }
   async getUniqueProduct(name: string, brand: string, model: string): Promise<Product | null> {
     try {
       const product = await ProductModel.findOne({
@@ -41,7 +84,7 @@ export class productRepository implements productRepositoryInterface {
       if (category) {
         query.category = category;
       }
-      const products = await ProductModel.find(query).populate('category', 'name').limit(limit).skip(skip);
+      const products = await ProductModel.find(query).populate("category", "name").limit(limit).skip(skip);
       return products.map((product) => this.mapToProduct(product));
     } catch (error) {
       throw new APIError();
@@ -56,35 +99,34 @@ export class productRepository implements productRepositoryInterface {
     brand?: string,
     model?: string,
     limit: number = 20,
-    skip: number = 0
+    skip: number = 0,
   ): Promise<Product[]> {
     try {
-
       // Build query object
       const queryObj: any = { isListed: true };
 
       // Text search across name, description, and brand
       if (query) {
         queryObj.$or = [
-          { name: { $regex: query, $options: 'i' } },
-          { description: { $regex: query, $options: 'i' } },
-          { brandName: { $regex: query, $options: 'i' } }
+          { name: { $regex: query, $options: "i" } },
+          { description: { $regex: query, $options: "i" } },
+          { brandName: { $regex: query, $options: "i" } },
         ];
       }
 
       // Category filter
       if (category) {
-        queryObj.category = { $regex: category, $options: 'i' };
+        queryObj.category = { $regex: category, $options: "i" };
       }
 
       // Brand filter
       if (brand) {
-        queryObj.brandName = { $regex: brand, $options: 'i' };
+        queryObj.brandName = { $regex: brand, $options: "i" };
       }
 
       // Model filter
       if (model) {
-        queryObj.modelName = { $regex: model, $options: 'i' };
+        queryObj.modelName = { $regex: model, $options: "i" };
       }
 
       // Price range filter
@@ -96,7 +138,7 @@ export class productRepository implements productRepositoryInterface {
 
       // Execute query with pagination
       const products = await ProductModel.find(queryObj)
-        .populate('category', 'name')
+        .populate("category", "name")
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip);
@@ -113,7 +155,7 @@ export class productRepository implements productRepositoryInterface {
     minPrice?: number,
     maxPrice?: number,
     brand?: string,
-    model?: string
+    model?: string,
   ): Promise<number> {
     try {
       // Build query object
@@ -122,25 +164,25 @@ export class productRepository implements productRepositoryInterface {
       // Text search across name, description, and brand
       if (query) {
         queryObj.$or = [
-          { name: { $regex: query, $options: 'i' } },
-          { description: { $regex: query, $options: 'i' } },
-          { brandName: { $regex: query, $options: 'i' } }
+          { name: { $regex: query, $options: "i" } },
+          { description: { $regex: query, $options: "i" } },
+          { brandName: { $regex: query, $options: "i" } },
         ];
       }
 
       // Category filter
       if (category) {
-        queryObj.category = { $regex: category, $options: 'i' };
+        queryObj.category = { $regex: category, $options: "i" };
       }
 
       // Brand filter
       if (brand) {
-        queryObj.brandName = { $regex: brand, $options: 'i' };
+        queryObj.brandName = { $regex: brand, $options: "i" };
       }
 
       // Model filter
       if (model) {
-        queryObj.modelName = { $regex: model, $options: 'i' };
+        queryObj.modelName = { $regex: model, $options: "i" };
       }
 
       // Price range filter
@@ -182,7 +224,7 @@ export class productRepository implements productRepositoryInterface {
   }
   async getSingleProduct(id: string): Promise<Product> {
     try {
-      const product = await ProductModel.findById(id).populate('category', 'name');
+      const product = await ProductModel.findById(id).populate("category", "name");
       if (!product) throw new ValidationError("product id didnt exist");
       return this.mapToProduct(product);
     } catch (error) {
@@ -191,10 +233,21 @@ export class productRepository implements productRepositoryInterface {
   }
   mapToProduct(productDb: IProduct): Product {
     // Handle populated category (object with name) or ObjectId
-    const categoryValue = typeof productDb.category === 'object' && productDb.category !== null && 'name' in productDb.category
-      ? (productDb.category as any).name
-      : productDb.category.toString();
-    
+    let categoryValue;
+    if (
+      typeof productDb.category === "object" &&
+      productDb.category !== null &&
+      "name" in productDb.category
+    ) {
+      categoryValue = {} as Partial<categoryProperties>;
+      categoryValue.ancestors = productDb.category.ancestors.map((ance) => ance.toString());
+      categoryValue.isListed = productDb.category.isListed;
+      categoryValue.name = productDb.category.name;
+      categoryValue.id = productDb.category.id;
+    } else {
+      categoryValue = productDb.category.toString();
+    }
+
     const product = new Product(
       productDb.id,
       productDb.name,

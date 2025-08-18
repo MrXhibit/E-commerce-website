@@ -6,7 +6,7 @@ import { productRepository } from "@/infrastructure/repository";
 export class WishlistService implements wishlistServiceInterface {
   constructor(
     private wishlistRepository: WishlistRepository,
-    private productRepository: productRepository
+    private productRepository: productRepository,
   ) {}
 
   async addToWishlist(userId: string, productId: string): Promise<Wishlist> {
@@ -18,7 +18,7 @@ export class WishlistService implements wishlistServiceInterface {
 
     // Get existing wishlist or create new one
     let wishlist = await this.wishlistRepository.getWishlistByUserId(userId);
-    
+
     if (!wishlist) {
       wishlist = new Wishlist("", userId);
     }
@@ -36,7 +36,7 @@ export class WishlistService implements wishlistServiceInterface {
 
   async getWishlist(userId: string): Promise<Wishlist> {
     const wishlist = await this.wishlistRepository.getWishlistByUserId(userId);
-    
+
     if (!wishlist) {
       // Return empty wishlist if none exists
       return new Wishlist("", userId);
@@ -47,7 +47,7 @@ export class WishlistService implements wishlistServiceInterface {
 
   async removeFromWishlist(userId: string, productId: string): Promise<Wishlist> {
     const wishlist = await this.wishlistRepository.getWishlistByUserId(userId);
-    
+
     if (!wishlist) {
       throw new Error("Wishlist not found");
     }
@@ -58,7 +58,7 @@ export class WishlistService implements wishlistServiceInterface {
 
   async clearWishlist(userId: string): Promise<Wishlist> {
     const wishlist = await this.wishlistRepository.getWishlistByUserId(userId);
-    
+
     if (!wishlist) {
       throw new Error("Wishlist not found");
     }
@@ -66,4 +66,4 @@ export class WishlistService implements wishlistServiceInterface {
     wishlist.clearWishlist();
     return await this.wishlistRepository.updateWishlist(wishlist);
   }
-} 
+}

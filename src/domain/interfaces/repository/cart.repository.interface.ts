@@ -6,4 +6,4 @@ export interface cartRepositoryInterface {
   updateCart(cart: Cart): Promise<Cart>;
   deleteCart(userId: string): Promise<boolean>;
   mapToCart(cartDb: unknown): Cart;
-} 
+}

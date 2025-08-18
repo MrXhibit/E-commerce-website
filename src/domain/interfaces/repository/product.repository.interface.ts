@@ -12,7 +12,7 @@ export interface productRepositoryInterface {
     brand?: string,
     model?: string,
     limit?: number,
-    skip?: number
+    skip?: number,
   ): Promise<Product[]>;
   countProducts(
     query?: string,
@@ -20,10 +20,21 @@ export interface productRepositoryInterface {
     minPrice?: number,
     maxPrice?: number,
     brand?: string,
-    model?: string
+    model?: string,
   ): Promise<number>;
   editProduct(Product: Product): Promise<Product>;
   getSingleProduct(id: string): Promise<Product>;
   getUniqueProduct(name: string, brand: string, model: string): Promise<Product | null>;
   mapToProduct(productDb: unknown): Product;
+  getPopulatedProduct(productId: string): Promise<Product>;
+  getPopulatedProducts(
+    limit: number,
+    skip: number,
+    category?: string,
+    search?: string,
+    brand?: string,
+    model?: string,
+    minPrice?: number,
+    maxPrice?: number,
+  ): Promise<Product[]>;
 }

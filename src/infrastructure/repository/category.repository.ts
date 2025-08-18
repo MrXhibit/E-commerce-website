@@ -28,9 +28,9 @@ export class categoryRepository implements categoryRepositoryInterface {
       const dbCategory = new CategoryModel({
         name: category.name,
         image: category.image,
-       parentId: category.parentId || null,
-       ancestors: category.ancestors || [],
-       level: category.level || 0,
+        parentId: category.parentId || null,
+        ancestors: category.ancestors || [],
+        level: category.level || 0,
       });
       await dbCategory.save();
       return this.mapToCategory(dbCategory);

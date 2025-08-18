@@ -16,9 +16,8 @@ import Header from "../components/global/Header";
 import { addProductFormSubmit } from "../services/product.form.service";
 import { useFetchData } from "../hooks/useFetchData";
 
-
 function AddProduct() {
-  const [ data, error ] = useFetchData("/category");
+  const [data, error] = useFetchData("/category");
   const categories = data?.categories || [];
   const [allCategories, setAllCategories] = useState([]);
   const [levels, setLevels] = useState([]);
@@ -78,15 +77,15 @@ function AddProduct() {
   };
 
   const flattenCategoriesByLevel = (categories, level = 0, path = []) => {
-  return categories.flatMap((cat) => {
-    const currentPath = [...path, { id: cat.id, name: cat.name }];
-    const flattened = [{ ...cat, level, path: currentPath }];
-    if (cat.children && cat.children.length > 0) {
-      return [...flattened, ...flattenCategoriesByLevel(cat.children, level + 1, currentPath)];
-    }
-    return flattened;
-  });
-};
+    return categories.flatMap((cat) => {
+      const currentPath = [...path, { id: cat.id, name: cat.name }];
+      const flattened = [{ ...cat, level, path: currentPath }];
+      if (cat.children && cat.children.length > 0) {
+        return [...flattened, ...flattenCategoriesByLevel(cat.children, level + 1, currentPath)];
+      }
+      return flattened;
+    });
+  };
 
   const handleCategoryChange = (levelIndex, selectedId, setFieldValue, values) => {
     const newPath = [...values.categoryPath.slice(0, levelIndex)];
@@ -98,7 +97,7 @@ function AddProduct() {
     setFieldValue("categoryPath", newPath);
 
     const newLevels = [...levels.slice(0, levelIndex + 1)];
-    
+
     const nextLevelOptions = allCategories.filter(
       (cat) => cat.level === levelIndex + 1 && cat.path[levelIndex]?.id === selectedId,
     );

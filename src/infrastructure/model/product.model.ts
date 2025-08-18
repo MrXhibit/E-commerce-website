@@ -1,10 +1,11 @@
 import { Schema, Document, model } from "mongoose";
 import { productProperties } from "@/domain/entities";
+import { Icategory } from "./category.model";
 
 type ProductWithoutCategory = Omit<productProperties, "category">;
 
 type productDb = ProductWithoutCategory & {
-  category: Schema.Types.ObjectId;
+  category: Schema.Types.ObjectId | Icategory;
 };
 
 export type IProduct = productDb & Document;

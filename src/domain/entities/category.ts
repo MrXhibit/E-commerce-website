@@ -9,7 +9,14 @@ export class Category {
   createdAt: string;
   updatedAt: string;
   private _modifiedFields = {} as modifiedFields;
-  constructor(id: string = "", name: string, image: { url: string; id: string },    parentId?: string,ancestors?: string[],level?: number) {
+  constructor(
+    id: string = "",
+    name: string,
+    image: { url: string; id: string },
+    parentId?: string,
+    ancestors?: string[],
+    level?: number,
+  ) {
     this.id = id;
     this.name = name;
     this.image = image;
@@ -90,11 +97,13 @@ export type categoryProperties = Omit<
   | "sanitizeCategory"
   | "modifiedFields"
   | "clearModifiedFields"
+  | "setAncestors"
+  | "setLevel"
 >;
 type modifiedFields = {
   [K in keyof Omit<categoryProperties, "id">]: boolean;
 };
 export type children = {
-  children : Partial<categoryProperties>[]
-}
-export type categorieTreeItem = Partial<categoryProperties> & children
+  children: Partial<categoryProperties>[];
+};
+export type categorieTreeItem = Partial<categoryProperties> & children;

@@ -16,17 +16,17 @@ const customProducts = [
     images: [
       {
         url: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500",
-        id: "gaming_laptop_1"
+        id: "gaming_laptop_1",
       },
       {
-        url: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500", 
-        id: "gaming_laptop_2"
+        url: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500",
+        id: "gaming_laptop_2",
       },
       {
         url: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500",
-        id: "gaming_laptop_3"
-      }
-    ]
+        id: "gaming_laptop_3",
+      },
+    ],
   },
   {
     name: "Wireless Bluetooth Earbuds",
@@ -39,13 +39,13 @@ const customProducts = [
     images: [
       {
         url: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500",
-        id: "earbuds_1"
+        id: "earbuds_1",
       },
       {
         url: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=500",
-        id: "earbuds_2"
-      }
-    ]
+        id: "earbuds_2",
+      },
+    ],
   },
   {
     name: "Designer Leather Jacket",
@@ -58,14 +58,14 @@ const customProducts = [
     images: [
       {
         url: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500",
-        id: "leather_jacket_1"
+        id: "leather_jacket_1",
       },
       {
         url: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500",
-        id: "leather_jacket_2"
-      }
-    ]
-  }
+        id: "leather_jacket_2",
+      },
+    ],
+  },
 ];
 
 async function addCustomProducts() {
@@ -77,14 +77,14 @@ async function addCustomProducts() {
     // Get all categories
     const categories = await CategoryModel.find({});
     const categoryMap = new Map();
-    categories.forEach(cat => {
+    categories.forEach((cat) => {
       categoryMap.set(cat.name, cat._id);
     });
 
     // Add products
     for (const productData of customProducts) {
       const categoryId = categoryMap.get(productData.categoryName);
-      
+
       if (!categoryId) {
         console.log(`Category ${productData.categoryName} not found, skipping product ${productData.name}`);
         continue;
@@ -94,7 +94,7 @@ async function addCustomProducts() {
       const existingProduct = await ProductModel.findOne({
         name: productData.name,
         brandName: productData.brandName,
-        modelName: productData.modelName
+        modelName: productData.modelName,
       });
 
       if (existingProduct) {
@@ -112,17 +112,16 @@ async function addCustomProducts() {
         stock: productData.stock,
         category: categoryId,
         images: productData.images,
-        isListed: true
+        isListed: true,
       });
 
       console.log(`✅ Created product: ${product.name}`);
     }
 
     console.log("\n🎉 Custom products added successfully!");
-    
+
     // Close connection
     await mongoose.connection.close();
-
   } catch (error) {
     console.error("❌ Error adding products:", error);
     process.exit(1);

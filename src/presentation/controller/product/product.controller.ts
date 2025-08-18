@@ -5,6 +5,7 @@ import { productUtills } from "@/infrastructure/utills/product.utils";
 import { tokenUtils } from "@/infrastructure/utills/token.utils";
 import { ResponseUtils } from "@/infrastructure/utills/response.utils";
 import { Request, Response, NextFunction } from "express";
+import { number } from "joi";
 
 const productRepo = new productRepository();
 const productServ = new productService(productRepo, productUtills, tokenUtils, cloudUtills);
@@ -23,9 +24,35 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
     // impliment search sort filter pagination
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = parseInt(req.query.skip as string) || 0;
-    const category = req.query.category as string;
-    const products = await productServ.getProducts(limit, skip, category);
-    return res.status(200).json(ResponseUtils.success(products, 'Products fetched successfully'));
+    const category = (req.query.category as string) || undefined;
+    const search = (req.query.search as string) || undefined;
+    const brand = (req.query.brand as string) || undefined;
+    const model = (req.query.model as string) || undefined;
+    let minPrice: number | undefined;
+    let maxPrice: number | undefined;
+    if (typeof req.query.minPrice === "string") {
+      minPrice = parseFloat(req.query.minPrice);
+    }
+
+    if (typeof req.query.maxPrice === "string") {
+      maxPrice = parseFloat(req.query.maxPrice);
+    }
+
+    const token = req.cookies.access_token_admin || undefined;
+    const products = await productServ.getProducts(
+      limit,
+      skip,
+      category,
+      search,
+      token,
+      brand,
+      model,
+      minPrice,
+      maxPrice,
+    );
+      return res.status(200).json({products})
+
+    // return res.status(200).json(ResponseUtils.success(products, "Products fetched successfully"));
   } catch (error) {
     next(error);
   }
@@ -34,7 +61,7 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
   try {
     const id = req.params.id;
     const product = await productServ.getSingleProduct(id);
-    return res.status(200).json(ResponseUtils.success(product, 'Product fetched successfully'));
+    return res.status(200).json(ResponseUtils.success(product, "Product fetched successfully"));
   } catch (error) {
     next(error);
   }

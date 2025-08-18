@@ -9,7 +9,7 @@ export class WishlistRepository implements wishlistRepositoryInterface {
       items: wishlist.items,
       itemCount: wishlist.itemCount,
       createdAt: wishlist.createdAt,
-      updatedAt: wishlist.updatedAt
+      updatedAt: wishlist.updatedAt,
     };
 
     const savedWishlist = await WishlistModel.create(wishlistData);
@@ -27,9 +27,9 @@ export class WishlistRepository implements wishlistRepositoryInterface {
       {
         items: wishlist.items,
         itemCount: wishlist.itemCount,
-        updatedAt: wishlist.updatedAt
+        updatedAt: wishlist.updatedAt,
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedWishlist) {
@@ -47,10 +47,10 @@ export class WishlistRepository implements wishlistRepositoryInterface {
   mapToWishlist(wishlistDb: IWishlist): Wishlist {
     const wishlistData = wishlistDb as IWishlist;
     return new Wishlist(
-      typeof wishlistData._id === "string" ? wishlistData._id : wishlistData._id?.toString?.() ?? "",
+      typeof wishlistData._id === "string" ? wishlistData._id : (wishlistData._id?.toString?.() ?? ""),
       wishlistData.userId,
       wishlistData.items,
-      wishlistData.itemCount
+      wishlistData.itemCount,
     );
   }
 }

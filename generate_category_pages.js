@@ -1,69 +1,254 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const categories = [
   // Electronics & Technology
-  { name: 'Headphones', icon: '🎧', description: 'Headphones, earbuds, and audio accessories', keywords: ['headphones', 'earbuds', 'headset', 'audio'] },
-  { name: 'Gaming', icon: '🎮', description: 'Gaming consoles, accessories, and games', keywords: ['gaming', 'console', 'playstation', 'xbox', 'nintendo'] },
-  { name: 'Cameras', icon: '📷', description: 'Digital cameras, lenses, and photography equipment', keywords: ['camera', 'photography', 'lens', 'dslr'] },
-  { name: 'TVAudio', icon: '📺', description: 'Televisions, speakers, and home audio systems', keywords: ['tv', 'television', 'speaker', 'audio', 'sound'], displayName: 'TV & Audio' },
-  { name: 'SmartHome', icon: '🏠', description: 'Smart devices, home automation, and IoT products', keywords: ['smart', 'home', 'automation', 'iot', 'alexa'], displayName: 'Smart Home' },
+  {
+    name: "Headphones",
+    icon: "🎧",
+    description: "Headphones, earbuds, and audio accessories",
+    keywords: ["headphones", "earbuds", "headset", "audio"],
+  },
+  {
+    name: "Gaming",
+    icon: "🎮",
+    description: "Gaming consoles, accessories, and games",
+    keywords: ["gaming", "console", "playstation", "xbox", "nintendo"],
+  },
+  {
+    name: "Cameras",
+    icon: "📷",
+    description: "Digital cameras, lenses, and photography equipment",
+    keywords: ["camera", "photography", "lens", "dslr"],
+  },
+  {
+    name: "TVAudio",
+    icon: "📺",
+    description: "Televisions, speakers, and home audio systems",
+    keywords: ["tv", "television", "speaker", "audio", "sound"],
+    displayName: "TV & Audio",
+  },
+  {
+    name: "SmartHome",
+    icon: "🏠",
+    description: "Smart devices, home automation, and IoT products",
+    keywords: ["smart", "home", "automation", "iot", "alexa"],
+    displayName: "Smart Home",
+  },
 
   // Home & Garden
-  { name: 'Furniture', icon: '🪑', description: 'Home and office furniture for every room', keywords: ['furniture', 'chair', 'table', 'sofa', 'bed'] },
-  { name: 'HomeDecor', icon: '🏡', description: 'Decorative items, artwork, and home accessories', keywords: ['decor', 'decoration', 'art', 'vase', 'candle'], displayName: 'Home Decor' },
-  { name: 'Kitchen', icon: '🍳', description: 'Kitchen appliances, cookware, and dining essentials', keywords: ['kitchen', 'cooking', 'appliance', 'cookware'] },
-  { name: 'Bedding', icon: '🛏️', description: 'Bed sheets, pillows, comforters, and bedroom textiles', keywords: ['bedding', 'sheets', 'pillow', 'comforter', 'blanket'] },
-  { name: 'Garden', icon: '🌱', description: 'Gardening tools, plants, and outdoor equipment', keywords: ['garden', 'plant', 'outdoor', 'lawn', 'flower'] },
-  { name: 'Tools', icon: '🔧', description: 'Hand tools, power tools, and hardware', keywords: ['tools', 'hardware', 'drill', 'hammer', 'wrench'] },
+  {
+    name: "Furniture",
+    icon: "🪑",
+    description: "Home and office furniture for every room",
+    keywords: ["furniture", "chair", "table", "sofa", "bed"],
+  },
+  {
+    name: "HomeDecor",
+    icon: "🏡",
+    description: "Decorative items, artwork, and home accessories",
+    keywords: ["decor", "decoration", "art", "vase", "candle"],
+    displayName: "Home Decor",
+  },
+  {
+    name: "Kitchen",
+    icon: "🍳",
+    description: "Kitchen appliances, cookware, and dining essentials",
+    keywords: ["kitchen", "cooking", "appliance", "cookware"],
+  },
+  {
+    name: "Bedding",
+    icon: "🛏️",
+    description: "Bed sheets, pillows, comforters, and bedroom textiles",
+    keywords: ["bedding", "sheets", "pillow", "comforter", "blanket"],
+  },
+  {
+    name: "Garden",
+    icon: "🌱",
+    description: "Gardening tools, plants, and outdoor equipment",
+    keywords: ["garden", "plant", "outdoor", "lawn", "flower"],
+  },
+  {
+    name: "Tools",
+    icon: "🔧",
+    description: "Hand tools, power tools, and hardware",
+    keywords: ["tools", "hardware", "drill", "hammer", "wrench"],
+  },
 
   // Fashion & Beauty
-  { name: 'Clothing', icon: '👕', description: 'Fashion apparel for men, women, and children', keywords: ['clothing', 'shirt', 'dress', 'pants', 'jacket'] },
-  { name: 'Shoes', icon: '👟', description: 'Footwear for all occasions and activities', keywords: ['shoes', 'sneakers', 'boots', 'sandals', 'heels'] },
-  { name: 'Jewelry', icon: '💍', description: 'Fine jewelry, accessories, and precious metals', keywords: ['jewelry', 'ring', 'necklace', 'earrings', 'bracelet'] },
-  { name: 'Watches', icon: '⌚', description: 'Timepieces, smartwatches, and watch accessories', keywords: ['watch', 'timepiece', 'smartwatch', 'rolex', 'apple'] },
-  { name: 'Beauty', icon: '💄', description: 'Cosmetics, skincare, and beauty products', keywords: ['beauty', 'makeup', 'cosmetics', 'skincare', 'lipstick'] },
-  { name: 'Bags', icon: '👜', description: 'Handbags, backpacks, and travel accessories', keywords: ['bag', 'handbag', 'backpack', 'purse', 'luggage'] },
+  {
+    name: "Clothing",
+    icon: "👕",
+    description: "Fashion apparel for men, women, and children",
+    keywords: ["clothing", "shirt", "dress", "pants", "jacket"],
+  },
+  {
+    name: "Shoes",
+    icon: "👟",
+    description: "Footwear for all occasions and activities",
+    keywords: ["shoes", "sneakers", "boots", "sandals", "heels"],
+  },
+  {
+    name: "Jewelry",
+    icon: "💍",
+    description: "Fine jewelry, accessories, and precious metals",
+    keywords: ["jewelry", "ring", "necklace", "earrings", "bracelet"],
+  },
+  {
+    name: "Watches",
+    icon: "⌚",
+    description: "Timepieces, smartwatches, and watch accessories",
+    keywords: ["watch", "timepiece", "smartwatch", "rolex", "apple"],
+  },
+  {
+    name: "Beauty",
+    icon: "💄",
+    description: "Cosmetics, skincare, and beauty products",
+    keywords: ["beauty", "makeup", "cosmetics", "skincare", "lipstick"],
+  },
+  {
+    name: "Bags",
+    icon: "👜",
+    description: "Handbags, backpacks, and travel accessories",
+    keywords: ["bag", "handbag", "backpack", "purse", "luggage"],
+  },
 
   // Sports & Outdoors
-  { name: 'Sports', icon: '⚽', description: 'Sports equipment and athletic gear', keywords: ['sports', 'athletic', 'ball', 'equipment', 'gear'] },
-  { name: 'Fitness', icon: '💪', description: 'Exercise equipment and fitness accessories', keywords: ['fitness', 'exercise', 'gym', 'workout', 'training'] },
-  { name: 'Outdoor', icon: '🏕️', description: 'Outdoor recreation and adventure gear', keywords: ['outdoor', 'camping', 'hiking', 'adventure', 'nature'] },
-  { name: 'Cycling', icon: '🚴', description: 'Bicycles, cycling gear, and accessories', keywords: ['cycling', 'bike', 'bicycle', 'helmet', 'gear'] },
+  {
+    name: "Sports",
+    icon: "⚽",
+    description: "Sports equipment and athletic gear",
+    keywords: ["sports", "athletic", "ball", "equipment", "gear"],
+  },
+  {
+    name: "Fitness",
+    icon: "💪",
+    description: "Exercise equipment and fitness accessories",
+    keywords: ["fitness", "exercise", "gym", "workout", "training"],
+  },
+  {
+    name: "Outdoor",
+    icon: "🏕️",
+    description: "Outdoor recreation and adventure gear",
+    keywords: ["outdoor", "camping", "hiking", "adventure", "nature"],
+  },
+  {
+    name: "Cycling",
+    icon: "🚴",
+    description: "Bicycles, cycling gear, and accessories",
+    keywords: ["cycling", "bike", "bicycle", "helmet", "gear"],
+  },
 
   // Health & Personal Care
-  { name: 'Health', icon: '🏥', description: 'Health products, medical supplies, and wellness items', keywords: ['health', 'medical', 'wellness', 'care', 'medicine'] },
-  { name: 'PersonalCare', icon: '🧴', description: 'Personal hygiene and grooming products', keywords: ['personal', 'care', 'hygiene', 'grooming', 'soap'], displayName: 'Personal Care' },
-  { name: 'Vitamins', icon: '💊', description: 'Vitamins, supplements, and nutritional products', keywords: ['vitamins', 'supplements', 'nutrition', 'health', 'pills'] },
+  {
+    name: "Health",
+    icon: "🏥",
+    description: "Health products, medical supplies, and wellness items",
+    keywords: ["health", "medical", "wellness", "care", "medicine"],
+  },
+  {
+    name: "PersonalCare",
+    icon: "🧴",
+    description: "Personal hygiene and grooming products",
+    keywords: ["personal", "care", "hygiene", "grooming", "soap"],
+    displayName: "Personal Care",
+  },
+  {
+    name: "Vitamins",
+    icon: "💊",
+    description: "Vitamins, supplements, and nutritional products",
+    keywords: ["vitamins", "supplements", "nutrition", "health", "pills"],
+  },
 
   // Books & Media
-  { name: 'Books', icon: '📚', description: 'Books, e-books, and reading materials', keywords: ['books', 'reading', 'novel', 'textbook', 'literature'] },
-  { name: 'Music', icon: '🎵', description: 'Music albums, instruments, and audio equipment', keywords: ['music', 'album', 'instrument', 'cd', 'vinyl'] },
-  { name: 'Movies', icon: '🎬', description: 'Movies, TV shows, and entertainment media', keywords: ['movies', 'film', 'dvd', 'bluray', 'entertainment'] },
+  {
+    name: "Books",
+    icon: "📚",
+    description: "Books, e-books, and reading materials",
+    keywords: ["books", "reading", "novel", "textbook", "literature"],
+  },
+  {
+    name: "Music",
+    icon: "🎵",
+    description: "Music albums, instruments, and audio equipment",
+    keywords: ["music", "album", "instrument", "cd", "vinyl"],
+  },
+  {
+    name: "Movies",
+    icon: "🎬",
+    description: "Movies, TV shows, and entertainment media",
+    keywords: ["movies", "film", "dvd", "bluray", "entertainment"],
+  },
 
   // Automotive & Industrial
-  { name: 'Automotive', icon: '🚗', description: 'Car parts, accessories, and automotive supplies', keywords: ['automotive', 'car', 'parts', 'accessories', 'vehicle'] },
-  { name: 'Industrial', icon: '🏭', description: 'Industrial equipment and commercial supplies', keywords: ['industrial', 'commercial', 'equipment', 'machinery', 'supplies'] },
+  {
+    name: "Automotive",
+    icon: "🚗",
+    description: "Car parts, accessories, and automotive supplies",
+    keywords: ["automotive", "car", "parts", "accessories", "vehicle"],
+  },
+  {
+    name: "Industrial",
+    icon: "🏭",
+    description: "Industrial equipment and commercial supplies",
+    keywords: ["industrial", "commercial", "equipment", "machinery", "supplies"],
+  },
 
   // Baby & Kids
-  { name: 'Baby', icon: '👶', description: 'Baby products, care items, and nursery essentials', keywords: ['baby', 'infant', 'nursery', 'care', 'feeding'] },
-  { name: 'Toys', icon: '🧸', description: 'Toys, games, and educational products for children', keywords: ['toys', 'games', 'children', 'play', 'educational'] },
-  { name: 'KidsFashion', icon: '👶', description: 'Clothing and accessories for children', keywords: ['kids', 'children', 'clothing', 'fashion', 'apparel'], displayName: 'Kids Fashion' },
+  {
+    name: "Baby",
+    icon: "👶",
+    description: "Baby products, care items, and nursery essentials",
+    keywords: ["baby", "infant", "nursery", "care", "feeding"],
+  },
+  {
+    name: "Toys",
+    icon: "🧸",
+    description: "Toys, games, and educational products for children",
+    keywords: ["toys", "games", "children", "play", "educational"],
+  },
+  {
+    name: "KidsFashion",
+    icon: "👶",
+    description: "Clothing and accessories for children",
+    keywords: ["kids", "children", "clothing", "fashion", "apparel"],
+    displayName: "Kids Fashion",
+  },
 
   // Pet Supplies
-  { name: 'PetSupplies', icon: '🐕', description: 'Pet food, toys, and care products', keywords: ['pet', 'dog', 'cat', 'animal', 'supplies'], displayName: 'Pet Supplies' },
+  {
+    name: "PetSupplies",
+    icon: "🐕",
+    description: "Pet food, toys, and care products",
+    keywords: ["pet", "dog", "cat", "animal", "supplies"],
+    displayName: "Pet Supplies",
+  },
 
   // Office & School
-  { name: 'Office', icon: '🏢', description: 'Office supplies, furniture, and business equipment', keywords: ['office', 'business', 'supplies', 'furniture', 'equipment'] },
-  { name: 'Stationery', icon: '✏️', description: 'Pens, paper, and school/office supplies', keywords: ['stationery', 'pen', 'paper', 'supplies', 'school'] },
+  {
+    name: "Office",
+    icon: "🏢",
+    description: "Office supplies, furniture, and business equipment",
+    keywords: ["office", "business", "supplies", "furniture", "equipment"],
+  },
+  {
+    name: "Stationery",
+    icon: "✏️",
+    description: "Pens, paper, and school/office supplies",
+    keywords: ["stationery", "pen", "paper", "supplies", "school"],
+  },
 ];
 
 const generatePageTemplate = (category) => {
   const displayName = category.displayName || category.name;
   const lowerName = category.name.toLowerCase();
   const searchPlaceholder = `Search ${displayName.toLowerCase()}...`;
-  const keywordsFilter = category.keywords.map(k => `product.name?.toLowerCase().includes('${k}') ||
-              product.description?.toLowerCase().includes('${k}')`).join(' ||\n              ');
+  const keywordsFilter = category.keywords
+    .map(
+      (k) => `product.name?.toLowerCase().includes('${k}') ||
+              product.description?.toLowerCase().includes('${k}')`,
+    )
+    .join(" ||\n              ");
 
   return `import React, { useEffect, useState } from 'react';
 import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link } from '@mui/material';
@@ -379,13 +564,13 @@ export default ${category.name}Page;`;
 };
 
 // Generate all category pages
-categories.forEach(category => {
+categories.forEach((category) => {
   const content = generatePageTemplate(category);
   const fileName = `${category.name}Page.jsx`;
-  const filePath = path.join(__dirname, 'client', 'src', 'user', fileName);
-  
+  const filePath = path.join(__dirname, "client", "src", "user", fileName);
+
   fs.writeFileSync(filePath, content);
   console.log(`Generated ${fileName}`);
 });
 
-console.log('All category pages generated successfully!');
+console.log("All category pages generated successfully!");

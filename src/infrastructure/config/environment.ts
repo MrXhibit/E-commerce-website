@@ -12,4 +12,6 @@ export const env = {
   google_client_id: process.env.google_client_id,
   google_client_secret: process.env.google_client_secret,
   google_callback_url: process.env.google_callback_url,
+  stripe_publish_key: process.env.stripe_publish_key,
+  stripe_secret_key: process.env.stripe_secret_key,
 };

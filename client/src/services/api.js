@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = "http://localhost:5000/api/v1";
 
 class ApiService {
   constructor() {
@@ -9,10 +9,10 @@ class ApiService {
 
   // Helper method to get auth headers
   getAuthHeaders() {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` })
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
   }
 
@@ -25,7 +25,7 @@ class ApiService {
         resolve(token);
       }
     });
-    
+
     this.failedQueue = [];
   }
 
@@ -40,7 +40,7 @@ class ApiService {
           // Retry original request with new token
           return fetch(originalRequest.url, {
             ...originalRequest,
-            headers: this.getAuthHeaders()
+            headers: this.getAuthHeaders(),
           }).then(this.handleResponse.bind(this));
         });
       }
@@ -51,24 +51,24 @@ class ApiService {
         const refreshResult = await this.refreshToken();
         if (refreshResult.success) {
           this.processQueue(null, refreshResult.data.accessToken);
-          
+
           // Retry original request with new token
           const retryResponse = await fetch(originalRequest.url, {
             ...originalRequest,
-            headers: this.getAuthHeaders()
+            headers: this.getAuthHeaders(),
           });
-          
+
           return this.handleResponse(retryResponse);
         } else {
-          throw new Error('Token refresh failed');
+          throw new Error("Token refresh failed");
         }
       } catch (error) {
         this.processQueue(error, null);
         // Redirect to login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
         throw error;
       } finally {
         this.isRefreshing = false;
@@ -87,79 +87,79 @@ class ApiService {
   async fetchWithAuth(url, options = {}) {
     const requestOptions = {
       ...options,
-      credentials: 'include', // Include cookies
+      credentials: "include", // Include cookies
       headers: {
         ...this.getAuthHeaders(),
-        ...options.headers
-      }
+        ...options.headers,
+      },
     };
-  
+
     const response = await fetch(url, requestOptions);
     return this.handleResponse(response, { url, ...requestOptions });
   }
-  
+
   // Fix login method
   async login(credentials) {
     const response = await fetch(`${this.baseURL}/auth/login`, {
-      method: 'POST',
-      credentials: 'include', // Include cookies
+      method: "POST",
+      credentials: "include", // Include cookies
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(credentials),
     });
     const data = await this.handleResponse(response);
     if (data.success && data.data?.accessToken) {
-      localStorage.setItem('accessToken', data.data.accessToken);
-      localStorage.setItem('refreshToken', data.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem("accessToken", data.data.accessToken);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
     }
     return data;
   }
 
   async register(userData) {
     const response = await fetch(`${this.baseURL}/auth/register`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     });
     const data = await this.handleResponse(response);
     if (data.success && data.data?.accessToken) {
-      localStorage.setItem('accessToken', data.data.accessToken);
-      localStorage.setItem('refreshToken', data.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem("accessToken", data.data.accessToken);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
     }
     return data;
   }
 
   async logout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
   }
 
   // Updated refresh token method
   async refreshToken() {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = localStorage.getItem("refreshToken");
     if (!refreshToken) {
-      throw new Error('No refresh token available');
+      throw new Error("No refresh token available");
     }
 
     const response = await fetch(`${this.baseURL}/auth/refresh-token`, {
-      method: 'POST',
-      credentials: 'include', // Send cookies instead of body
+      method: "POST",
+      credentials: "include", // Send cookies instead of body
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       // Remove body since backend expects cookies
     });
-    
+
     const data = await this.handleResponse(response);
     if (data.success && data.data?.accessToken) {
-      localStorage.setItem('accessToken', data.data.accessToken);
-      localStorage.setItem('refreshToken', data.data.refreshToken);
+      localStorage.setItem("accessToken", data.data.accessToken);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
     }
     return data;
   }
@@ -171,27 +171,27 @@ class ApiService {
 
   async addToCart(productId, quantity = 1) {
     return this.fetchWithAuth(`${this.baseURL}/cart/add`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ productId, quantity }),
     });
   }
 
   async updateCartItem(productId, quantity) {
     return this.fetchWithAuth(`${this.baseURL}/cart/update`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({ productId, quantity }),
     });
   }
 
   async removeFromCart(productId) {
     return this.fetchWithAuth(`${this.baseURL}/cart/remove/${productId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   async clearCart() {
     return this.fetchWithAuth(`${this.baseURL}/cart/clear`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
@@ -202,20 +202,20 @@ class ApiService {
 
   async addToWishlist(productId) {
     return this.fetchWithAuth(`${this.baseURL}/wishlist/add`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ productId }),
     });
   }
 
   async removeFromWishlist(productId) {
     return this.fetchWithAuth(`${this.baseURL}/wishlist/remove/${productId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   async clearWishlist() {
     return this.fetchWithAuth(`${this.baseURL}/wishlist/clear`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
@@ -228,7 +228,7 @@ class ApiService {
     try {
       return await this.fetchWithAuth(`${this.baseURL}/product/${productId}`);
     } catch (error) {
-      console.error('Error fetching product by ID:', error);
+      console.error("Error fetching product by ID:", error);
       // Return a more specific error for debugging
       throw new Error(`Failed to fetch product ${productId}: ${error.message}`);
     }
@@ -245,18 +245,18 @@ class ApiService {
 
   // Utility methods
   isAuthenticated() {
-    return !!localStorage.getItem('accessToken');
+    return !!localStorage.getItem("accessToken");
   }
 
   getCurrentUser() {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   }
 
   // User Profile APIs
   async updateUserProfile(profileData) {
     return this.fetchWithAuth(`${this.baseURL}/user/profile`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(profileData),
     });
   }
@@ -268,11 +268,11 @@ class ApiService {
   // Profile Image APIs
   async uploadProfileImage(formData) {
     return this.fetchWithAuth(`${this.baseURL}/user/profile/image`, {
-      method: 'POST',
+      method: "POST",
       headers: {
         // Don't set Content-Type for FormData, let browser set it
         ...this.getAuthHeaders(),
-        'Content-Type': undefined
+        "Content-Type": undefined,
       },
       body: formData,
     });
@@ -280,7 +280,7 @@ class ApiService {
 
   async removeProfileImage() {
     return this.fetchWithAuth(`${this.baseURL}/user/profile/image`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 }

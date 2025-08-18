@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { env } from "@/infrastructure/config/environment";
 const connectDb = async () => {
   try {
-    if(!env.DB_URL) throw new Error('database url not found in env')
+    if (!env.DB_URL) throw new Error("database url not found in env");
     await mongoose.connect(env.DB_URL);
     console.log("database connected.......");
   } catch (error) {

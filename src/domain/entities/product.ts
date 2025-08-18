@@ -1,10 +1,11 @@
+import { categoryProperties } from "./category";
 export class Product {
   id: string;
   name: string;
   images: { url: string; id: string }[];
   description: string;
   price: string;
-  category: string;
+  category: string | Partial<categoryProperties>;
   brandName: string;
   modelName: string;
   isListed: boolean = true;
@@ -18,7 +19,7 @@ export class Product {
     images: { url: string; id: string }[],
     description: string,
     price: string,
-    category: string,
+    category: string | Partial<categoryProperties>,
     brand: string,
     model: string,
     stock: number,
@@ -95,13 +96,22 @@ export class Product {
     product.description = this.description;
     product.isListed = this.isListed;
     product.price = this.price;
-    product.category = this.category;
     product.brandName = this.brandName;
     product.modelName = this.modelName;
     product.stock = this.stock;
     product.name = this.name;
     product.createdAt = this.createdAt;
     product.updatedAt = this.updatedAt;
+    if (typeof this.category === "object") {
+      product.category = {} as Partial<categoryProperties>;
+      product.category.ancestors = this.category.ancestors;
+      product.category.id = this.category.id;
+      product.category.level = this.category.level;
+      product.category.name = this.category.name;
+      product.category.parentId = this.category.parentId;
+    } else {
+      product.category = this.category;
+    }
     return product;
   }
   get modifiedFields(): modifiedFields {

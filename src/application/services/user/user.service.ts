@@ -55,7 +55,8 @@ export class userService implements userServiceInterface {
     //get user with email
     const user = await this.userRepository.getUserByEmail(userInput.email);
     // find user is google loged or normal register
-    if(user?.isGoogleProvided && user.googleId) throw new ValidationError("you allready registerd by google try google login")
+    if (user?.isGoogleProvided && user.googleId)
+      throw new ValidationError("you allready registerd by google try google login");
     if (!user) throw new ValidationError("invalid email or password");
     const isPasswordValid = await this.authUtills.validatePassword(
       userInput.password,

@@ -18,25 +18,30 @@ const cartItemSchema = new Schema<CartItem>({
   product: {
     id: { type: String, required: true },
     name: { type: String, required: true },
-    images: [{
-      url: { type: String, required: true },
-      id: { type: String, required: true }
-    }],
+    images: [
+      {
+        url: { type: String, required: true },
+        id: { type: String, required: true },
+      },
+    ],
     price: { type: String, required: true },
     brandName: { type: String, required: true },
-    modelName: { type: String, required: true }
-  }
+    modelName: { type: String, required: true },
+  },
 });
 
-const cartSchema = new Schema<ICart>({
-  userId: { type: String, required: true, unique: true },
-  items: [cartItemSchema],
-  totalAmount: { type: Number, default: 0 },
-  itemCount: { type: Number, default: 0 },
-  createdAt: { type: String, default: () => new Date().toISOString() },
-  updatedAt: { type: String, default: () => new Date().toISOString() }
-}, {
-  timestamps: false
-});
+const cartSchema = new Schema<ICart>(
+  {
+    userId: { type: String, required: true, unique: true },
+    items: [cartItemSchema],
+    totalAmount: { type: Number, default: 0 },
+    itemCount: { type: Number, default: 0 },
+    createdAt: { type: String, default: () => new Date().toISOString() },
+    updatedAt: { type: String, default: () => new Date().toISOString() },
+  },
+  {
+    timestamps: false,
+  },
+);
 
 export const CartModel = mongoose.model<ICart>("Cart", cartSchema);

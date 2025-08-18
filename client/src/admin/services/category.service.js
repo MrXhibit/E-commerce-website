@@ -1,7 +1,7 @@
 import { axiosInstance } from "../utills/axios.instance";
 import { axiosStartLoadingFunction, axiosStopLoadingFunction } from "../utills/axios.delete.admin";
 export const addCategoryFormSubmit = async (values, { setStatus }) => {
-  setStatus("")
+  setStatus("");
   axiosStartLoadingFunction();
   try {
     const formData = new FormData();

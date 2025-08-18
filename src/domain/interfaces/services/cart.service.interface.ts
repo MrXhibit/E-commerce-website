@@ -6,4 +6,4 @@ export interface cartServiceInterface {
   updateCartItem(userId: string, productId: string, quantity: number): Promise<Cart>;
   removeFromCart(userId: string, productId: string): Promise<Cart>;
   clearCart(userId: string): Promise<Cart>;
-} 
+}

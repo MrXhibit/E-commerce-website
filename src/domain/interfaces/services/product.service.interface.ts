@@ -3,7 +3,17 @@ import { ProductSearchFilters, ProductSearchResult } from "@/domain/types/produc
 
 export interface ProductServiceInterface {
   createProduct(files: any, reqBody: any, adminToken: string): Promise<Partial<productProperties>>;
-  getProducts(limit?: number, skip?: number, category?: string): Promise<Partial<productProperties>[]>;
+  getProducts(
+    limit?: number,
+    skip?: number,
+    category?: string,
+    search?: string,
+    adminToken?: string,
+    brand?: string,
+    model?: string,
+    minPrice?: number,
+    maxPrice?: number,
+  ): Promise<Partial<productProperties>[]>;
   searchProducts(filters: ProductSearchFilters): Promise<ProductSearchResult>;
   editProduct(id: string, reqBody: any, adminToken: string): Promise<Partial<productProperties>>;
   uploadImages(id: string, files: any, adminToken: string): Promise<Partial<productProperties>>;

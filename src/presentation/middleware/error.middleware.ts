@@ -13,7 +13,6 @@ export const handleError = (error: Error, req: Request, res: Response, next: Nex
     }
   });
 
-
   if (reportedError) {
     console.error(error);
   } else {

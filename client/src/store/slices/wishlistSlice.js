@@ -1,23 +1,20 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import apiService from '../../services/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import apiService from "../../services/api";
 
-export const fetchWishlist = createAsyncThunk(
-  'wishlist/fetchWishlist',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await apiService.getWishlist();
-      if (response.success) {
-        return response.data;
-      }
-      return rejectWithValue(response.message);
-    } catch (error) {
-      return rejectWithValue(error.message);
+export const fetchWishlist = createAsyncThunk("wishlist/fetchWishlist", async (_, { rejectWithValue }) => {
+  try {
+    const response = await apiService.getWishlist();
+    if (response.success) {
+      return response.data;
     }
+    return rejectWithValue(response.message);
+  } catch (error) {
+    return rejectWithValue(error.message);
   }
-);
+});
 
 export const addToWishlist = createAsyncThunk(
-  'wishlist/addToWishlist',
+  "wishlist/addToWishlist",
   async (productId, { rejectWithValue }) => {
     try {
       const response = await apiService.addToWishlist(productId);
@@ -28,11 +25,11 @@ export const addToWishlist = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const removeFromWishlist = createAsyncThunk(
-  'wishlist/removeFromWishlist',
+  "wishlist/removeFromWishlist",
   async (productId, { rejectWithValue }) => {
     try {
       const response = await apiService.removeFromWishlist(productId);
@@ -43,11 +40,11 @@ export const removeFromWishlist = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const clearWishlistAsync = createAsyncThunk(
-  'wishlist/clearWishlistAsync',
+  "wishlist/clearWishlistAsync",
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.clearWishlist();
@@ -58,7 +55,7 @@ export const clearWishlistAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -69,7 +66,7 @@ const initialState = {
 };
 
 const wishlistSlice = createSlice({
-  name: 'wishlist',
+  name: "wishlist",
   initialState,
   reducers: {
     clearWishlist: (state) => {

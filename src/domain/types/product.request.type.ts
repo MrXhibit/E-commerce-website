@@ -23,8 +23,8 @@ export interface ProductSearchFilters {
   model?: string;
   minPrice?: number;
   maxPrice?: number;
-  sortBy?: 'name' | 'price' | 'createdAt' | 'rating';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "name" | "price" | "createdAt" | "rating";
+  sortOrder?: "asc" | "desc";
   limit?: number;
   skip?: number;
 }

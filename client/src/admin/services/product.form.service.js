@@ -1,12 +1,12 @@
 import { axiosInstance } from "../utills/axios.instance";
-import { axiosStartLoadingFunction,axiosStopLoadingFunction } from "../utills/axios.delete.admin"
+import { axiosStartLoadingFunction, axiosStopLoadingFunction } from "../utills/axios.delete.admin";
 
 export const addProductFormSubmit = async (values, { setStatus }) => {
-  axiosStartLoadingFunction()
+  axiosStartLoadingFunction();
   try {
     const formData = new FormData();
     console.log(values);
-    const { name, description, price,categoryPath, brand, model, stock, images } = values;
+    const { name, description, price, categoryPath, brand, model, stock, images } = values;
     const finalCategoryId = categoryPath[values.categoryPath.length - 1]?.id;
 
     formData.append("name", name);
@@ -19,12 +19,11 @@ export const addProductFormSubmit = async (values, { setStatus }) => {
     images.forEach((image) => {
       formData.append("images", image);
     });
-   const response = await axiosInstance.post('/product',formData)
-   if(response.data?.product) setStatus({type:"success",message:"product added"})
-
+    const response = await axiosInstance.post("/product", formData);
+    if (response.data?.product) setStatus({ type: "success", message: "product added" });
   } catch (error) {
-    if (error?.response?.data?.error) setStatus({type:"error",message:error.response.data.error});
+    if (error?.response?.data?.error) setStatus({ type: "error", message: error.response.data.error });
   } finally {
-    axiosStopLoadingFunction()
+    axiosStopLoadingFunction();
   }
 };

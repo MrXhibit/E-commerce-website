@@ -1,10 +1,10 @@
 import { Schema, Document, model } from "mongoose";
 import { categoryProperties } from "@/domain/entities";
 
-type categoryWithoutParentId = Omit<categoryProperties, "parentId"|"ancestors">;
+type categoryWithoutParentId = Omit<categoryProperties, "parentId" | "ancestors">;
 type categoryDb = categoryWithoutParentId & {
   parentId: Schema.Types.ObjectId;
-  ancestors: Schema.Types.ObjectId[]
+  ancestors: Schema.Types.ObjectId[];
 };
 export type Icategory = categoryDb & Document;
 
@@ -25,16 +25,16 @@ const categorySchema: Schema<Icategory> = new Schema(
         required: true,
       },
     },
-        parentId: {
+    parentId: {
       type: Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: "Category",
       default: null,
     },
     ancestors: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Category',
-      }
+        ref: "Category",
+      },
     ],
     level: {
       type: Number,

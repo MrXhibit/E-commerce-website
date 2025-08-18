@@ -39,9 +39,38 @@ export class productService implements ProductServiceInterface {
     const savedProduct = await this.productRepo.saveProduct(product);
     return savedProduct.sanitizeProduct();
   }
-  async getProducts(limit: number = 20, skip: number = 0, category?: string): Promise<Partial<productProperties>[]> {
-    // impliment search,filter sort and pagenation
-    const products = await this.productRepo.getProducts(limit, skip, category);
+  async getProducts(
+    limit: number = 20,
+    skip: number = 0,
+    category?: string,
+    search?: string,
+    adminToken?: string,
+    brand?: string,
+    model?: string,
+    minPrice?: number,
+    maxPrice?: number,
+  ): Promise<Partial<productProperties>[]> {
+    const allProducts = await this.productRepo.getPopulatedProducts(
+      limit,
+      skip,
+      category,
+      search,
+      brand,
+      model,
+      minPrice,
+      maxPrice,
+    );
+    let products;
+    let totelPages;
+    if (adminToken) {
+      const isAdmin = this.tokenUtils.isValidAdminToken(adminToken);
+      if (!isAdmin) throw new AuthorizeError();
+      products = allProducts;
+    } else {
+      products = allProducts.filter(
+        (product) => product.isListed && typeof product.category === "object" && product.category.isListed,
+      );
+    }
     return products.map((product) => product.sanitizeProduct());
   }
   async editProduct(id: string, reqBody: any, adminToken: string): Promise<Partial<productProperties>> {
@@ -137,7 +166,7 @@ export class productService implements ProductServiceInterface {
       brand,
       model,
       limit,
-      skip
+      skip,
     );
 
     const totalProducts = await this.productRepo.countProducts(
@@ -146,7 +175,7 @@ export class productService implements ProductServiceInterface {
       minPrice,
       maxPrice,
       brand,
-      model
+      model,
     );
 
     return {

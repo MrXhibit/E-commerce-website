@@ -12,24 +12,24 @@ export class adminService implements adminServiceInterface {
     private authUtils: authUtillsInterface,
   ) {}
   async logOutAdmin(admin_token: string): Promise<Partial<adminProperties>> {
-     if(!admin_token) throw new ValidationError("token not found")
-     const tokenProps = this.tokenUtils.isValidAdminToken(admin_token)
-      if(tokenProps.isVerified && tokenProps.payload.id){
-      const admin = await this.adminRepo.getAdminById(tokenProps.payload.id)
-      admin.setRefreshToken("")
-      const newAdmin = await this.adminRepo.editAdmin(admin)
-      return newAdmin.sanitizeAdmin()
+    if (!admin_token) throw new ValidationError("token not found");
+    const tokenProps = this.tokenUtils.isValidAdminToken(admin_token);
+    if (tokenProps.isVerified && tokenProps.payload.id) {
+      const admin = await this.adminRepo.getAdminById(tokenProps.payload.id);
+      admin.setRefreshToken("");
+      const newAdmin = await this.adminRepo.editAdmin(admin);
+      return newAdmin.sanitizeAdmin();
     }
-    throw new APIError()
+    throw new APIError();
   }
   async getcurentAdmin(admin_token: string): Promise<Partial<adminProperties>> {
-    if(!admin_token) throw new ValidationError("token not found")
-      const tokenProps = this.tokenUtils.isValidAdminToken(admin_token)
-    if(tokenProps.isVerified && tokenProps.payload.id){
-      const admin = await this.adminRepo.getAdminById(tokenProps.payload.id)
-      return admin.sanitizeAdmin()
+    if (!admin_token) throw new ValidationError("token not found");
+    const tokenProps = this.tokenUtils.isValidAdminToken(admin_token);
+    if (tokenProps.isVerified && tokenProps.payload.id) {
+      const admin = await this.adminRepo.getAdminById(tokenProps.payload.id);
+      return admin.sanitizeAdmin();
     }
-    throw new APIError()
+    throw new APIError();
   }
   async loginAdmin(RequestBody: unknown): Promise<validAdminResponseType> {
     const Input = this.authUtils.validateAdminLoginInput(RequestBody);

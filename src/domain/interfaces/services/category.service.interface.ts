@@ -2,7 +2,7 @@ import { categorieTreeItem, categoryProperties, productProperties } from "@/doma
 
 export interface categoryServiceInterface {
   createCategory(file: any, body: any, adminToken: string): Promise<Partial<categoryProperties>>;
-  getCategory(limit: number, page: number,adminToken?:string): Promise<Partial<categorieTreeItem>[]>;
+  getCategory(limit: number, page: number, adminToken?: string): Promise<Partial<categorieTreeItem>[]>;
   getSingleCategory(id: string): Promise<Partial<categoryProperties>>;
   getSubCategory(id: string): Promise<Partial<categoryProperties>[]>;
   editCategory(id: string, reqBody: any, adminToken: string): Promise<Partial<categoryProperties>>;

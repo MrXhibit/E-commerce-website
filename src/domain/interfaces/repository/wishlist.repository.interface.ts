@@ -6,4 +6,4 @@ export interface wishlistRepositoryInterface {
   updateWishlist(wishlist: Wishlist): Promise<Wishlist>;
   deleteWishlist(userId: string): Promise<boolean>;
   mapToWishlist(wishlistDb: unknown): Wishlist;
-} 
+}

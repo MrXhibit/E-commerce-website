@@ -1,32 +1,23 @@
 import { useState } from "react";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import {
-  Sidebar as ProSidebar,
-  Menu,
-  MenuItem,
-  sidebarClasses,
-  menuClasses,
-} from "react-pro-sidebar";
+import { Sidebar as ProSidebar, Menu, MenuItem, sidebarClasses, menuClasses } from "react-pro-sidebar";
 import { useLocation } from "react-router-dom";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import CategoryIcon from '@mui/icons-material/Category';
-import InventoryIcon from '@mui/icons-material/Inventory';
+import CategoryIcon from "@mui/icons-material/Category";
+import InventoryIcon from "@mui/icons-material/Inventory";
 import { useContext } from "react";
 
 import { AdminContext, ThemeContext } from "../../state/GlobalContext";
 import { tokens } from "../../theme";
 import Item from "../sidebar/Item";
 
-
-
-
 function SideBar() {
   const theme = useTheme();
-  const {admin} = useContext(AdminContext)
+  const { admin } = useContext(AdminContext);
   const location = useLocation();
   const colors = tokens(theme.palette.mode);
-  const [isCollapsed, setIsCollapsed] = useState(false);  
+  const [isCollapsed, setIsCollapsed] = useState(false);
   return (
     <ProSidebar
       rootStyles={{
@@ -96,21 +87,20 @@ function SideBar() {
             title="Dashboard"
             to="/admin"
             icon={<HomeOutlinedIcon />}
-            currentPath = {location.pathname}
+            currentPath={location.pathname}
             exact={true}
           />
           <Item
             title="Categories"
             to="/admin/categories"
             icon={<CategoryIcon />}
-            currentPath = {location.pathname}
-
+            currentPath={location.pathname}
           />
           <Item
             title="products"
             to="/admin/products"
             icon={<InventoryIcon />}
-            currentPath = {location.pathname}
+            currentPath={location.pathname}
           />
         </Box>
       </Menu>

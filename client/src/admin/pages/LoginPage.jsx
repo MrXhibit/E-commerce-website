@@ -1,8 +1,8 @@
-import { Box, Button, TextField,Alert } from "@mui/material";
+import { Box, Button, TextField, Alert } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../components/global/Header";
-import { loginFormSubmit } from "../services/auth.service"
+import { loginFormSubmit } from "../services/auth.service";
 const loginSchema = yup.object().shape({
   email: yup.string().email("invalid email").required("required"),
   password: yup.string().required("required"),
@@ -13,7 +13,6 @@ const loginInitialValues = {
 };
 
 function LoginPage() {
-   
   return (
     <Box
       m="20px"

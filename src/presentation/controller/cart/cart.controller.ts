@@ -29,12 +29,12 @@ export class CartController {
       res.status(200).json({
         success: true,
         message: "Item added to cart successfully",
-        data: cart.sanitizeCart()
+        data: cart.sanitizeCart(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to add item to cart"
+        message: error.message || "Failed to add item to cart",
       });
     }
   }
@@ -51,12 +51,12 @@ export class CartController {
       const cart = await this.cartService.getCart(userId);
       res.status(200).json({
         success: true,
-        data: cart.sanitizeCart()
+        data: cart.sanitizeCart(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to get cart"
+        message: error.message || "Failed to get cart",
       });
     }
   }
@@ -79,12 +79,12 @@ export class CartController {
       res.status(200).json({
         success: true,
         message: "Cart item updated successfully",
-        data: cart.sanitizeCart()
+        data: cart.sanitizeCart(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to update cart item"
+        message: error.message || "Failed to update cart item",
       });
     }
   }
@@ -107,12 +107,12 @@ export class CartController {
       res.status(200).json({
         success: true,
         message: "Item removed from cart successfully",
-        data: cart.sanitizeCart()
+        data: cart.sanitizeCart(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to remove item from cart"
+        message: error.message || "Failed to remove item from cart",
       });
     }
   }
@@ -130,12 +130,12 @@ export class CartController {
       res.status(200).json({
         success: true,
         message: "Cart cleared successfully",
-        data: cart.sanitizeCart()
+        data: cart.sanitizeCart(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || "Failed to clear cart"
+        message: error.message || "Failed to clear cart",
       });
     }
   }

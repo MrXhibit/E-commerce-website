@@ -14,27 +14,32 @@ const wishlistItemSchema = new Schema<WishlistItem>({
   product: {
     id: { type: String, required: true },
     name: { type: String, required: true },
-    images: [{
-      url: { type: String, required: true },
-      id: { type: String, required: true }
-    }],
+    images: [
+      {
+        url: { type: String, required: true },
+        id: { type: String, required: true },
+      },
+    ],
     price: { type: String, required: true },
     brandName: { type: String, required: true },
     modelName: { type: String, required: true },
     description: { type: String, required: true },
-    stock: { type: Number, required: true }
+    stock: { type: Number, required: true },
   },
-  addedAt: { type: String, default: () => new Date().toISOString() }
+  addedAt: { type: String, default: () => new Date().toISOString() },
 });
 
-const wishlistSchema = new Schema<IWishlist>({
-  userId: { type: String, required: true, unique: true },
-  items: [wishlistItemSchema],
-  itemCount: { type: Number, default: 0 },
-  createdAt: { type: String, default: () => new Date().toISOString() },
-  updatedAt: { type: String, default: () => new Date().toISOString() }
-}, {
-  timestamps: false
-});
+const wishlistSchema = new Schema<IWishlist>(
+  {
+    userId: { type: String, required: true, unique: true },
+    items: [wishlistItemSchema],
+    itemCount: { type: Number, default: 0 },
+    createdAt: { type: String, default: () => new Date().toISOString() },
+    updatedAt: { type: String, default: () => new Date().toISOString() },
+  },
+  {
+    timestamps: false,
+  },
+);
 
 export const WishlistModel = mongoose.model<IWishlist>("Wishlist", wishlistSchema);
