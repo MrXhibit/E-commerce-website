@@ -121,6 +121,37 @@ const CartPage = () => {
     }
   };
 
+  // New function to handle checkout process
+  const handleProceedToCheckout = () => {
+    if (cartItems.length === 0) {
+      return;
+    }
+
+    // Prepare checkout data to pass to CheckoutPage
+    const checkoutData = {
+      items: cartItems,
+      orderSummary: {
+        subtotal,
+        deliveryFee,
+        serviceFee: SERVICE_FEE,
+        tax: TAX,
+        tip,
+        discount: discountAmount,
+        credits: useCredits ? CREDITS : 0,
+        total
+      },
+      delivery,
+      appliedCoupon,
+      useCredits
+    };
+
+    // Store checkout data in sessionStorage for CheckoutPage to access
+    sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+    
+    // Navigate to checkout page
+    navigate('/checkout');
+  };
+
   const subtotal = totalAmount || 0;
   const deliveryFee = delivery === 'delivery' ? DELIVERY_FEE : 0;
   const credits = useCredits ? CREDITS : 0;
@@ -354,7 +385,8 @@ const CartPage = () => {
                     color="primary" 
                     fullWidth 
                     sx={{ fontWeight: 700, fontSize: 16, py: 1.2, borderRadius: 0 }}
-                    disabled={loading}
+                    disabled={loading || cartItems.length === 0}
+                    onClick={handleProceedToCheckout}
                   >
                     PROCEED TO CHECKOUT
                   </Button>

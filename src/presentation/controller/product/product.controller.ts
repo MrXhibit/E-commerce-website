@@ -1,9 +1,9 @@
 import { productService } from "@/application/services";
 import { productRepository } from "@/infrastructure/repository";
-import { cloudUtills } from "@/infrastructure/utills/cloud.utils";
-import { productUtills } from "@/infrastructure/utills/product.utils";
-import { tokenUtils } from "@/infrastructure/utills/token.utils";
-import { ResponseUtils } from "@/infrastructure/utills/response.utils";
+import { cloudUtills } from "@/infrastructure/utils/cloud.utils";
+import { productUtills } from "@/infrastructure/utils/product.utils";
+import { tokenUtils } from "@/infrastructure/utils/token.utils";
+import { ResponseUtils } from "@/infrastructure/utils/response.utils";
 import { Request, Response, NextFunction } from "express";
 
 const productRepo = new productRepository();

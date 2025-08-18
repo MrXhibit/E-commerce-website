@@ -3,8 +3,8 @@ import { Strategy as GoogleStartegy } from "passport-google-oauth20";
 import { env } from "./environment";
 import { userService } from "@/application/services";
 import { userRepository } from "@/infrastructure/repository";
-import { authUtills } from "@/infrastructure/utills";
-import { tokenUtils } from "@/infrastructure/utills/token.utils";
+import { authUtills } from "@/infrastructure/utils";
+import { tokenUtils } from "@/infrastructure/utils/token.utils";
 import { ValidationError } from "@/domain/entities";
 
 const userRepo = new userRepository();

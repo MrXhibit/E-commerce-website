@@ -1,23 +1,37 @@
 import { adminProperties, APIError, AuthorizeError, ValidationError } from "@/domain/entities";
 import { adminRepositoryInterface } from "@/domain/interfaces/repository";
 import { adminServiceInterface } from "@/domain/interfaces/services/admin.service.interface";
-import { authUtillsInterface } from "@/domain/interfaces/utills";
-import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
+import { authUtillsInterface } from "@/domain/interfaces/utils/";
+import { tokenValidationUtillsInterface } from "@/domain/interfaces/utils/token.validation.utills.interface";
 import { validAdminResponseType } from "@/domain/types";
 
 export class adminService implements adminServiceInterface {
-  async getcurentAdmin(id: string): Promise<adminProperties> {
-    throw new Error("Method not implemented.");
-  }
-
-  async logOutAdmin(admin_token: string): Promise<Partial<adminProperties>> {
-    throw new Error("Method not implemented.");
-  }
   constructor(
     private adminRepo: adminRepositoryInterface,
     private tokenUtils: tokenValidationUtillsInterface,
     private authUtils: authUtillsInterface,
   ) {}
+
+  async getcurentAdmin(admin_token: string): Promise<Partial<adminProperties>> {
+    const tokenProps = this.tokenUtils.isValidAdminToken(admin_token);
+    if (tokenProps.isVerified && tokenProps.payload.id) {
+      const admin = await this.adminRepo.getAdminById(tokenProps.payload.id);
+      return admin.sanitizeAdmin();
+    }
+    throw new AuthorizeError();
+  }
+
+  async logOutAdmin(admin_token: string): Promise<Partial<adminProperties>> {
+    const tokenProps = this.tokenUtils.isValidAdminToken(admin_token);
+    if (tokenProps.isVerified && tokenProps.payload.id) {
+      const admin = await this.adminRepo.getAdminById(tokenProps.payload.id);
+      // Clear the refresh token to log out the admin
+      admin.setRefreshToken("");
+      await this.adminRepo.editAdmin(admin);
+      return admin.sanitizeAdmin();
+    }
+    throw new AuthorizeError();
+  }
   async loginAdmin(RequestBody: unknown): Promise<validAdminResponseType> {
     const Input = this.authUtils.validateAdminLoginInput(RequestBody);
     const admin = await this.adminRepo.getAdminByEmail(Input.email);

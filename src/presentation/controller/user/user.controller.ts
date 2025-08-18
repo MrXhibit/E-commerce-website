@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { userService } from "@/application/services";
 import { userRepository } from "@/infrastructure/repository";
-import { authUtills } from "@/infrastructure/utills";
-import { tokenUtils } from "@/infrastructure/utills/token.utils";
-import { ResponseUtils } from "@/infrastructure/utills/response.utils";
+import { authUtills } from "@/infrastructure/utils";
+import { tokenUtils } from "@/infrastructure/utils/token.utils";
+import { ResponseUtils } from "@/infrastructure/utils/response.utils";
 
 const userRepo = new userRepository();
 const userServ = new userService(userRepo, authUtills, tokenUtils);
