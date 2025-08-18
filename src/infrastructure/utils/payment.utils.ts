@@ -2,7 +2,7 @@ import {
   createPaymentResponse,
   paymentUtillsInterface,
   verifyPaymentResponse,
-} from "@/domain/interfaces/utills";
+} from "@/domain/interfaces/utils";
 
 import Stripe from "stripe";
 import { env } from "@/infrastructure/config/environment";

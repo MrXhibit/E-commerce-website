@@ -6,6 +6,7 @@ import {
   createProduct,
   deleteProductImage,
   uploadProductImages,
+  searchProducts, // Add this import
 } from "@/presentation/controller";
 import { uploadProduct } from "@/presentation/middleware/multer.uploader";
 
@@ -14,6 +15,7 @@ const productRouter = Router();
 productRouter.post("/", uploadProduct, createProduct);
 productRouter.put("/upload-image/:id", uploadProduct, uploadProductImages);
 productRouter.put("/:id", editProduct);
+productRouter.get("/search", searchProducts); // Add search route before /:id
 productRouter.get("/:id", getProductById);
 productRouter.get("/", getProducts);
 productRouter.delete("/delete-image/:id", deleteProductImage);

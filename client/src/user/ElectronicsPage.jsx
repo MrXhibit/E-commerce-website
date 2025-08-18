@@ -1,48 +1,23 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Button,
-  IconButton,
-  CircularProgress,
-  Alert,
-  TextField,
-  Snackbar,
-  InputAdornment,
-  Breadcrumbs,
-  Link,
-  Slider,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Divider,
-  Chip,
-  Rating,
-  Stack,
-  Paper,
-} from "@mui/material";
-import Carousel from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import SearchIcon from "@mui/icons-material/Search";
-import HomeIcon from "@mui/icons-material/Home";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import apiService from "../services/api";
-import Header from "./Header";
-import Footer from "./Footer";
+import React, { useEffect, useState, useMemo } from 'react';
+import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link, Slider, Checkbox, FormControlLabel, FormGroup, Divider, Chip, Rating, Stack, Paper } from '@mui/material';
+import Carousel from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SearchIcon from '@mui/icons-material/Search';
+import HomeIcon from '@mui/icons-material/Home';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import apiService from '../services/api';
+import productSearchService from '../services/productSearch.service';
+import Header from './Header';
+import Footer from './Footer';
 
 const ElectronicsPage = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});

@@ -4,3 +4,4 @@ export * from "./product.model";
 export * from "./cart.model";
 export * from "./wishlist.model";
 export * from "./admin.model";
+export * from "./coupon.model";

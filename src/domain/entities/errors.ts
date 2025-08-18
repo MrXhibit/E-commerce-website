@@ -47,3 +47,10 @@ export class NotFoundError extends BaseError {
     super(description, STATUS_CODES.NOT_FOUND, description);
   }
 }
+
+// Generic Custom Error
+export class CustomError extends BaseError {
+  constructor(name: string, status: number, description: string) {
+    super(name, status, description);
+  }
+}

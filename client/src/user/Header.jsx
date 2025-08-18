@@ -1,24 +1,23 @@
-import React, { useState } from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
-import InputBase from "@mui/material/InputBase";
-import SearchIcon from "@mui/icons-material/Search";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { alpha, styled } from "@mui/material/styles";
-import { Link, useNavigate } from "react-router-dom";
-// Remove the old context import
-import { useAuth } from "../contexts/AuthContext";
-import { Container, Grid, Card, Chip, Collapse } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { logoutUser } from "../store/slices/authSlice";
+import React, { useState } from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import InputBase from '@mui/material/InputBase';
+import SearchIcon from '@mui/icons-material/Search';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { alpha, styled } from '@mui/material/styles';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Container, Grid, Card, Chip, Collapse } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { logoutUser } from '../store/slices/authSlice';
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -284,6 +283,7 @@ const Header = () => {
   const { itemCount: wishlistItemCount } = useAppSelector((state) => state.wishlist);
   const navigate = useNavigate();
   const [showCategories, setShowCategories] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -293,6 +293,18 @@ const Header = () => {
   const handleCategoryClick = (categoryName) => {
     navigate(`/products?category=${encodeURIComponent(categoryName)}`);
     setShowCategories(false);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearchKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      if (searchQuery.trim()) {
+        navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      }
+    }
   };
 
   return (
@@ -311,12 +323,19 @@ const Header = () => {
           </Typography>
 
           {/* Centered Search Bar */}
-          <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            {/* Update the search section */}
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
-              <StyledInputBase placeholder="Search products..." inputProps={{ "aria-label": "search" }} />
+              <StyledInputBase 
+                placeholder="Search products..." 
+                inputProps={{ 'aria-label': 'search' }}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
+              />
             </Search>
           </Box>
 

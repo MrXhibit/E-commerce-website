@@ -35,7 +35,7 @@ export class Admin {
   setProfile(profile: string) {
     this.profile = profile;
     this.updatedAt = new Date().toISOString();
-    this.modifiedFields.profile = true;
+    this._modifiedFields.profile = true;
     this._modifiedFields.updatedAt = true;
   }
   setRefreshToken(refresh_token: string) {

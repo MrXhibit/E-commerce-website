@@ -19,6 +19,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/passport-google-oauth20": "^2.0.16",
+    "@types/stripe": "^8.0.416",
     "jest": "^30.0.5",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
@@ -28,6 +29,10 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^3.9.0",
+    "@stripe/stripe-js": "^7.8.0",
+    "@types/nodemailer": "^7.0.0",
+    "@types/pdfkit": "^0.17.2",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
@@ -39,8 +44,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.4",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.5",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "pdfkit": "^0.17.1",
     "react-slick": "^0.30.3",
     "slick-carousel": "^1.8.1",
     "stripe": "^18.4.0"

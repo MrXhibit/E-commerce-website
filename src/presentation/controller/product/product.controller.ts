@@ -1,9 +1,9 @@
 import { productService } from "@/application/services";
 import { productRepository } from "@/infrastructure/repository";
-import { cloudUtills } from "@/infrastructure/utills/cloud.utils";
-import { productUtills } from "@/infrastructure/utills/product.utils";
-import { tokenUtils } from "@/infrastructure/utills/token.utils";
-import { ResponseUtils } from "@/infrastructure/utills/response.utils";
+import { cloudUtills } from "@/infrastructure/utils/cloud.utils";
+import { productUtills } from "@/infrastructure/utils/product.utils";
+import { tokenUtils } from "@/infrastructure/utils/token.utils";
+import { ResponseUtils } from "@/infrastructure/utils/response.utils";
 import { Request, Response, NextFunction } from "express";
 import { number } from "joi";
 
@@ -21,7 +21,6 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 };
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // impliment search sort filter pagination
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = parseInt(req.query.skip as string) || 0;
     const category = (req.query.category as string) || undefined;
@@ -53,6 +52,42 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
       return res.status(200).json({products})
 
     // return res.status(200).json(ResponseUtils.success(products, "Products fetched successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Add new search endpoint
+export const searchProducts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {
+      query,
+      category,
+      brand,
+      model,
+      minPrice,
+      maxPrice,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      limit = 20,
+      skip = 0
+    } = req.query;
+
+    const searchFilters = {
+      query: query as string,
+      category: category as string,
+      brand: brand as string,
+      model: model as string,
+      minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+      sortBy: sortBy as 'name' | 'price' | 'createdAt' | 'rating',
+      sortOrder: sortOrder as 'asc' | 'desc',
+      limit: parseInt(limit as string),
+      skip: parseInt(skip as string)
+    };
+
+    const result = await productServ.searchProducts(searchFilters);
+    return res.status(200).json(ResponseUtils.success(result, 'Products searched successfully'));
   } catch (error) {
     next(error);
   }

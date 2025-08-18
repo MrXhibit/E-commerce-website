@@ -1,7 +1,7 @@
 //////////////
 //--Temp file for runing remove later
 //////////
-import { authUtills } from "../utills";
+import { authUtills } from "../utils";
 import { APIError } from "@/domain/entities";
 import AdminModel from "../model/admin.model";
 

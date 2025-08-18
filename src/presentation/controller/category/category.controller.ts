@@ -1,8 +1,8 @@
 import { categoryService } from "@/application/services";
 import { categoryRepository } from "@/infrastructure/repository";
-import { categoryUtils } from "@/infrastructure/utills/category.utils";
-import { cloudUtills } from "@/infrastructure/utills/cloud.utils";
-import { tokenUtils } from "@/infrastructure/utills/token.utils";
+import { categoryUtils } from "@/infrastructure/utils/category.utils";
+import { cloudUtills } from "@/infrastructure/utils/cloud.utils";
+import { tokenUtils } from "@/infrastructure/utils/token.utils";
 import { Request, Response, NextFunction } from "express";
 
 const categoryRepo = new categoryRepository();

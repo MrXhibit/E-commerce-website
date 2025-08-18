@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { tokenUtils } from "@/infrastructure/utills/token.utils";
+import { tokenUtils } from "@/infrastructure/utils/token.utils";
 import { AuthorizeError } from "@/domain/entities/errors";
 
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
