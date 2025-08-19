@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { authUtillsInterface } from "@/domain/interfaces/utills";
+import { authUtillsInterface } from "@/domain/interfaces/utils";
 import { adminLoginRequestType, userLoginRequestType, userRegisterRequestType } from "@/domain/types";
 import { ValidationError } from "@/domain/entities/errors";
 import { LoginValidator, RegisterValidator } from "./validator";

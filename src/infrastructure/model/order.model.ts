@@ -28,7 +28,7 @@ const PaymentInfoSchema = new Schema({
   method: { 
     type: String, 
     required: true, 
-    enum: ['credit_card', 'debit_card', 'paypal', 'stripe'] 
+    enum: ['cod' , 'online'] 
   },
   transactionId: { type: String, required: true },
   paymentStatus: { 

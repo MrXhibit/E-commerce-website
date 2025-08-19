@@ -22,7 +22,7 @@ export interface ShippingAddress {
 }
 
 export interface PaymentInfo {
-  method: 'credit_card' | 'debit_card' | 'paypal' | 'stripe';
+  method: 'cod' | 'online';
   paymentStatus: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
   transactionId?: string;
   paymentIntentId?: string; // Add this field

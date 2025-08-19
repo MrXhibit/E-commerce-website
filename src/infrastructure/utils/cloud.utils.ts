@@ -1,5 +1,5 @@
 import { APIError } from "@/domain/entities";
-import { cloudUtillsInterface } from "@/domain/interfaces/utills";
+import { cloudUtillsInterface } from "@/domain/interfaces/utils";
 import { v2 } from "cloudinary";
 import { env } from "@/infrastructure/config/environment";
 

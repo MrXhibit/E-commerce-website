@@ -190,8 +190,4 @@ export type cartProperties = Omit<
 
 type modifiedFields = {
   [K in keyof Omit<cartProperties, "id">]: boolean;
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 53e40f222b782e71a2959d2bce278cfc106affd4

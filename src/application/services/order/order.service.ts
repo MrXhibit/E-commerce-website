@@ -1,7 +1,8 @@
 import { Order, CreateOrderRequest } from '@/domain/entities/order';
+import { createPaymentResponse, paymentUtillsInterface, verifyPaymentResponse } from '@/domain/interfaces/utils';
 import { OrderRepository } from '@/infrastructure/repository/order.repository';
 import { CartRepository } from '@/infrastructure/repository';
-import { CustomError } from '@/domain/entities/errors';
+import { CustomError, ValidationError } from '@/domain/entities/errors';
 import { STATUS_CODES } from '@/domain/entities/status.code';
 
 import { invoiceUtils } from '@/infrastructure/utils';
@@ -9,23 +10,28 @@ import { invoiceUtils } from '@/infrastructure/utils';
 export class OrderService {
   private orderRepository: OrderRepository;
   private cartRepository: CartRepository;
-
-  constructor(orderRepository: OrderRepository, cartRepository: CartRepository) {
+  private paymentUtils:paymentUtillsInterface
+  constructor(orderRepository: OrderRepository, cartRepository: CartRepository,paymentUtils:paymentUtillsInterface) {
     this.orderRepository = orderRepository;
     this.cartRepository = cartRepository;
+    this.paymentUtils = paymentUtils;
   }
 
-  async createOrder(userId: string, orderData: CreateOrderRequest): Promise<Order> {
+  async createOrder(userId: string, orderData: CreateOrderRequest): Promise<Order|createPaymentResponse> {
     try {
       // Validate order data
       this.validateOrderData(orderData);
-
-      // Create order with generated order ID
       const order = await this.orderRepository.createOrder({
         ...orderData,
         userId
       });
 
+     if(orderData.paymentInfo.method === "online"){
+      const response = await this.paymentUtils.createPayment(orderData.orderSummary.total,order.orderId,userId)
+      return response
+     }
+     else{
+      // Create order with generated order ID
       // Clear user's cart after successful order creation
       await this.cartRepository.deleteCart(userId);
 
@@ -35,8 +41,9 @@ export class OrderService {
         estimatedDate.setDate(estimatedDate.getDate() + 7);
         // You could update the order with estimated delivery date here
       }
+      return order;      
+     }
 
-      return order;
     } catch (error) {
       throw new CustomError(
         'Failed to create order',
@@ -44,6 +51,21 @@ export class OrderService {
         error instanceof Error ? error.message : 'Unknown error'
       );
     }
+  }
+  async verifyOnlinePayment(userId: string, paymentId:string,orderId:string):Promise<verifyPaymentResponse>{
+    if(!userId || !paymentId || !orderId) throw new ValidationError()
+   const response = await this.paymentUtils.verifyPayment(paymentId)
+  if(response.isPayed){
+   await this.cartRepository.deleteCart(userId)
+   const order = await this.orderRepository.getOrderById(orderId)
+   if(!order) throw new ValidationError("invalid order Id")
+   if (order.deliveryMethod === 'delivery') {
+        const estimatedDate = new Date();
+        estimatedDate.setDate(estimatedDate.getDate() + 7);
+      }
+
+  }
+   return response
   }
 
   async getOrderById(orderId: string, userId?: string): Promise<Order> {

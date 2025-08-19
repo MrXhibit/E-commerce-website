@@ -5,6 +5,7 @@ import { OrderRepository } from '@/infrastructure/repository/order.repository';
 import { CartRepository } from '@/infrastructure/repository';
 import { userRepository } from '@/infrastructure/repository/user.repository';
 import { authenticateUser } from '@/presentation/middleware/auth.middleware';
+import { paymentUtills } from '@/infrastructure/utils'
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const router = Router();
 const orderRepository = new OrderRepository();
 const cartRepository = new CartRepository();
 const userRepositoryInstance = new userRepository();
-const orderService = new OrderService(orderRepository, cartRepository);
+const orderService = new OrderService(orderRepository, cartRepository,paymentUtills);
 const orderController = new OrderController();
 
 // Order routes

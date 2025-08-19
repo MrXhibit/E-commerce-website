@@ -1,9 +1,9 @@
 import { AuthorizeError, Product, productProperties, ValidationError } from "@/domain/entities";
 import { productRepositoryInterface } from "@/domain/interfaces/repository";
 import { ProductServiceInterface } from "@/domain/interfaces/services";
-import { cloudUtillsInterface } from "@/domain/interfaces/utills";
-import { productUtilsInterface } from "@/domain/interfaces/utills/product.utills.interface";
-import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
+import { cloudUtillsInterface } from "@/domain/interfaces/utils";
+import { productUtilsInterface } from "@/domain/interfaces/utils";
+import { tokenValidationUtillsInterface } from "@/domain/interfaces/utils";
 import { ProductSearchFilters, ProductSearchResult } from "@/domain/types/product.request.type";
 
 export class productService implements ProductServiceInterface {

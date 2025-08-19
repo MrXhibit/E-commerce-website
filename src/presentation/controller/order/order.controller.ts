@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { OrderService } from '@/application/services/order/order.service';
 import { OrderRepository } from '@/infrastructure/repository/order.repository';
 import { CartRepository } from '@/infrastructure/repository';
-import { ResponseUtils } from '@/infrastructure/utils/response.utils';
+import { ResponseUtils,paymentUtills } from '@/infrastructure/utils';
 import { CreateOrderRequest } from '@/domain/entities';
 
 export class OrderController {
@@ -11,7 +11,7 @@ export class OrderController {
   constructor() {
     const orderRepository = new OrderRepository();
     const cartRepository = new CartRepository();
-    this.orderService = new OrderService(orderRepository, cartRepository);
+    this.orderService = new OrderService(orderRepository, cartRepository,paymentUtills);
   }
 
   async createOrder(req: Request, res: Response, next: NextFunction) {

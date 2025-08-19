@@ -1,4 +1,4 @@
-import { productUtilsInterface } from "@/domain/interfaces/utills/product.utills.interface";
+import { productUtilsInterface } from "@/domain/interfaces/utils";
 import { createProductRequest, editProductReuest } from "@/domain/types";
 import { createProductValidator, editProductValidator } from "./validator";
 import { ValidationError } from "@/domain/entities";
