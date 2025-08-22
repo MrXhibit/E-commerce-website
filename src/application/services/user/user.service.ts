@@ -1,8 +1,8 @@
 import { AuthorizeError, User, userProperties, ValidationError } from "@/domain/entities";
 import { userRepositoryInterface } from "@/domain/interfaces/repository";
 import { userServiceInterface } from "@/domain/interfaces/services";
-import { authUtillsInterface } from "@/domain/interfaces/utills";
-import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
+import { authUtillsInterface } from "@/domain/interfaces/utils";
+import { tokenValidationUtillsInterface } from "@/domain/interfaces/utils/token.validation.utills.interface";
 import { validUserResponseType } from "@/domain/types";
 
 export class userService implements userServiceInterface {

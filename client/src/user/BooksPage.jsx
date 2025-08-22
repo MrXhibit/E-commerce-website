@@ -10,6 +10,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { addToCart } from '../store/slices/cartSlice';
 import apiService from '../services/api';
 import Header from './Header';
 import Footer from './Footer';
@@ -21,7 +23,8 @@ const BooksPage = () => {
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [searchTerm, setSearchTerm] = useState('');
-  const { isAuthenticated, addToCart, addToWishlist, wishlist } = useAuth();
+  const { isAuthenticated, user, addToWishlist, wishlist } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   
   // Carousel settings for featured products
@@ -136,37 +139,21 @@ const BooksPage = () => {
   const handleAddToCart = async (productId, event) => {
     if (event) event.stopPropagation();
     
-    if (!isAuthenticated) {
-      setSnackbar({
-        open: true,
-        message: 'Please log in to add items to your cart',
-        severity: 'info'
-      });
+    if (!user) {
+      navigate('/login');
       return;
     }
 
+    setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: true }));
     try {
-      setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: true }));
-      const result = await addToCart(productId, 1);
-      if (result.success) {
-        setSnackbar({
-          open: true,
-          message: 'Product added to cart successfully',
-          severity: 'success'
-        });
+      const result = await dispatch(addToCart({ productId, quantity: 1 }));
+      if (addToCart.fulfilled.match(result)) {
+        setSnackbar({ open: true, message: 'Added to cart successfully!', severity: 'success' });
       } else {
-        setSnackbar({
-          open: true,
-          message: result.message || 'Failed to add product to cart',
-          severity: 'error'
-        });
+        setSnackbar({ open: true, message: result.payload || 'Failed to add to cart', severity: 'error' });
       }
     } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'An error occurred. Please try again.',
-        severity: 'error'
-      });
+      setSnackbar({ open: true, message: 'Failed to add to cart', severity: 'error' });
     } finally {
       setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: false }));
     }

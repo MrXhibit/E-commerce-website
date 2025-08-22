@@ -16,42 +16,46 @@ export class PaymentController {
 
   async createPaymentIntent(req: Request, res: Response, next: NextFunction) {
     try {
-      const { orderId, amount, currency = 'usd' } = req.body;
+      const { amount, currency = 'usd', orderId } = req.body;
       const user = req.user as any;
-
-      if (!orderId || !amount) {
+  
+      if (!amount) {
         throw new CustomError(
           'Missing required fields',
           STATUS_CODES.BAD_REQUEST,
-          'orderId and amount are required'
+          'amount is required'
         );
       }
-
-      // Verify order exists and belongs to user
-      const order = await this.orderService.getOrderById(orderId, user?.id);
-      
-      if (order.paymentInfo.paymentStatus === 'completed') {
-        throw new CustomError(
-          'Payment already completed',
-          STATUS_CODES.BAD_REQUEST,
-          'This order has already been paid'
-        );
+  
+      // If orderId is provided, verify order exists and belongs to user
+      if (orderId) {
+        const order = await this.orderService.getOrderById(orderId, user?.id);
+        
+        if (order.paymentInfo.paymentStatus === 'completed') {
+          throw new CustomError(
+            'Payment already completed',
+            STATUS_CODES.BAD_REQUEST,
+            'This order has already been paid'
+          );
+        }
       }
-
+  
       const paymentIntent = await this.stripeService.createPaymentIntent({
         amount,
         currency,
-        orderId,
+        orderId: orderId || `temp_${Date.now()}`, // Generate temp ID if not provided
         customerId: user?.stripeCustomerId,
         metadata: {
           userId: user?.id,
-          orderNumber: order.orderId,
+          orderNumber: orderId || `temp_${Date.now()}`,
         },
       });
-
-      // Update order with payment intent ID
-      await this.orderService.updatePaymentIntentId(orderId, paymentIntent.paymentIntentId);
-
+  
+      // Update order with payment intent ID if orderId exists
+      if (orderId) {
+        await this.orderService.updatePaymentIntentId(orderId, paymentIntent.paymentIntentId);
+      }
+  
       res.status(200).json(
         ResponseUtils.success(paymentIntent, 'Payment intent created successfully')
       );
@@ -97,6 +101,69 @@ export class PaymentController {
     }
   }
 
+  async createCheckoutSession(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { items, successUrl, cancelUrl, metadata } = req.body;
+      const user = req.user as any;
+
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        throw new CustomError(
+          'Missing items',
+          STATUS_CODES.BAD_REQUEST,
+          'items array is required'
+        );
+      }
+
+      if (!successUrl || !cancelUrl) {
+        throw new CustomError(
+          'Missing URLs',
+          STATUS_CODES.BAD_REQUEST,
+          'successUrl and cancelUrl are required'
+        );
+      }
+
+      const session = await this.stripeService.createCheckoutSession({
+        items,
+        successUrl,
+        cancelUrl,
+        customerId: user?.stripeCustomerId,
+        metadata: {
+          userId: user?.id,
+          ...(metadata || {}),
+        },
+      });
+
+      res.status(200).json(
+        ResponseUtils.success(
+          { id: session.id, url: session.url },
+          'Checkout session created successfully'
+        )
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getCheckoutSession(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { session_id } = req.query as { session_id?: string };
+      if (!session_id) {
+        throw new CustomError('Missing session_id', STATUS_CODES.BAD_REQUEST, 'session_id is required');
+      }
+      const result = await this.stripeService.getCheckoutSession(session_id);
+      res.status(200).json(
+        ResponseUtils.success(
+          {
+            session: result.session,
+            lineItems: result.lineItems.data,
+          },
+          'Checkout session retrieved successfully'
+        )
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
   async handleWebhook(req: Request, res: Response, next: NextFunction) {
     try {
       const signature = req.headers['stripe-signature'] as string;

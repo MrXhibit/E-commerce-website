@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { authUtillsInterface } from "@/domain/interfaces/utills";
+import { authUtillsInterface } from "@/domain/interfaces/utils";
 import { adminLoginRequestType, userLoginRequestType, userRegisterRequestType } from "@/domain/types";
 import { ValidationError } from "@/domain/entities/errors";
 import { LoginValidator, RegisterValidator } from "./validator";
@@ -15,7 +15,8 @@ const getHashedPassword = async (password: string, salt: string) => {
 };
 
 const validatePassword = async (enterdPassword: string, savedPassword: string, salt: string) => {
-  return (await getHashedPassword(enterdPassword, salt)) === savedPassword;
+  // For bcrypt, we should use bcrypt.compare instead of re-hashing with salt
+  return await bcrypt.compare(enterdPassword, savedPassword);
 };
 
 const generateAcessToken = (email: string, id: string) => {

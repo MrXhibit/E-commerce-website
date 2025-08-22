@@ -21,3 +21,10 @@ export const uploadProduct = (req: Request, res: Response, next: NextFunction) =
   });
 };
 export const uploadProfile = (req: Request, res: Response, next: NextFunction) => {};
+export const uploadSingleProfile = (req: Request, res: Response, next: NextFunction) => {
+  const result = multerUpload.single("image");
+  result(req, res, (err) => {
+    if (err) throw new APIError(`image not uploaded ${err}`);
+    else next();
+  });
+};

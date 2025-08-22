@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Paper, Button, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { createCheckoutSession, redirectToCheckout } from '../services/stripe.service';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { updateCartItem, removeFromCart, clearCart } from '../store/slices/cartSlice';
 import Header from './Header';
@@ -121,35 +122,45 @@ const CartPage = () => {
     }
   };
 
-  // New function to handle checkout process
-  const handleProceedToCheckout = () => {
-    if (cartItems.length === 0) {
-      return;
-    }
-
-    // Prepare checkout data to pass to CheckoutPage
-    const checkoutData = {
-      items: cartItems,
-      orderSummary: {
-        subtotal,
-        deliveryFee,
-        serviceFee: SERVICE_FEE,
-        tax: TAX,
-        tip,
-        discount: discountAmount,
-        credits: useCredits ? CREDITS : 0,
-        total
-      },
-      delivery,
-      appliedCoupon,
-      useCredits
-    };
-
-    // Store checkout data in sessionStorage for CheckoutPage to access
-    sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+  // Handle Stripe Checkout redirect
+  const handleProceedToCheckout = async () => {
+    if (cartItems.length === 0) return;
     
-    // Navigate to checkout page
-    navigate('/checkout');
+    try {
+      setLoading(true);
+      
+      // Validate cart items have required fields
+      const invalidItems = cartItems.filter(item => 
+        !item.name || !item.price || !item.quantity || item.quantity <= 0
+      );
+      
+      if (invalidItems.length > 0) {
+        throw new Error('Some cart items are missing required information. Please refresh and try again.');
+      }
+      
+      const lineItems = cartItems.map((item) => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+      
+      const successUrl = `${window.location.origin}/success`;
+      const cancelUrl = `${window.location.origin}/cancel`;
+      
+      const session = await createCheckoutSession(lineItems, successUrl, cancelUrl);
+      
+      if (!session || !session.id) {
+        throw new Error('Failed to create checkout session. Please try again.');
+      }
+      
+      await redirectToCheckout(session.id);
+    } catch (err) {
+      console.error('Checkout error:', err);
+      const errorMessage = err.message || 'Unable to start checkout. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const subtotal = totalAmount || 0;

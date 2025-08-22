@@ -15,12 +15,16 @@ import {
   InputAdornment,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Checkbox,
+  FormControlLabel,
+  Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
+import SortIcon from '@mui/icons-material/Sort';
 
 const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilters = {} }) => {
   const [searchQuery, setSearchQuery] = useState(initialFilters.query || '');
@@ -29,6 +33,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
   const [priceRange, setPriceRange] = useState([initialFilters.minPrice || 0, initialFilters.maxPrice || 5000]);
   const [sortBy, setSortBy] = useState(initialFilters.sortBy || 'createdAt');
   const [sortOrder, setSortOrder] = useState(initialFilters.sortOrder || 'desc');
+  const [inStockOnly, setInStockOnly] = useState(initialFilters.inStock || false);
   const [showFilters, setShowFilters] = useState(false);
 
   // Common brands (you can fetch this from backend)
@@ -39,10 +44,12 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
   ];
 
   const sortOptions = [
-    { value: 'name', label: 'Name' },
-    { value: 'price', label: 'Price' },
-    { value: 'createdAt', label: 'Date Added' },
-    { value: 'rating', label: 'Rating' }
+    { value: 'createdAt', label: 'Newest First' },
+    { value: 'price', label: 'Price: Low to High' },
+    { value: 'price', label: 'Price: High to Low' },
+    { value: 'name', label: 'Name: A to Z' },
+    { value: 'name', label: 'Name: Z to A' },
+    { value: 'sales', label: 'Best Selling' }
   ];
 
   const handleSearch = () => {
@@ -53,7 +60,12 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
       minPrice: priceRange[0],
       maxPrice: priceRange[1],
       sortBy,
-      sortOrder,
+      sortOrder: sortBy === 'price' && sortOrder === 'desc' ? 'desc' : 
+                 sortBy === 'price' && sortOrder === 'asc' ? 'asc' : 
+                 sortBy === 'name' && sortOrder === 'desc' ? 'desc' : 
+                 sortBy === 'name' && sortOrder === 'asc' ? 'asc' : 
+                 sortOrder,
+      inStock: inStockOnly,
       limit: 20,
       skip: 0
     };
@@ -67,10 +79,24 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
     setPriceRange([0, 5000]);
     setSortBy('createdAt');
     setSortOrder('desc');
+    setInStockOnly(false);
     onSearch({
       limit: 20,
       skip: 0
     });
+  };
+
+  const handleSortChange = (value) => {
+    if (value === 'price') {
+      setSortBy('price');
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else if (value === 'name') {
+      setSortBy('name');
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(value);
+      setSortOrder('desc');
+    }
   };
 
   // Auto-search when query changes
@@ -87,15 +113,39 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
   // Search when filters change
   useEffect(() => {
     handleSearch();
-  }, [selectedCategory, selectedBrand, priceRange, sortBy, sortOrder]);
+  }, [selectedCategory, selectedBrand, priceRange, sortBy, sortOrder, inStockOnly]);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (selectedCategory) count++;
     if (selectedBrand) count++;
     if (priceRange[0] > 0 || priceRange[1] < 5000) count++;
+    if (inStockOnly) count++;
+    if (sortBy !== 'createdAt' || sortOrder !== 'desc') count++;
     return count;
-  }, [selectedCategory, selectedBrand, priceRange]);
+  }, [selectedCategory, selectedBrand, priceRange, inStockOnly, sortBy, sortOrder]);
+
+  const getActiveFilters = () => {
+    const filters = [];
+    if (selectedCategory) {
+      const categoryName = categories.find(cat => cat._id === selectedCategory || cat.name === selectedCategory)?.name || selectedCategory;
+      filters.push({ key: 'category', label: `Category: ${categoryName}`, onDelete: () => setSelectedCategory('') });
+    }
+    if (selectedBrand) {
+      filters.push({ key: 'brand', label: `Brand: ${selectedBrand}`, onDelete: () => setSelectedBrand('') });
+    }
+    if (priceRange[0] > 0 || priceRange[1] < 5000) {
+      filters.push({ key: 'price', label: `Price: $${priceRange[0]} - $${priceRange[1]}`, onDelete: () => setPriceRange([0, 5000]) });
+    }
+    if (inStockOnly) {
+      filters.push({ key: 'inStock', label: 'In Stock Only', onDelete: () => setInStockOnly(false) });
+    }
+    if (sortBy !== 'createdAt' || sortOrder !== 'desc') {
+      const sortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || `${sortBy} (${sortOrder})`;
+      filters.push({ key: 'sort', label: `Sort: ${sortLabel}`, onDelete: () => { setSortBy('createdAt'); setSortOrder('desc'); } });
+    }
+    return filters;
+  };
 
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
@@ -104,7 +154,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
         <Grid item xs={12} md={8}>
           <TextField
             fullWidth
-            placeholder="Search products..."
+            placeholder="Search products by name, description, or brand..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
@@ -152,9 +202,29 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
         </Grid>
       </Grid>
 
+      {/* Active Filters Display */}
+      {activeFiltersCount > 0 && (
+        <Box mt={2}>
+          <Typography variant="subtitle2" gutterBottom>Active Filters:</Typography>
+          <Box display="flex" gap={1} flexWrap="wrap">
+            {getActiveFilters().map((filter) => (
+              <Chip
+                key={filter.key}
+                label={filter.label}
+                onDelete={filter.onDelete}
+                size="small"
+                color="primary"
+                variant="outlined"
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+
       {/* Advanced Filters */}
       {showFilters && (
         <Box mt={3}>
+          <Divider sx={{ mb: 3 }} />
           <Grid container spacing={3}>
             {/* Category Filter */}
             <Grid item xs={12} sm={6} md={3}>
@@ -201,13 +271,13 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
               <FormControl fullWidth>
                 <InputLabel>Sort By</InputLabel>
                 <Select
-                  value={sortBy}
+                  value={`${sortBy}-${sortOrder}`}
                   label="Sort By"
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => handleSortChange(e.target.value.split('-')[0])}
                   disabled={loading}
                 >
-                  {sortOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
+                  {sortOptions.map((option, index) => (
+                    <MenuItem key={`${option.value}-${index}`} value={`${option.value}-${sortOrder}`}>
                       {option.label}
                     </MenuItem>
                   ))}
@@ -215,20 +285,18 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
               </FormControl>
             </Grid>
 
-            {/* Sort Order */}
+            {/* Stock Availability */}
             <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Order</InputLabel>
-                <Select
-                  value={sortOrder}
-                  label="Order"
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  disabled={loading}
-                >
-                  <MenuItem value="asc">Ascending</MenuItem>
-                  <MenuItem value="desc">Descending</MenuItem>
-                </Select>
-              </FormControl>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={inStockOnly}
+                    onChange={(e) => setInStockOnly(e.target.checked)}
+                    disabled={loading}
+                  />
+                }
+                label="In Stock Only"
+              />
             </Grid>
 
             {/* Price Range */}
@@ -246,36 +314,6 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
               />
             </Grid>
           </Grid>
-
-          {/* Active Filters Display */}
-          {activeFiltersCount > 0 && (
-            <Box mt={2}>
-              <Typography variant="subtitle2" gutterBottom>Active Filters:</Typography>
-              <Box display="flex" gap={1} flexWrap="wrap">
-                {selectedCategory && (
-                  <Chip
-                    label={`Category: ${selectedCategory}`}
-                    onDelete={() => setSelectedCategory('')}
-                    size="small"
-                  />
-                )}
-                {selectedBrand && (
-                  <Chip
-                    label={`Brand: ${selectedBrand}`}
-                    onDelete={() => setSelectedBrand('')}
-                    size="small"
-                  />
-                )}
-                {(priceRange[0] > 0 || priceRange[1] < 5000) && (
-                  <Chip
-                    label={`Price: $${priceRange[0]} - $${priceRange[1]}`}
-                    onDelete={() => setPriceRange([0, 5000])}
-                    size="small"
-                  />
-                )}
-              </Box>
-            </Box>
-          )}
         </Box>
       )}
     </Paper>

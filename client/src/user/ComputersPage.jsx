@@ -10,6 +10,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { addToCart } from '../store/slices/cartSlice';
 import apiService from '../services/api';
 import Header from './Header';
 import Footer from './Footer';
@@ -26,7 +28,8 @@ const ComputersPage = () => {
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [sortBy, setSortBy] = useState('featured');
   const [featuredProducts, setFeaturedProducts] = useState([]);
-  const { isAuthenticated, addToCart, addToWishlist, wishlist } = useAuth();
+  const { isAuthenticated, user, addToWishlist, wishlist } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   
   // Carousel settings
@@ -158,18 +161,18 @@ const ComputersPage = () => {
 
   const handleAddToCart = async (productId, event) => {
     event.stopPropagation();
-    if (!isAuthenticated) {
-      setSnackbar({ open: true, message: 'Please login to add items to cart', severity: 'warning' });
+    if (!user) {
+      navigate('/login');
       return;
     }
 
     setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: true }));
     try {
-      const result = await addToCart(productId, 1);
-      if (result.success) {
+      const result = await dispatch(addToCart({ productId, quantity: 1 }));
+      if (addToCart.fulfilled.match(result)) {
         setSnackbar({ open: true, message: 'Added to cart successfully!', severity: 'success' });
       } else {
-        setSnackbar({ open: true, message: result.message || 'Failed to add to cart', severity: 'error' });
+        setSnackbar({ open: true, message: result.payload || 'Failed to add to cart', severity: 'error' });
       }
     } catch (error) {
       setSnackbar({ open: true, message: 'Failed to add to cart', severity: 'error' });

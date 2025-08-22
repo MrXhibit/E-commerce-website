@@ -12,7 +12,10 @@ export interface productRepositoryInterface {
     brand?: string,
     model?: string,
     limit?: number,
-    skip?: number
+    skip?: number,
+    sortBy?: string,
+    sortOrder?: string,
+    inStock?: boolean
   ): Promise<Product[]>;
   countProducts(
     query?: string,
@@ -20,10 +23,12 @@ export interface productRepositoryInterface {
     minPrice?: number,
     maxPrice?: number,
     brand?: string,
-    model?: string
+    model?: string,
+    inStock?: boolean
   ): Promise<number>;
   editProduct(Product: Product): Promise<Product>;
   getSingleProduct(id: string): Promise<Product>;
   getUniqueProduct(name: string, brand: string, model: string): Promise<Product | null>;
+  deleteProduct(id: string): Promise<void>;
   mapToProduct(productDb: unknown): Product;
 }

@@ -8,10 +8,9 @@ import { registerUser, clearError } from '../store/slices/authSlice';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    userName: '',
     email: '',
     password: '',
-    conformPassword: '' // ADD THIS FIELD
+    conformPassword: ''
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   
@@ -89,20 +88,7 @@ const Signup = () => {
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={12}>
-                <TextField 
-                  label="Full Name" 
-                  name="userName"
-                  value={formData.userName}
-                  onChange={handleChange}
-                  variant="outlined" 
-                  fullWidth 
-                  size="small" 
-                  InputProps={{ style: { background: '#2c2f34', color: 'white' } }} 
-                  InputLabelProps={{ style: { color: '#bdbdbd' } }} 
-                  required
-                />
-              </Grid>
+              {/* Name removed to match backend validator which does not require it */}
               <Grid item xs={12}>
                 <TextField 
                   label="Email" 
@@ -178,7 +164,14 @@ const Signup = () => {
           
           <Divider sx={{ my: 2, background: '#444' }}>Or register with</Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <Button variant="outlined" startIcon={<GoogleIcon />} sx={{ color: 'white', borderColor: '#b39ddb', borderRadius: 2, textTransform: 'none', width: 220 }}>
+            <Button
+              variant="outlined"
+              startIcon={<GoogleIcon />}
+              sx={{ color: 'white', borderColor: '#b39ddb', borderRadius: 2, textTransform: 'none', width: 220 }}
+              onClick={() => {
+                window.location.href = '/api/v1/auth/google';
+              }}
+            >
               Google
             </Button>
             <Button variant="outlined" startIcon={<AppleIcon />} sx={{ color: 'white', borderColor: '#b39ddb', borderRadius: 2, textTransform: 'none', width: 220 }}>

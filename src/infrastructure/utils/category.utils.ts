@@ -1,4 +1,4 @@
-import { categoryUtillsInterface } from "@/domain/interfaces/utills/category.utills.interface";
+import { categoryUtillsInterface } from "@/domain/interfaces/utils/category.utills.interface";
 import { createCategoryRequest } from "@/domain/types";
 import { createCategoryValidator, editCategoryValidator } from "./validator";
 import { ValidationError } from "@/domain/entities";

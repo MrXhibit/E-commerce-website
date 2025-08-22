@@ -8,12 +8,27 @@ class ProductSearchService {
       // Add all filter parameters
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          queryParams.append(key, value.toString());
+          // Handle boolean values properly
+          if (typeof value === 'boolean') {
+            queryParams.append(key, value.toString());
+          } else {
+            queryParams.append(key, value.toString());
+          }
         }
       });
 
-      const response = await apiService.get(`/products/search?${queryParams.toString()}`);
-      return response.data;
+      // Fixed: Use /product/search instead of /products/search
+      const response = await fetch(`/api/v1/product/search?${queryParams.toString()}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
     } catch (error) {
       console.error('Search products error:', error);
       throw error;
@@ -27,8 +42,18 @@ class ProductSearchService {
       queryParams.append('skip', skip.toString());
       if (category) queryParams.append('category', category);
 
-      const response = await apiService.get(`/products?${queryParams.toString()}`);
-      return response.data;
+      // Fixed: Use /product instead of /products
+      const response = await fetch(`/api/v1/product?${queryParams.toString()}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
     } catch (error) {
       console.error('Get products error:', error);
       throw error;
@@ -37,8 +62,18 @@ class ProductSearchService {
 
   async getCategories() {
     try {
-      const response = await apiService.get('/categories');
-      return response.data;
+      // Fixed: Use /category instead of /categories
+      const response = await fetch('/api/v1/category', {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
     } catch (error) {
       console.error('Get categories error:', error);
       throw error;

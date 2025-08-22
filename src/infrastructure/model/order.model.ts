@@ -90,8 +90,7 @@ const OrderSchema = new Schema<Order & Document>({
 
 // Indexes for better query performance
 OrderSchema.index({ userId: 1, orderDate: -1 });
-OrderSchema.index({ orderId: 1 });
-OrderSchema.index({ orderStatus: 1 });
+// OrderSchema.index({ orderId: 1 }); // Remove this line since unique: true already creates an index
 OrderSchema.index({ 'paymentInfo.transactionId': 1 });
 
 export const OrderModel = mongoose.model<Order & Document>('Order', OrderSchema);

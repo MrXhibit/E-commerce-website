@@ -1,9 +1,9 @@
 import { AuthorizeError, Product, productProperties, ValidationError } from "@/domain/entities";
 import { productRepositoryInterface } from "@/domain/interfaces/repository";
 import { ProductServiceInterface } from "@/domain/interfaces/services";
-import { cloudUtillsInterface } from "@/domain/interfaces/utills";
-import { productUtilsInterface } from "@/domain/interfaces/utills/product.utills.interface";
-import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
+import { cloudUtillsInterface } from "@/domain/interfaces/utils";
+import { productUtilsInterface } from "@/domain/interfaces/utils/product.utills.interface";
+import { tokenValidationUtillsInterface } from "@/domain/interfaces/utils/token.validation.utills.interface";
 import { ProductSearchFilters, ProductSearchResult } from "@/domain/types/product.request.type";
 
 export class productService implements ProductServiceInterface {
@@ -126,8 +126,23 @@ export class productService implements ProductServiceInterface {
     const updatedProduct = await this.productRepo.editProduct(product);
     return updatedProduct.sanitizeProduct();
   }
+  async deleteProduct(id: string, adminToken: string): Promise<void> {
+    const isAdmin = this.tokenUtils.isValidAdminToken(adminToken);
+    if (!isAdmin) throw new AuthorizeError();
+    // Ensure product exists and delete
+    const product = await this.productRepo.getSingleProduct(id);
+    // Optionally delete images from cloud
+    if (product.images && product.images.length > 0) {
+      try {
+        await Promise.all(product.images.map((img) => this.cloudUtils.deleteImage(img.id)));
+      } catch (_) {
+        // swallow cloud delete errors; proceed with product delete
+      }
+    }
+    await this.productRepo.deleteProduct(id);
+  }
   async searchProducts(filters: ProductSearchFilters): Promise<ProductSearchResult> {
-    const { query, category, minPrice, maxPrice, brand, model, limit = 20, skip = 0 } = filters;
+    const { query, category, minPrice, maxPrice, brand, model, limit = 20, skip = 0, sortBy = 'createdAt', sortOrder = 'desc', inStock } = filters;
 
     const products = await this.productRepo.searchProducts(
       query,
@@ -137,7 +152,10 @@ export class productService implements ProductServiceInterface {
       brand,
       model,
       limit,
-      skip
+      skip,
+      sortBy,
+      sortOrder,
+      inStock
     );
 
     const totalProducts = await this.productRepo.countProducts(
@@ -146,7 +164,8 @@ export class productService implements ProductServiceInterface {
       minPrice,
       maxPrice,
       brand,
-      model
+      model,
+      inStock
     );
 
     return {

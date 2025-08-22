@@ -120,4 +120,35 @@ export class OrderRepository {
 
     return result[0]?.total || 0;
   }
+
+  async getOrdersWithFilters(filters: {
+      startDate?: Date;
+      endDate?: Date;
+      status?: string;
+      limit?: number;
+      skip?: number;
+  }): Promise<Order[]> {
+      const matchStage: any = {};
+      
+      // Date range filter
+      if (filters.startDate || filters.endDate) {
+          matchStage.orderDate = {};
+          if (filters.startDate) matchStage.orderDate.$gte = filters.startDate;
+          if (filters.endDate) matchStage.orderDate.$lte = filters.endDate;
+      }
+      
+      // Status filter
+      if (filters.status) {
+          matchStage.orderStatus = filters.status;
+      }
+      
+      const orders = await OrderModel
+          .find(matchStage)
+          .sort({ orderDate: -1 })
+          .limit(filters.limit || 100)
+          .skip(filters.skip || 0)
+          .lean();
+          
+      return orders;
+  }
 }

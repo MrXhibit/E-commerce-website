@@ -29,8 +29,8 @@ const adminSchema: Schema<IAdmin> = new Schema(
     profile: String,
     salt: {
       type: String,
-      unique: true,
-      required: true,
+      unique: false,
+      required: false,
     },
     refresh_token: {
       type: String,

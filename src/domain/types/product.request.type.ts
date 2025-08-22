@@ -23,8 +23,9 @@ export interface ProductSearchFilters {
   model?: string;
   minPrice?: number;
   maxPrice?: number;
-  sortBy?: 'name' | 'price' | 'createdAt' | 'rating';
+  sortBy?: 'name' | 'price' | 'createdAt' | 'rating' | 'sales';
   sortOrder?: 'asc' | 'desc';
+  inStock?: boolean;
   limit?: number;
   skip?: number;
 }

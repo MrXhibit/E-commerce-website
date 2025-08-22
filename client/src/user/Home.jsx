@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Grid, Button, Stack, Card, CardMedia, CardContent, CardActions, Chip, Tabs, Tab, Paper, Divider, Avatar, IconButton, CircularProgress, Alert, Snackbar } from '@mui/material';
+import { 
+  Box, Container, Typography, Grid, Button, Stack, Card, CardMedia, 
+  CardContent, CardActions, Chip, Tabs, Tab, Paper, IconButton, 
+  CircularProgress, Alert, Snackbar
+} from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import ReplayIcon from '@mui/icons-material/Replay';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import ProductCarousel from './components/ProductCarousel';
+import HeroPinterestCarousel from './components/HeroPinterestCarousel';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; 
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -17,82 +20,138 @@ import { addToWishlist } from '../store/slices/wishlistSlice';
 import apiService from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
-// Mock data
-const hero = {
-  title: "Season Sale",
-  subtitle: "MEN'S FASHION",
-  offer: 'Min. 35-70% Off',
-  cta1: 'Shop Now',
-  cta2: 'Read More',
-  image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
-};
-
-const highlights = [
-  { icon: <LocalShippingIcon fontSize="large" color="primary" />, label: 'Free Shipping' },
-  { icon: <ReplayIcon fontSize="large" color="primary" />, label: '100% Money Back' },
-  { icon: <SupportAgentIcon fontSize="large" color="primary" />, label: 'Online Support' },
-];
-
-const promoBanners = [
-  { label: 'Handbag', discount: '25% Off', image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=600&q=80' },
-  { label: 'Watch', discount: '45% Off', image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&q=80' },
-  { label: 'Backpack', discount: '40% Off', image: 'https://images.unsplash.com/photo-1517263904808-5dc0d6d4c08e?auto=format&fit=crop&w=600&q=80' },
-];
-
 const featuredTabs = [
-  { label: 'New Arrival', value: 'new' },
-  { label: 'Best Selling', value: 'best' },
-  { label: 'Top Rated', value: 'top' },
+  { label: "New Products", value: "new" },
+  { label: "Best Selling", value: "best" },
+  { label: "Featured", value: "featured" }
 ];
 
 const mockProducts = [
   {
     _id: 'prod1',
-    name: 'iPhone 15 Pro',
-    price: '999.00',
+    name: 'iPhone 15 Pro Max',
+    price: '1199.00',
     category: 'Electronics',
-    images: [{ url: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400' }],
-    description: 'Latest iPhone with advanced features'
+    images: [{ url: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Revolutionary iPhone with titanium design and A17 Pro chip',
+    isNew: true,
+    isFeatured: true
   },
   {
     _id: 'prod2',
-    name: 'MacBook Pro',
+    name: 'MacBook Pro M3',
     price: '2499.00',
     category: 'Electronics',
-    images: [{ url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400' }],
-    description: 'Powerful laptop for professionals'
+    images: [{ url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Ultimate laptop with M3 Pro chip for creative professionals',
+    isFeatured: true
   },
   {
     _id: 'prod3',
-    name: 'Nike Sneakers',
-    price: '129.99',
-    category: 'Fashion',
-    images: [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400' }],
-    description: 'Comfortable running shoes'
+    name: 'Apple Watch Series 9',
+    price: '399.99',
+    category: 'Wearables',
+    images: [{ url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Advanced health monitoring with S9 chip',
+    isNew: true
   },
   {
     _id: 'prod4',
-    name: 'Coffee Maker',
-    price: '199.00',
-    category: 'Home',
-    images: [{ url: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400' }],
-    description: 'Premium coffee maker'
+    name: 'AirPods Pro 2nd Gen',
+    price: '249.00',
+    category: 'Audio',
+    images: [{ url: 'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Premium wireless earbuds with active noise cancellation',
+    isFeatured: true
+  },
+  {
+    _id: 'prod5',
+    name: 'Sony WH-1000XM5',
+    price: '399.99',
+    category: 'Audio',
+    images: [{ url: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Industry-leading noise cancelling headphones',
+    isNew: true
+  },
+  {
+    _id: 'prod6',
+    name: 'PlayStation 5 Pro',
+    price: '699.99',
+    category: 'Gaming',
+    images: [{ url: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Next-generation gaming with 4K 120fps performance',
+    isFeatured: true
+  },
+  {
+    _id: 'prod7',
+    name: 'Samsung Galaxy S24 Ultra',
+    price: '1299.99',
+    category: 'Electronics',
+    images: [{ url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Revolutionary AI-powered smartphone with S Pen',
+    isNew: true,
+    isFeatured: true
+  },
+  {
+    _id: 'prod8',
+    name: 'DJI Mini 4 Pro Drone',
+    price: '759.00',
+    category: 'Electronics',
+    images: [{ url: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Ultra-lightweight drone with 4K video and obstacle avoidance',
+    isNew: true
+  },
+  {
+    _id: 'prod9',
+    name: 'Nike Air Max 270',
+    price: '150.00',
+    category: 'Footwear',
+    images: [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Maximum comfort with visible Air unit for all-day wear',
+    isFeatured: true
+  },
+  {
+    _id: 'prod10',
+    name: 'Canon EOS R5',
+    price: '3899.00',
+    category: 'Electronics',
+    images: [{ url: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Professional mirrorless camera with 8K video recording',
+    isFeatured: true
+  },
+  {
+    _id: 'prod11',
+    name: 'Tesla Model 3',
+    price: '38990.00',
+    category: 'Automotive',
+    images: [{ url: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Electric sedan with autopilot and 358-mile range',
+    isNew: true
+  },
+  {
+    _id: 'prod12',
+    name: 'Rolex Submariner',
+    price: '8950.00',
+    category: 'Luxury',
+    images: [{ url: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=2560&q=100&fit=crop&auto=format' }],
+    description: 'Iconic diving watch with 300m water resistance',
+    isFeatured: true
   }
 ];
 
 const Home = () => {
   const [tab, setTab] = useState('new');
   const [products, setProducts] = useState([]);
+  const [heroProducts, setHeroProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [heroLoading, setHeroLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   
-  // Redux hooks
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-  const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
-  
+  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const { items: wishlistItems } = useAppSelector(state => state.wishlist);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,9 +159,17 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await apiService.getProducts(20, 0);
+        const response = await apiService.getProducts(24, 0);
+        console.log('Backend products response:', response);
         if (response.success && response.data) {
-          setProducts(response.data);
+          console.log('Setting products from backend:', response.data);
+          // Ensure all products have _id field
+          const normalizedProducts = response.data.map(product => ({
+            ...product,
+            _id: product._id || product.id || `prod_${Math.random().toString(36).substr(2, 9)}`
+          }));
+          console.log('Normalized products:', normalizedProducts);
+          setProducts(normalizedProducts);
         } else {
           console.log('Backend fetch failed, using mock products');
           setProducts(mockProducts);
@@ -110,12 +177,50 @@ const Home = () => {
       } catch (err) {
         console.log('API call failed, using mock products as fallback');
         setProducts(mockProducts);
-        setError(null); // Clear error since we have fallback data
+        setError(null);
       } finally {
         setLoading(false);
       }
-    };
+    }
     fetchProducts();
+  }, []);
+
+  // Fetch featured products for hero carousel
+  useEffect(() => {
+    const fetchHeroProducts = async () => {
+      setHeroLoading(true);
+      try {
+        const response = await apiService.getProducts(12, 0); // Get more products for better selection
+        console.log('Hero products response:', response);
+        if (response.success && response.data) {
+          console.log('Hero products data:', response.data);
+          // Filter for featured products or use latest ones
+          const featuredProducts = response.data.filter(product => 
+            product.isFeatured || product.isNew
+          ).slice(0, 6);
+          
+          // If no featured products, use the first 6 products
+          const finalHeroProducts = featuredProducts.length > 0 ? featuredProducts : response.data.slice(0, 6);
+          // Ensure all hero products have _id field
+          const normalizedHeroProducts = finalHeroProducts.map(product => ({
+            ...product,
+            _id: product._id || product.id || `hero_${Math.random().toString(36).substr(2, 9)}`
+          }));
+          console.log('Normalized hero products:', normalizedHeroProducts);
+          setHeroProducts(normalizedHeroProducts);
+        } else {
+          // Use mock products for hero carousel - now with 6 products
+          console.log('Using mock products for hero');
+          setHeroProducts(mockProducts.slice(0, 6));
+        }
+      } catch (err) {
+        console.log('Hero products fetch failed, using mock products');
+        setHeroProducts(mockProducts.slice(0, 6));
+      } finally {
+        setHeroLoading(false);
+      }
+    };
+    fetchHeroProducts();
   }, []);
 
   const handleAddToCart = async (productId, event) => {
@@ -163,136 +268,117 @@ const Home = () => {
   };
 
   const handleViewProduct = (productId) => {
-    navigate(`/product/${productId}`);
+    console.log('Navigating to product:', productId);
+    if (!productId || productId === 'undefined') {
+      console.error('Invalid product ID:', productId);
+      return;
+    }
+    navigate(`/products/${productId}`);
   };
 
-  // Carousel settings
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    responsive: [
-      { breakpoint: 1200, settings: { slidesToShow: 3 } },
-      { breakpoint: 900, settings: { slidesToShow: 2 } },
-      { breakpoint: 600, settings: { slidesToShow: 1 } },
-    ],
-    arrows: true, // Use default arrows
+  const handleTabChange = (_, newValue) => {
+    setTab(newValue);
   };
 
   return (
     <>
       <Header />
       <Box sx={{ background: '#fafbfc', minHeight: '100vh' }}>
-        {/* Hero Section */}
-        <Box sx={{ background: 'white', py: { xs: 4, md: 8 }, px: 2 }}>
-          <Container maxWidth={false} sx={{ px: { xs: 1, sm: 3, md: 8, lg: 16 } }}>
-            <Grid container spacing={6} alignItems="center" justifyContent="center">
-              <Grid item xs={12} md={6} lg={5}>
-                <Typography variant="h5" color="primary" fontWeight={700} sx={{ mb: 1 }}>{hero.title}</Typography>
-                <Typography variant="h2" fontWeight={900} sx={{ mb: 1 }}>{hero.subtitle}</Typography>
-                <Typography variant="h5" color="text.secondary" sx={{ mb: 3 }}>{hero.offer}</Typography>
-                <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-                  <Button variant="contained" color="primary" size="large" onClick={() => navigate('/products')}>{hero.cta1}</Button>
-                  <Button variant="outlined" color="primary" size="large">{hero.cta2}</Button>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} md={6} lg={5} sx={{ textAlign: 'center' }}>
-                <img src={hero.image} alt="Hero" style={{ width: '100%', maxWidth: 420, borderRadius: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }} />
-              </Grid>
-            </Grid>
-          </Container>
-        </Box>
-        {/* Service Highlights */}
-        <Container maxWidth={false} sx={{ py: 4, px: { xs: 1, sm: 3, md: 8, lg: 16 } }}>
-          <Grid container spacing={4} justifyContent="center">
-            {highlights.map((h, i) => (
-              <Grid item xs={12} sm={4} md={4} key={i} sx={{ textAlign: 'center' }}>
-                <Box>{h.icon}</Box>
-                <Typography variant="subtitle1" fontWeight={700}>{h.label}</Typography>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-        {/* Promo Banners */}
-        <Container maxWidth={false} sx={{ py: 2, px: { xs: 1, sm: 3, md: 8, lg: 16 } }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6} lg={4}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#f5f5f5', p: 2 }}>
-                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80" alt="Women's Style" style={{ width: '100%', borderRadius: 12, marginBottom: 8 }} />
-                <Typography variant="h6" fontWeight={700}>Women's Style</Typography>
-                <Typography variant="body2" color="text.secondary">Up to 70% Off</Typography>
-              </Card>
-            </Grid>
-            {promoBanners.map((b, i) => (
-              <Grid item xs={12} md={2} lg={2} key={i}>
-                <Card sx={{ height: '100%', background: '#f5f5f5', p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <img src={b.image} alt={b.label} style={{ width: '100%', borderRadius: 12, marginBottom: 8 }} />
-                  <Typography variant="subtitle1" fontWeight={700}>{b.label}</Typography>
-                  <Chip label={b.discount} color="primary" size="small" sx={{ mt: 1 }} />
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-        {/* Featured Products with Tabs as Carousel */}
-        <Container maxWidth={false} sx={{ py: 6, px: { xs: 1, sm: 3, md: 8, lg: 16 } }}>
-          <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>Featured Products</Typography>
-          <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
-            {featuredTabs.map(t => <Tab key={t.value} value={t.value} label={t.label} />)}
-          </Tabs>
-          
+        {/* Hero Carousel Section - DB-powered, optimized for 1920px */}
+        {heroLoading ? (
+          <Box
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              py: { xs: 6, md: 10, xl: 12 },
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: { xs: 500, md: 600, xl: 700 }
+            }}
+          >
+            <CircularProgress color="inherit" size={60} />
+          </Box>
+        ) : (
+          <HeroPinterestCarousel 
+            products={heroProducts} 
+            onAddToCart={handleAddToCart}
+          />
+        )}
+
+        {/* Trending Products Section - Tabbed carousel, optimized for 1920px */}
+        <Container maxWidth="xl" sx={{ py: { xs: 6, md: 8, xl: 10 } }}>
+          <Typography 
+            variant="h4" 
+            component="h2" 
+            fontWeight={600}
+            sx={{ 
+              mb: 4,
+              textAlign: { xs: 'center', md: 'left' },
+              fontSize: { xs: '1.75rem', md: '2.125rem', xl: '2.5rem' }
+            }}
+          >
+            Trending Products
+          </Typography>
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+              <CircularProgress size={60} />
             </Box>
           ) : error ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Alert severity="error">{error}</Alert>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+              <Alert severity="error" sx={{ fontSize: '1.1rem' }}>{error}</Alert>
             </Box>
           ) : products.length > 0 ? (
-            <Box sx={{ width: '100%' }}>
-              <Slider {...sliderSettings}>
-                {products.map(product => (
-                  <Box key={product._id || product.id} sx={{ px: 2 }}>
-                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', boxShadow: 2 }}>
-                      <CardMedia component="img" height="180" image={product.images?.[0]?.url || 'https://source.unsplash.com/featured/?product'} alt={product.name} />
-                      <CardContent>
-                        <Typography variant="subtitle1" fontWeight={600}>{product.name}</Typography>
-                        <Typography variant="body2" color="text.secondary">${product.price}</Typography>
-                      </CardContent>
-                      <CardActions sx={{ mt: 'auto' }}>
-                        <Button 
-                          size="small" 
-                          variant="contained" 
-                          endIcon={<ShoppingCartIcon />}
-                          onClick={(e) => handleAddToCart(product._id || product.id, e)}
-                          disabled={actionLoading[`cart-${product._id || product.id}`]}
-                        >
-                          {actionLoading[`cart-${product._id || product.id}`] ? 'Adding...' : 'Add to Cart'}
-                        </Button>
-                        <IconButton 
-                          color="primary" 
-                          onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
-                          disabled={actionLoading[`wishlist-${product._id || product.id}`]}
-                        >
-                          {isInWishlist(product._id || product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                        </IconButton>
-                      </CardActions>
-                    </Card>
-                  </Box>
-                ))}
-              </Slider>
+            <Box>
+              {/* Enhanced Tabs - optimized for 1920px */}
+              <Box sx={{ mb: 4 }}>
+                <Tabs
+                  value={tab}
+                  onChange={handleTabChange}
+                  sx={{
+                    '& .MuiTabs-indicator': {
+                      height: 3,
+                      borderRadius: 1.5
+                    },
+                    '& .MuiTab-root': {
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      fontSize: { xs: '0.9rem', md: '1rem', xl: '1.125rem' },
+                      minWidth: { xs: 100, md: 120, xl: 140 },
+                      px: { xs: 2, md: 3, xl: 4 }
+                    }
+                  }}
+                >
+                  {featuredTabs.map((tabItem) => (
+                    <Tab
+                      key={tabItem.value}
+                      label={tabItem.label}
+                      value={tabItem.value}
+                    />
+                  ))}
+                </Tabs>
+              </Box>
+              <ProductCarousel
+                products={products}
+                tabs={featuredTabs}
+                onAddToCart={handleAddToCart}
+                onAddToWishlist={handleAddToWishlist}
+                isInWishlist={isInWishlist}
+                cartLoading={actionLoading}
+                currentTab={tab}
+                onTabChange={handleTabChange}
+              />
             </Box>
           ) : (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="h6" color="text.secondary">No products available</Typography>
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography variant="h6" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+                No products available
+              </Typography>
             </Box>
           )}
         </Container>
-        
       </Box>
+      
       <Footer />
       
       {/* Snackbar for notifications */}
@@ -300,7 +386,7 @@ const Home = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}

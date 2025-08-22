@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { 
   Box, 
   Container, 
@@ -7,7 +7,9 @@ import {
   CircularProgress, 
   Alert, 
   Pagination,
-  Paper
+  Paper,
+  Chip,
+  Stack
 } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,12 +31,13 @@ const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [wishlistItems, setWishlistItems] = useState([]);
+  const [currentFilters, setCurrentFilters] = useState({});
   const productsPerPage = 20;
   
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Load initial data
   useEffect(() => {
@@ -100,32 +103,60 @@ const ProductPage = () => {
     }
   };
 
-  const handleSearch = async (filters) => {
+  const handleSearch = useCallback(async (filters) => {
     setLoading(true);
     setError(null);
+    setCurrentPage(1); // Reset to first page on new search
+    
     try {
       const response = await productSearchService.searchProducts({
         ...filters,
-        skip: (currentPage - 1) * productsPerPage
+        limit: productsPerPage,
+        skip: 0
       });
       
       setSearchResults(response.data);
       setProducts(response.data?.products || []);
       setTotalProducts(response.data?.total || 0);
+      setCurrentFilters(filters);
     } catch (err) {
       setError('Search failed. Please try again.');
       console.error('Search error:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Apply current filters with new page
+    if (currentFilters && Object.keys(currentFilters).length > 0) {
+      const filtersWithPage = {
+        ...currentFilters,
+        skip: (page - 1) * productsPerPage
+      };
+      handleSearch(filtersWithPage);
+    }
   };
 
   const displayProducts = searchResults ? searchResults.products : products;
+
+  const getSearchSummary = () => {
+    if (!searchResults) return null;
+    
+    const filters = [];
+    if (currentFilters.query) filters.push(`"${currentFilters.query}"`);
+    if (currentFilters.category) {
+      const categoryName = categories.find(cat => cat._id === currentFilters.category || cat.name === currentFilters.category)?.name;
+      if (categoryName) filters.push(categoryName);
+    }
+    if (currentFilters.brand) filters.push(currentFilters.brand);
+    if (currentFilters.inStock) filters.push('In Stock Only');
+    
+    return filters.length > 0 ? filters.join(' • ') : null;
+  };
 
   return (
     <Box>
@@ -144,10 +175,15 @@ const ProductPage = () => {
 
         {/* Results Summary */}
         {searchResults && (
-          <Box mb={2}>
-            <Typography variant="h6">
+          <Box mb={3}>
+            <Typography variant="h5" gutterBottom>
               {totalProducts} {totalProducts === 1 ? 'result' : 'results'} found
             </Typography>
+            {getSearchSummary() && (
+              <Typography variant="body1" color="text.secondary">
+                Showing results for: {getSearchSummary()}
+              </Typography>
+            )}
           </Box>
         )}
 

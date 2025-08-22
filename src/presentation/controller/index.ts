@@ -9,6 +9,7 @@ export {
   deleteProductImage,
   uploadProductImages,
   searchProducts, // Add this export
+  deleteProduct,
 } from "./product/product.controller";
 export * from "./admin/admin.controller"
 export * from "./cart/cart.controller";

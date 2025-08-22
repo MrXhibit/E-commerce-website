@@ -25,6 +25,14 @@ router.post('/confirm-payment', authenticateUser, (req, res, next) =>
   paymentController.confirmPayment(req, res, next)
 );
 
+router.post('/create-checkout-session', authenticateUser, (req, res, next) =>
+  paymentController.createCheckoutSession(req, res, next)
+);
+
+router.get('/checkout-session', authenticateUser, (req, res, next) =>
+  paymentController.getCheckoutSession(req, res, next)
+);
+
 // Webhook route - no auth middleware, raw body needed
 router.post('/webhook', 
   express.raw({ type: 'application/json' }),

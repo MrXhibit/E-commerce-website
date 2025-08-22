@@ -1,33 +1,34 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Initialize Stripe with your publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-export const createPaymentIntent = async (amount, currency = 'usd', token) => {
+export const createCheckoutSession = async (items, successUrl, cancelUrl) => {
   try {
-    const response = await fetch('/api/v1/payments/create-payment-intent', {
+    const token = localStorage.getItem('accessToken');
+    const response = await fetch('/api/v1/payments/create-checkout-session', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency
-      })
+      body: JSON.stringify({ items, successUrl, cancelUrl })
     });
-    
     const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to create payment intent');
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Failed to create checkout session');
     }
-    
-    return data.data;
+    return data.data; // { id, url }
   } catch (error) {
-    console.error('Error creating payment intent:', error);
+    console.error('Error creating checkout session:', error);
     throw error;
   }
+};
+
+export const redirectToCheckout = async (sessionId) => {
+  const stripe = await stripePromise;
+  const { error } = await stripe.redirectToCheckout({ sessionId });
+  if (error) throw error;
 };
 
 export default stripePromise;

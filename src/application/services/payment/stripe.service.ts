@@ -23,7 +23,7 @@ export class StripeService {
       throw new Error('STRIPE_SECRET_KEY is required');
     }
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-07-30.basil',
+       apiVersion: '2025-07-30.basil', // Updated to latest stable major release with proper suffix
     });
   }
 
@@ -62,6 +62,56 @@ export class StripeService {
     } catch (error) {
       throw new CustomError(
         'Payment confirmation failed',
+        STATUS_CODES.INTERNAL_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+    }
+  }
+
+  async createCheckoutSession(params: {
+    items: Array<{ name: string; price: number; quantity: number }>;
+    successUrl: string;
+    cancelUrl: string;
+    customerId?: string;
+    metadata?: Record<string, string>;
+  }): Promise<Stripe.Checkout.Session> {
+    try {
+      const session = await this.stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer: params.customerId,
+        line_items: params.items.map((item) => ({
+          quantity: item.quantity,
+          price_data: {
+            currency: 'usd',
+            unit_amount: Math.round(item.price * 100),
+            product_data: {
+              name: item.name,
+            },
+          },
+        })),
+        success_url: params.successUrl + '?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: params.cancelUrl,
+        metadata: params.metadata,
+        automatic_tax: { enabled: false },
+      });
+      return session;
+    } catch (error) {
+      throw new CustomError(
+        'Checkout session creation failed',
+        STATUS_CODES.INTERNAL_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+    }
+  }
+
+  async getCheckoutSession(sessionId: string): Promise<{ session: Stripe.Checkout.Session; lineItems: Stripe.ApiList<Stripe.LineItem>; }>{
+    try {
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+      const lineItems = await this.stripe.checkout.sessions.listLineItems(sessionId);
+      return { session, lineItems };
+    } catch (error) {
+      throw new CustomError(
+        'Retrieve checkout session failed',
         STATUS_CODES.INTERNAL_ERROR,
         error instanceof Error ? error.message : 'Unknown error'
       );

@@ -11,14 +11,17 @@ import { fetchWishlist } from '../store/slices/wishlistSlice';
 import Home from './Home';
 import Contact from './Contact';
 import About from './About';
-import Login from './Login';
-import Signup from './Signup';
+import LoginPage from './LoginPage';
+import SignupPage from './SignupPage';
+import ForgotPasswordPage from './ForgotPasswordPage';
 import ProductPage from './ProductPage_new';
 import ProductDetailPage from './ProductDetailPage';
 import CategoryPage from './CategoryPage';
 import CartPage from './CartPage';
 import WishlistPage from './WishlistPage';
 import ProfilePage from './ProfilePage';
+import SuccessPage from './SuccessPage';
+import CancelPage from './CancelPage';
 
 // Individual Category Pages
 import ComputersPage from './ComputersPage';
@@ -53,13 +56,11 @@ function UserApp() {
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/products" element={<ProductPage />} />
-        // Remove this duplicate line:
-        <Route path='/products/:id' element={<ProductDetailPage />} />
-        // Keep only:
-        <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/products/:id" element={<ProductDetailPage />} />
         
         {/* Individual Category Pages - Electronics & Technology */}
         <Route path='/electronics' element={<ElectronicsPage />} />
@@ -123,6 +124,8 @@ function UserApp() {
         <Route path='/stationery' element={<CategoryPage />} />
         
         <Route path='/cart' element={<CartPage />} />
+        <Route path='/success' element={<SuccessPage />} />
+        <Route path='/cancel' element={<CancelPage />} />
         <Route path='/wishlist' element={<WishlistPage />} />
         <Route path='/profile' element={<ProfilePage />} />
       </Routes>

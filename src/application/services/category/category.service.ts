@@ -8,9 +8,9 @@ import {
 } from "@/domain/entities";
 import { categoryRepositoryInterface } from "@/domain/interfaces/repository";
 import { categoryServiceInterface } from "@/domain/interfaces/services";
-import { cloudUtillsInterface } from "@/domain/interfaces/utills";
-import { categoryUtillsInterface } from "@/domain/interfaces/utills/category.utills.interface";
-import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
+import { cloudUtillsInterface } from "@/domain/interfaces/utils";
+import { categoryUtillsInterface } from "@/domain/interfaces/utils/category.utills.interface";
+import { tokenValidationUtillsInterface } from "@/domain/interfaces/utils/token.validation.utills.interface";
 
 export class categoryService implements categoryServiceInterface {
   constructor(

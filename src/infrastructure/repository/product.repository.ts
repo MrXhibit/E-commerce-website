@@ -2,6 +2,8 @@ import { APIError, Product, productProperties, ValidationError } from "@/domain/
 import { productRepositoryInterface } from "@/domain/interfaces/repository";
 import { ProductSearchFilters, ProductSearchResult } from "@/domain/types/product.request.type";
 import ProductModel, { IProduct } from "../model/product.model";
+import CategoryModel from "../model/category.model";
+import mongoose from "mongoose";
 
 export class productRepository implements productRepositoryInterface {
   async getUniqueProduct(name: string, brand: string, model: string): Promise<Product | null> {
@@ -43,7 +45,16 @@ export class productRepository implements productRepositoryInterface {
     try {
       const query: any = { isListed: true };
       if (category) {
-        query.category = category;
+        // Allow both ObjectId and category name
+        if (mongoose.Types.ObjectId.isValid(category)) {
+          query.category = new mongoose.Types.ObjectId(category);
+        } else {
+          const cat = await CategoryModel.findOne({ name: { $regex: `^${category}$`, $options: 'i' } });
+          if (!cat) {
+            return [];
+          }
+          query.category = cat._id;
+        }
       }
       const products = await ProductModel.find(query).populate('category', 'name').limit(limit).skip(skip);
       return products.map((product) => this.mapToProduct(product));
@@ -61,7 +72,10 @@ export class productRepository implements productRepositoryInterface {
     brand?: string,
     model?: string,
     limit: number = 20,
-    skip: number = 0
+    skip: number = 0,
+    sortBy: string = 'createdAt',
+    sortOrder: string = 'desc',
+    inStock?: boolean
   ): Promise<Product[]> {
     try {
 
@@ -77,9 +91,17 @@ export class productRepository implements productRepositoryInterface {
         ];
       }
 
-      // Category filter
+      // Category filter (by id or name)
       if (category) {
-        queryObj.category = { $regex: category, $options: 'i' };
+        if (mongoose.Types.ObjectId.isValid(category)) {
+          queryObj.category = new mongoose.Types.ObjectId(category);
+        } else {
+          const cat = await CategoryModel.findOne({ name: { $regex: `^${category}$`, $options: 'i' } });
+          if (!cat) {
+            return [];
+          }
+          queryObj.category = cat._id;
+        }
       }
 
       // Brand filter
@@ -99,10 +121,28 @@ export class productRepository implements productRepositoryInterface {
         if (maxPrice !== undefined) queryObj.price.$lte = maxPrice;
       }
 
-      // Execute query with pagination
+      // Stock availability filter
+      if (inStock !== undefined) {
+        if (inStock) {
+          queryObj.stock = { $gt: 0 };
+        } else {
+          queryObj.stock = { $lte: 0 };
+        }
+      }
+
+      // Build sort object
+      let sortObj: any = {};
+      if (sortBy === 'sales') {
+        // For sales sorting, we'll use a default sort since sales field might not exist
+        sortObj = { createdAt: -1 };
+      } else {
+        sortObj[sortBy] = sortOrder === 'asc' ? 1 : -1;
+      }
+
+      // Execute query with pagination and sorting
       const products = await ProductModel.find(queryObj)
         .populate('category', 'name')
-        .sort({ createdAt: -1 })
+        .sort(sortObj)
         .limit(limit)
         .skip(skip);
 
@@ -118,7 +158,8 @@ export class productRepository implements productRepositoryInterface {
     minPrice?: number,
     maxPrice?: number,
     brand?: string,
-    model?: string
+    model?: string,
+    inStock?: boolean
   ): Promise<number> {
     try {
       // Build query object
@@ -135,7 +176,15 @@ export class productRepository implements productRepositoryInterface {
 
       // Category filter
       if (category) {
-        queryObj.category = { $regex: category, $options: 'i' };
+        if (mongoose.Types.ObjectId.isValid(category)) {
+          queryObj.category = new mongoose.Types.ObjectId(category);
+        } else {
+          const cat = await CategoryModel.findOne({ name: { $regex: `^${category}$`, $options: 'i' } });
+          if (!cat) {
+            return 0;
+          }
+          queryObj.category = cat._id;
+        }
       }
 
       // Brand filter
@@ -153,6 +202,15 @@ export class productRepository implements productRepositoryInterface {
         queryObj.price = {};
         if (minPrice !== undefined) queryObj.price.$gte = minPrice;
         if (maxPrice !== undefined) queryObj.price.$lte = maxPrice;
+      }
+
+      // Stock availability filter
+      if (inStock !== undefined) {
+        if (inStock) {
+          queryObj.stock = { $gt: 0 };
+        } else {
+          queryObj.stock = { $lte: 0 };
+        }
       }
 
       return await ProductModel.countDocuments(queryObj);
@@ -196,6 +254,13 @@ export class productRepository implements productRepositoryInterface {
       }
       console.error('Error in getSingleProduct:', error);
       throw new APIError(`Failed to get single product: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+  async deleteProduct(id: string): Promise<void> {
+    try {
+      await ProductModel.findByIdAndDelete(id);
+    } catch (error) {
+      throw new APIError();
     }
   }
   mapToProduct(productDb: IProduct): Product {

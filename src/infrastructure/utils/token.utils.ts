@@ -1,5 +1,5 @@
 import { adminProperties, AuthorizeError, userProperties } from "@/domain/entities";
-import { tokenValidationUtillsInterface } from "@/domain/interfaces/utills/token.validation.utills.interface";
+import { tokenValidationUtillsInterface } from "@/domain/interfaces/utils/token.validation.utills.interface";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { env } from "@/infrastructure/config/environment";
 

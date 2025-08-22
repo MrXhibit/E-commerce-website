@@ -18,8 +18,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useAppDispatch } from '../../store/hooks';
-import { fetchCart } from '../../store/slices/cartSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addToCart } from '../../store/slices/cartSlice';
 import { fetchWishlist } from '../../store/slices/wishlistSlice';
 import apiService from '../../services/api';
 
@@ -27,7 +27,7 @@ const ProductCard = ({ product, isInWishlist = false }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
+  const { loading: cartLoading } = useAppSelector((state) => state.cart);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const handleAddToCart = async (e) => {
@@ -37,26 +37,27 @@ const ProductCard = ({ product, isInWishlist = false }) => {
       return;
     }
 
-    setLoading(true);
     try {
-      await apiService.post('/cart', {
-        productId: product._id,
-        quantity: 1
-      });
-      dispatch(fetchCart());
-      setSnackbar({
-        open: true,
-        message: 'Product added to cart successfully!',
-        severity: 'success'
-      });
+      const result = await dispatch(addToCart({ productId: product._id, quantity: 1 }));
+      if (addToCart.fulfilled.match(result)) {
+        setSnackbar({
+          open: true,
+          message: 'Product added to cart successfully!',
+          severity: 'success'
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          message: result.payload || 'Failed to add product to cart',
+          severity: 'error'
+        });
+      }
     } catch (error) {
       setSnackbar({
         open: true,
         message: 'Failed to add product to cart',
         severity: 'error'
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -94,7 +95,7 @@ const ProductCard = ({ product, isInWishlist = false }) => {
   };
 
   const handleProductClick = () => {
-    navigate(`/product/${product._id}`);
+    navigate(`/products/${product._id}`);
   };
 
   return (
@@ -225,10 +226,10 @@ const ProductCard = ({ product, isInWishlist = false }) => {
             variant="contained"
             startIcon={<ShoppingCartIcon />}
             onClick={handleAddToCart}
-            disabled={loading || product.stock === 0}
+            disabled={cartLoading || product.stock === 0}
             sx={{ borderRadius: 2 }}
           >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+            {cartLoading ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
           </Button>
         </CardActions>
       </Card>

@@ -10,10 +10,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { addToCart } from '../store/slices/cartSlice';
 import apiService from '../services/api';
 import productSearchService from '../services/productSearch.service';
 import Header from './Header';
 import Footer from './Footer';
+import ProductSearch from './components/ProductSearch';
 
 const ElectronicsPage = () => {
   const [products, setProducts] = useState([]);
@@ -23,7 +26,10 @@ const ElectronicsPage = () => {
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [searchTerm, setSearchTerm] = useState('');
-  const { isAuthenticated, addToCart, addToWishlist, wishlist } = useAuth();
+  const [searchResults, setSearchResults] = useState(null);
+  const [currentFilters, setCurrentFilters] = useState({});
+  const { isAuthenticated, user, addToWishlist, wishlist } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   
   // Carousel settings for featured products
@@ -78,14 +84,18 @@ const ElectronicsPage = () => {
     return `$${price?.toFixed(2) || '0.00'}`;
   };
 
-  // Fetch electronics products
+  // Fetch electronics products and categories
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await apiService.getProducts(50, 0);
-        if (response.success && response.data) {
-          const filtered = response.data.filter(p =>
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          apiService.getProducts(50, 0),
+          productSearchService.getCategories().catch(() => ({ data: [] }))
+        ]);
+        
+        if (productsResponse.success && productsResponse.data) {
+          const filtered = productsResponse.data.filter(p =>
             ['electronics', 'gadgets', 'audio', 'computers', 'laptops', 'smartphones', 'accessories']
               .includes(p.subcategory?.toLowerCase() || p.category?.toLowerCase())
           );
@@ -133,6 +143,8 @@ const ElectronicsPage = () => {
           ];
           setProducts(mockElectronicsProducts);
         }
+        
+        setCategories(categoriesResponse.data || []);
       } catch (err) {
         console.log('API call failed, using mock products as fallback');
         // Create mock electronics products
@@ -180,10 +192,73 @@ const ElectronicsPage = () => {
         setLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
 
-  // Handle search input change
+  // Handle advanced search with filters
+  const handleAdvancedSearch = async (filters) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Add electronics category filter by default
+      const searchFilters = {
+        ...filters,
+        category: 'electronics', // Default to electronics category
+        limit: 50,
+        skip: 0
+      };
+      
+      const response = await productSearchService.searchProducts(searchFilters);
+      
+      if (response.data && response.data.products) {
+        setSearchResults(response.data);
+        setProducts(response.data.products);
+        setCurrentFilters(filters);
+      } else {
+        // Fallback to local filtering if backend search fails
+        const filtered = products.filter(product => {
+          let matches = true;
+          
+          if (filters.query) {
+            const query = filters.query.toLowerCase();
+            matches = matches && (
+              product.name.toLowerCase().includes(query) ||
+              product.description?.toLowerCase().includes(query) ||
+              product.brand?.toLowerCase().includes(query)
+            );
+          }
+          
+          if (filters.brand) {
+            matches = matches && product.brand?.toLowerCase().includes(filters.brand.toLowerCase());
+          }
+          
+          if (filters.minPrice !== undefined) {
+            matches = matches && parseFloat(product.price) >= filters.minPrice;
+          }
+          
+          if (filters.maxPrice !== undefined) {
+            matches = matches && parseFloat(product.price) <= filters.maxPrice;
+          }
+          
+          if (filters.inStock) {
+            matches = matches && (product.stock || 0) > 0;
+          }
+          
+          return matches;
+        });
+        
+        setProducts(filtered);
+        setCurrentFilters(filters);
+      }
+    } catch (err) {
+      console.error('Advanced search failed:', err);
+      setError('Search failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle search input change (legacy simple search)
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -192,37 +267,21 @@ const ElectronicsPage = () => {
   const handleAddToCart = async (productId, event) => {
     if (event) event.stopPropagation();
     
-    if (!isAuthenticated) {
-      setSnackbar({
-        open: true,
-        message: 'Please log in to add items to your cart',
-        severity: 'info'
-      });
+    if (!user) {
+      navigate('/login');
       return;
     }
 
+    setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: true }));
     try {
-      setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: true }));
-      const result = await addToCart(productId, 1);
-      if (result.success) {
-        setSnackbar({
-          open: true,
-          message: 'Product added to cart successfully',
-          severity: 'success'
-        });
+      const result = await dispatch(addToCart({ productId, quantity: 1 }));
+      if (addToCart.fulfilled.match(result)) {
+        setSnackbar({ open: true, message: 'Added to cart successfully!', severity: 'success' });
       } else {
-        setSnackbar({
-          open: true,
-          message: result.message || 'Failed to add product to cart',
-          severity: 'error'
-        });
+        setSnackbar({ open: true, message: result.payload || 'Failed to add to cart', severity: 'error' });
       }
     } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'An error occurred. Please try again.',
-        severity: 'error'
-      });
+      setSnackbar({ open: true, message: 'Failed to add to cart', severity: 'error' });
     } finally {
       setActionLoading(prev => ({ ...prev, [`cart-${productId}`]: false }));
     }
@@ -278,11 +337,23 @@ const ElectronicsPage = () => {
     return wishlist?.items?.some(item => item.productId === productId) || false;
   };
 
-  const filteredProducts = products.filter(product => {
+  // Use search results if available, otherwise use filtered products
+  const displayProducts = searchResults ? searchResults.products : products.filter(product => {
     return searchTerm === '' || 
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  const getSearchSummary = () => {
+    if (!searchResults) return null;
+    
+    const filters = [];
+    if (currentFilters.query) filters.push(`"${currentFilters.query}"`);
+    if (currentFilters.brand) filters.push(currentFilters.brand);
+    if (currentFilters.inStock) filters.push('In Stock Only');
+    
+    return filters.length > 0 ? filters.join(' • ') : null;
+  };
 
   return (
     <>
@@ -320,38 +391,35 @@ const ElectronicsPage = () => {
             <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
               Discover the latest gadgets and tech innovations
             </Typography>
-            <TextField
-              placeholder="Search electronics products..."
-              variant="outlined"
-              fullWidth
-              value={searchTerm}
-              onChange={handleSearchChange}
-              sx={{
-                maxWidth: 600,
-                backgroundColor: 'rgba(255,255,255,0.9)',
-                borderRadius: 1,
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'transparent',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'transparent',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'transparent',
-                  },
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
           </Container>
         </Box>
+
+        {/* Advanced Search and Filters */}
+        <Container maxWidth="xl" sx={{ mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+          <ProductSearch
+            onSearch={handleAdvancedSearch}
+            categories={categories}
+            loading={loading}
+            initialFilters={{
+              category: 'electronics',
+              query: searchTerm
+            }}
+          />
+        </Container>
+
+        {/* Results Summary */}
+        {searchResults && (
+          <Container maxWidth="xl" sx={{ mb: 3, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Typography variant="h6" gutterBottom>
+              {searchResults.total || displayProducts.length} {displayProducts.length === 1 ? 'result' : 'results'} found
+            </Typography>
+            {getSearchSummary() && (
+              <Typography variant="body1" color="text.secondary">
+                Showing results for: {getSearchSummary()}
+              </Typography>
+            )}
+          </Container>
+        )}
 
         {/* Featured Products Carousel */}
         <Container maxWidth="xl" sx={{ mb: 6, px: { xs: 2, sm: 3, md: 4 } }}>
@@ -441,11 +509,11 @@ const ElectronicsPage = () => {
             </Box>
           ) : error ? (
             <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>
-          ) : filteredProducts.length === 0 ? (
+          ) : displayProducts.length === 0 ? (
             <Alert severity="info" sx={{ mb: 4 }}>No products found matching your criteria.</Alert>
           ) : (
             <Grid container spacing={3}>
-              {filteredProducts.map((product) => (
+              {displayProducts.map((product) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={product._id || product.id}>
                   <Card 
                     sx={{ 

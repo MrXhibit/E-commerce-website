@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { cloudUtills } from "@/infrastructure/utils/cloud.utils";
 import { userService } from "@/application/services";
 import { userRepository } from "@/infrastructure/repository";
 import { authUtills } from "@/infrastructure/utils";
@@ -69,16 +70,18 @@ export const uploadProfileImage = async (req: Request, res: Response, next: Next
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    // Handle file upload logic here (using multer or similar)
-    // For now, assuming the image URL is provided
-    const imageUrl = req.body.imageUrl; // This would come from your file upload service
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No image file provided" });
+    }
+
+    const uploaded = await cloudUtills.uploadSingleFile(req.file as any);
 
     const user = await userRepo.getUserById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    user.setProfile(imageUrl);
+    user.setProfile(uploaded.url);
     const updatedUser = await userRepo.editUser(user);
     const sanitizedUser = updatedUser.sanitizeUser();
 
@@ -86,8 +89,9 @@ export const uploadProfileImage = async (req: Request, res: Response, next: Next
       success: true,
       message: "Profile image updated successfully",
       data: {
-      user: sanitizedUser,
-      imageUrl 
+        user: sanitizedUser,
+        imageUrl: uploaded.url,
+        imageId: uploaded.id
       }
     });
   } catch (error) {
@@ -114,7 +118,7 @@ export const removeProfileImage = async (req: Request, res: Response, next: Next
     return res.status(200).json({
       success: true,
       message: "Profile image removed successfully",
-      user: sanitizedUser 
+      data: { user: sanitizedUser }
     });
   } catch (error) {
     next(error);

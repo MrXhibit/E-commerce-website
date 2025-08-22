@@ -42,6 +42,7 @@ export const searchProducts = async (req: Request, res: Response, next: NextFunc
       maxPrice,
       sortBy = 'createdAt',
       sortOrder = 'desc',
+      inStock,
       limit = 20,
       skip = 0
     } = req.query;
@@ -53,8 +54,9 @@ export const searchProducts = async (req: Request, res: Response, next: NextFunc
       model: model as string,
       minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
       maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
-      sortBy: sortBy as 'name' | 'price' | 'createdAt' | 'rating',
+      sortBy: sortBy as 'name' | 'price' | 'createdAt' | 'rating' | 'sales',
       sortOrder: sortOrder as 'asc' | 'desc',
+      inStock: inStock !== undefined ? inStock === 'true' : undefined,
       limit: parseInt(limit as string),
       skip: parseInt(skip as string)
     };
@@ -101,6 +103,17 @@ export const uploadProductImages = async (req: Request, res: Response, next: Nex
     const id = req.params.id;
     const product = await productServ.uploadImages(id, req.files, token);
     return res.status(200).json({ product });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.cookies.access_token_admin;
+    const id = req.params.id;
+    await productServ.deleteProduct(id, token);
+    return res.status(204).send();
   } catch (error) {
     next(error);
   }

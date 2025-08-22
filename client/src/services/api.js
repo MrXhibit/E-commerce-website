@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = '/api/v1';
 
 class ApiService {
   constructor() {
@@ -120,6 +120,7 @@ class ApiService {
   async register(userData) {
     const response = await fetch(`${this.baseURL}/auth/register`, {
       method: 'POST',
+      credentials: 'include', // include cookies set by server
       headers: {
         'Content-Type': 'application/json',
       },
@@ -219,28 +220,183 @@ class ApiService {
     });
   }
 
-  // Product APIs - Updated to use fetchWithAuth
+  // Fixed Product APIs - Align with backend /product routes
   async getProducts(limit = 20, skip = 0) {
-    return this.fetchWithAuth(`${this.baseURL}/product?limit=${limit}&skip=${skip}`);
+    try {
+      const response = await fetch(`${this.baseURL}/product?limit=${limit}&skip=${skip}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
   }
 
   async getProductById(productId) {
     try {
-      return await this.fetchWithAuth(`${this.baseURL}/product/${productId}`);
+      const response = await fetch(`${this.baseURL}/products/${productId}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
     } catch (error) {
-      console.error('Error fetching product by ID:', error);
-      // Return a more specific error for debugging
-      throw new Error(`Failed to fetch product ${productId}: ${error.message}`);
+      console.error('Error fetching product:', error);
+      throw error;
     }
   }
 
-  // Category APIs - Updated to use fetchWithAuth
-  async getCategories(limit = 20, page = 1) {
-    return this.fetchWithAuth(`${this.baseURL}/category?limit=${limit}&page=${page}`);
+  // Fixed Search API - Align with backend /product/search
+  async searchProducts(filters = {}) {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          queryParams.append(key, value.toString());
+        }
+      });
+
+      const response = await fetch(`${this.baseURL}/product/search?${queryParams.toString()}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Search products error:', error);
+      throw error;
+    }
   }
 
-  async getProductsByCategory(categoryId, limit = 20) {
-    return this.fetchWithAuth(`${this.baseURL}/product?category=${categoryId}&limit=${limit}`);
+  // Fixed Category APIs - Align with backend /category routes
+  async getCategories(limit = 20, page = 1) {
+    try {
+      const response = await fetch(`${this.baseURL}/category?limit=${limit}&page=${page}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  }
+
+  async getCategoryById(categoryId) {
+    try {
+      const response = await fetch(`${this.baseURL}/category/${categoryId}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      throw error;
+    }
+  }
+
+  // Order APIs - Align with backend /orders routes
+  async createOrder(orderData) {
+    return this.fetchWithAuth(`${this.baseURL}/orders`, {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    });
+  }
+
+  async getUserOrders() {
+    return this.fetchWithAuth(`${this.baseURL}/orders`);
+  }
+
+  async getOrderById(orderId) {
+    return this.fetchWithAuth(`${this.baseURL}/orders/${orderId}`);
+  }
+
+  async updateOrderStatus(orderId, status) {
+    return this.fetchWithAuth(`${this.baseURL}/orders/${orderId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async getOrderInvoice(orderId) {
+    return this.fetchWithAuth(`${this.baseURL}/orders/${orderId}/invoice`);
+  }
+
+  // Payment APIs - Align with backend /payments routes
+  async createPaymentIntent(amount, currency = 'usd', orderId) {
+    return this.fetchWithAuth(`${this.baseURL}/payments/create-payment-intent`, {
+      method: 'POST',
+      body: JSON.stringify({ amount, currency, orderId }),
+    });
+  }
+
+  async confirmPayment(paymentIntentId) {
+    return this.fetchWithAuth(`${this.baseURL}/payments/confirm-payment`, {
+      method: 'POST',
+      body: JSON.stringify({ paymentIntentId }),
+    });
+  }
+
+  async createCheckoutSession(orderData) {
+    return this.fetchWithAuth(`${this.baseURL}/payments/create-checkout-session`, {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    });
+  }
+
+  // Coupon APIs - Align with backend /coupons routes
+  async getActiveCoupons() {
+    try {
+      const response = await fetch(`${this.baseURL}/coupons/active`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching active coupons:', error);
+      throw error;
+    }
+  }
+
+  async validateCoupon(couponCode) {
+    return this.fetchWithAuth(`${this.baseURL}/coupons/validate?code=${couponCode}`);
   }
 
   // Utility methods

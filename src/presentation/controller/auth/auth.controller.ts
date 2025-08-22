@@ -67,7 +67,14 @@ export const userRefreshToken = async (req: Request, res: Response, next: NextFu
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.status(200).json({ user });
+    return res
+      .status(200)
+      .json(
+        ResponseUtils.success(
+          { user, accessToken: access_token, refreshToken: refresh_token },
+          "Token refreshed successfully",
+        ),
+      );
   } catch (error) {
     next(error);
   }
@@ -106,7 +113,14 @@ export const adminRefreshToken = async (req: Request, res: Response, next: NextF
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.status(200).json({ admin });
+    return res
+      .status(200)
+      .json(
+        ResponseUtils.success(
+          { admin, accessToken: access_token, refreshToken: refresh_token },
+          "Admin token refreshed successfully",
+        ),
+      );
   } catch (error) {
     next(error);
   }
@@ -118,17 +132,28 @@ export const googleLoginSucessController = async (req: Request, res: Response, n
     if (!passportUser) throw new ValidationError("failed to login");
     const result = await userServ.googleSucessess(passportUser)
     const { access_token, refresh_token, user } = result;
+    
+    // Set HTTP-only cookies for security
     res.cookie("access_token", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     });
-    return res.status(200).json({ user });
+    
+    // Redirect to frontend with success
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    return res.redirect(`${clientUrl}/auth/callback?success=true&user=${encodeURIComponent(JSON.stringify(user && user.sanitizeUser ? user.sanitizeUser() : {}))}`);
   } catch (error) {
-    next(error);
+    // Redirect to frontend with error
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    return res.redirect(`${clientUrl}/auth/callback?success=false&error=${encodeURIComponent('Authentication failed')}`);
   }
 };

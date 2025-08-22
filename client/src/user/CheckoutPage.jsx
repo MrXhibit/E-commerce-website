@@ -17,7 +17,7 @@ import Header from './Header';
 import Footer from './Footer';
 import StripePaymentForm from './components/StripePaymentForm';
 import stripePromise from '../services/stripe.service';
-import { createPaymentIntent } from '../services/stripe.service';
+import apiService from '../services/api'; // Change this import
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -60,14 +60,37 @@ const CheckoutPage = () => {
   const initializePayment = async () => {
     try {
       setLoading(true);
-      const paymentIntent = await createPaymentIntent(
-        orderData.orderSummary.total,
-        'usd',
-        token
-      );
+      // Create an order first, then create payment intent
+      const orderPayload = {
+        items: orderData.items,
+        shippingAddress: shippingForm,
+        deliveryMethod: orderData.deliveryMethod,
+        orderSummary: orderData.orderSummary,
+        appliedCoupon: orderData.appliedCoupon,
+        paymentInfo: {
+          method: 'stripe',
+          paymentStatus: 'pending'
+        },
+        notes: ''
+      };
       
-      setClientSecret(paymentIntent.clientSecret);
+      // Create order first
+      const orderResponse = await apiService.createOrder(orderPayload);
+      
+      if (orderResponse.success) {
+        // Then create payment intent with the order ID
+        const paymentIntent = await apiService.createPaymentIntent(
+          orderData.orderSummary.total,
+          'usd',
+          orderResponse.data.orderId // Pass the order ID
+        );
+        
+        setClientSecret(paymentIntent.data.clientSecret);
+      } else {
+        setError('Failed to create order. Please try again.');
+      }
     } catch (err) {
+      console.error('Payment initialization error:', err);
       setError('Failed to initialize payment. Please try again.');
     } finally {
       setLoading(false);

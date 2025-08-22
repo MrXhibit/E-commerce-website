@@ -39,7 +39,7 @@ export class adminService implements adminServiceInterface {
     const isPasswordValid = await this.authUtils.validatePassword(
       Input.password,
       admin.password,
-      admin.salt!,
+      "", // bcrypt handles salt internally
     );
     if (!isPasswordValid) throw new ValidationError("invalid email or password");
     const access_token = this.authUtils.generateAcessToken(admin.email, admin.id);
