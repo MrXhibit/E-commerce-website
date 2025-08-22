@@ -7,3 +7,4 @@ export * from "./product.utils";
 export * from "./token.utils";
 export * from "./payment.utils";
 export * from "./response.utils";
+export * from "./address.utils";

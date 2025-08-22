@@ -80,14 +80,14 @@ function RenderRow({ data, level = 0 }) {
             >
               Edit
             </Button>
-            <Button
+            {/* <Button
               variant="contained"
               size="small"
               color={category.isListed ? "success" : "warning"}
               onClick={() => handleToggleListStatus(category)}
             >
               {category.isListed ? "Unlist" : "List"}
-            </Button>
+            </Button> */}
           </TableCell>
         </TableRow>
         {isOpen && hasChildren && <RenderRow data={category.children} level={level + 1} />}

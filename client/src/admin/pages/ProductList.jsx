@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useFetchData } from "../hooks/useFetchData";
 import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
+import Header from "../components/global/Header";
 
 import {
   Box,
@@ -18,8 +19,11 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductList() {
+
+  const navigate = useNavigate();
   let [productUrl, setProductUrl] = useState("/product");
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -49,7 +53,17 @@ export default function ProductList() {
       return flattened;
     });
   };
+  const handleAddProduct = ()=>{
+   navigate(`/admin/add-product`);
 
+  }
+  const handleEditProduct = (productId)=>{
+    navigate(`/admin/edit-product/${productId}`)
+  }
+  const handleToggleListStatus = (product)=>{
+    console.log(product.isListed);
+    
+  }
   const handleCategoryChange = (levelIndex, selectedId) => {
     const chosedCategory = levels[levelIndex].find((cat) => cat.id === selectedId);
     if (!chosedCategory) {
@@ -97,9 +111,13 @@ export default function ProductList() {
         },
       }}
     >
-      <Typography variant="h4" gutterBottom>
-        Product List
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Header title="Products" subtitle="List of products" />
+        <Button variant="contained" color="secondary" sx={{ height: "40px" }} onClick={handleAddProduct}>
+          Add Product
+        </Button>
+
+      </Box>
 
       {/* Search input */}
       {/* <TextField
@@ -200,12 +218,23 @@ export default function ProductList() {
                 <TableCell>{prod.price}</TableCell>
                 <TableCell>{prod.stock}</TableCell>
                 <TableCell>
-                  <Button size="small" variant="outlined" sx={{ mr: 1 }}>
-                    Edit
-                  </Button>
-                  <Button size="small" variant="outlined" color="error">
-                    {prod.stock > 0 ? "Unlist" : "List"}
-                  </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ mr: 1, color: colors.grey[100], borderColor: colors.grey[100] }}
+              onClick={() => handleEditProduct(prod.id)}
+            >
+              Edit
+            </Button>
+            {/* <Button
+              variant="contained"
+              size="small"
+              color={prod.isListed ? "success" : "warning"}
+              onClick={() => handleToggleListStatus(prod)}
+            >
+              {prod.isListed ? "Unlist" : "List"}
+            </Button> */}
+
                 </TableCell>
               </TableRow>
             );

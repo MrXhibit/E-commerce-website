@@ -9,6 +9,7 @@ export interface createPaymentResponse {
 export interface verifyPaymentResponse {
   isPayed: boolean;
   paymentResponse: unknown;
+  orderId : string,
 }
 
 export interface paymentUtillsInterface {

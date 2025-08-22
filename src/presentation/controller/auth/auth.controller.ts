@@ -18,24 +18,24 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
     res.cookie("access_token", access_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
-      secure: process.env.NODE_ENV === "production",
     });
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none",
-      secure: process.env.NODE_ENV === "production",
     });
+    res.cookie("access_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    res.cookie("refresh_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
     return res
       .status(200)
-      .json(
-        ResponseUtils.success(
-          { user, accessToken: access_token, refreshToken: refresh_token },
-          "Login successful",
-        ),
-      );
+      .json({user});
   } catch (error) {
     next(error);
   }
@@ -54,14 +54,18 @@ export const userRegister = async (req: Request, res: Response, next: NextFuncti
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+        res.cookie("access_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.cookie("refresh_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
     return res
       .status(201)
-      .json(
-        ResponseUtils.success(
-          { user, accessToken: access_token, refreshToken: refresh_token },
-          "Registration successful",
-        ),
-      );
+      .json({user});
   } catch (error) {
     next(error);
   }
@@ -81,6 +85,16 @@ export const userRefreshToken = async (req: Request, res: Response, next: NextFu
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+        res.cookie("access_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.cookie("refresh_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
     return res.status(200).json({ user });
   } catch (error) {
     next(error);
@@ -100,6 +114,16 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+        res.cookie("access_token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.cookie("refresh_token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
     return res.status(200).json({ admin });
   } catch (error) {
     next(error);
@@ -120,6 +144,16 @@ export const adminRefreshToken = async (req: Request, res: Response, next: NextF
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+        res.cookie("access_token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.cookie("refresh_token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
     return res.status(200).json({ admin });
   } catch (error) {
     res.cookie("access_token_admin", "", {
@@ -150,7 +184,17 @@ export const googleLoginSucessController = async (req: Request, res: Response, n
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.status(200).json({ user });
+     res.cookie("access_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.cookie("refresh_token_admin", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    return res.redirect("http://localhost:5173/")
   } catch (error) {
     next(error);
   }

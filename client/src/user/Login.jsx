@@ -47,11 +47,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(clearError());
-
-    const result = await dispatch(loginUser(formData));
-    if (result.type === "auth/loginUser/fulfilled") {
-      navigate("/");
-    }
+    dispatch(loginUser(formData));    
   };
 
   return (
@@ -177,11 +173,12 @@ const Login = () => {
                 fullWidth
                 startIcon={<GoogleIcon />}
                 sx={{ color: "white", borderColor: "#b39ddb", borderRadius: 2, textTransform: "none" }}
+                onClick={()=>window.location.href = "http://localhost:5000/api/v1/auth/google-login"}
               >
                 Google
               </Button>
             </Grid>
-            <Grid item xs={6}>
+            {/* <Grid item xs={6}>
               <Button
                 variant="outlined"
                 fullWidth
@@ -190,7 +187,7 @@ const Login = () => {
               >
                 Apple
               </Button>
-            </Grid>
+            </Grid> */}
           </Grid>
         </Box>
       </Paper>

@@ -1,97 +1,94 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { Order } from '../../domain/entities/order';
+import mongoose, { Schema, Document, Types, model } from 'mongoose';
+import { IProduct } from './product.model';
+import { IAddress } from './address.model';
+import { ICoupon } from './coupon.model';
+import { IUser } from './user.model';
+
+type OrderItem = {
+  productId: Types.ObjectId | IProduct;
+  quantity: number;
+  price: number;
+  totalPrice: number;
+};
+type PaymentInfo = {
+  method: 'cod' | 'online';
+  paymentStatus: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
+  payableAmount: number;
+  transactionId?: string;
+  paymentIntentId?: string;
+};
+export interface IOrder extends Document {
+  items: OrderItem[];
+  address: Types.ObjectId | IAddress;
+  user: Types.ObjectId | IUser;
+  paymentInfo: PaymentInfo;
+  orderStatus: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  appliedCoupon?: Types.ObjectId | ICoupon;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 
-const OrderItemSchema = new Schema({
-  productId: { type: String, required: true },
-  productName: { type: String, required: true },
-  productImage: { type: String, required: true },
-  brandName: { type: String, required: true },
-  modelName: { type: String, required: true },
-  price: { type: Number, required: true },
-  quantity: { type: Number, required: true, min: 1 },
-  subtotal: { type: Number, required: true }
-});
-
-const ShippingAddressSchema = new Schema({
-  fullName: { type: String, required: true },
-  addressLine1: { type: String, required: true },
-  addressLine2: { type: String },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  zipCode: { type: String, required: true },
-  country: { type: String, required: true, default: 'US' },
-  phone: { type: String, required: true }
-});
-
-const PaymentInfoSchema = new Schema({
-  method: { 
-    type: String, 
-    required: true, 
-    enum: ['cod' , 'online'] 
+const orderItemSchema = new Schema<OrderItem>({
+  productId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
   },
-  transactionId: { type: String, required: true },
-  paymentStatus: { 
-    type: String, 
-    required: true, 
-    enum: ['pending', 'completed', 'failed', 'refunded'],
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true },
+  totalPrice: { type: Number, required: true }
+}, { _id: false });
+
+const paymentInfoSchema = new Schema<PaymentInfo>({
+  method: {
+    type: String,
+    enum: ['cod', 'online'],
+    required: true
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'processing', 'completed', 'failed', 'refunded'],
     default: 'pending'
   },
-  amount: { type: Number, required: true },
-  currency: { type: String, required: true, default: 'USD' },
-  paymentDate: { type: Date, required: true }
-});
+  payableAmount: { type: Number, required: true },
+  transactionId: { type: String },
+  paymentIntentId: { type: String }
+}, { _id: false });
 
-const OrderSummarySchema = new Schema({
-  subtotal: { type: Number, required: true },
-  deliveryFee: { type: Number, required: true, default: 0 },
-  serviceFee: { type: Number, required: true, default: 0 },
-  tax: { type: Number, required: true, default: 0 },
-  tip: { type: Number, required: true, default: 0 },
-  credits: { type: Number, required: true, default: 0 },
-  discountAmount: { type: Number, required: true, default: 0 },
-  total: { type: Number, required: true }
-});
-
-const OrderSchema = new Schema<Order & Document>({
-  orderId: { 
-    type: String, 
-    required: true, 
-    unique: true,
-    default: () => `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+const OrderSchema = new Schema<IOrder>({
+  items: {
+    type: [orderItemSchema],
+    required: true
   },
-  userId: { type: String, required: true, index: true },
-  items: [OrderItemSchema],
-  orderSummary: OrderSummarySchema,
-  shippingAddress: ShippingAddressSchema,
-  deliveryMethod: { 
-    type: String, 
-    required: true, 
-    enum: ['delivery', 'pickup'] 
+  address: {
+    type: Schema.Types.ObjectId,
+    ref: 'Address',
+    required: true
   },
-  paymentInfo: PaymentInfoSchema,
-  orderStatus: { 
-    type: String, 
-    required: true, 
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  paymentInfo: {
+    type: paymentInfoSchema,
+    required: true
+  },
+  orderStatus: {
+    type: String,
     enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
   },
   appliedCoupon: {
-    code: { type: String },
-    discountAmount: { type: Number, default: 0 }
-  },
-  orderDate: { type: Date, required: true, default: Date.now },
-  estimatedDeliveryDate: { type: Date },
-  trackingNumber: { type: String },
-  notes: { type: String }
+    type: Schema.Types.ObjectId,
+    ref: 'Coupon',
+    default: null
+  }
 }, {
   timestamps: true
 });
 
-// Indexes for better query performance
-OrderSchema.index({ userId: 1, orderDate: -1 });
-OrderSchema.index({ orderId: 1 });
-OrderSchema.index({ orderStatus: 1 });
-OrderSchema.index({ 'paymentInfo.transactionId': 1 });
+const OrderModel = model<IOrder>('Order', OrderSchema);
 
-export const OrderModel = mongoose.model<Order & Document>('Order', OrderSchema);
+export default OrderModel;

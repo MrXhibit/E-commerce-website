@@ -245,6 +245,7 @@ const Signup = () => {
             <Button
               variant="outlined"
               startIcon={<GoogleIcon />}
+              onClick={()=>window.location.href = "http://localhost:5000/api/v1/auth/google-login"}
               sx={{
                 color: "white",
                 borderColor: "#b39ddb",
@@ -255,7 +256,7 @@ const Signup = () => {
             >
               Google
             </Button>
-            <Button
+            {/* <Button
               variant="outlined"
               startIcon={<AppleIcon />}
               sx={{
@@ -267,7 +268,7 @@ const Signup = () => {
               }}
             >
               Apple
-            </Button>
+            </Button> */}
           </Box>
         </Box>
       </Paper>

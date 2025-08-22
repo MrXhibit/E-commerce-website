@@ -11,6 +11,15 @@ export class userService implements userServiceInterface {
     private authUtills: authUtillsInterface,
     private tokenUtils: tokenValidationUtillsInterface,
   ) {}
+  async getCurentUser(userToken: string): Promise<Partial<userProperties>> {
+     if(!userToken) throw new ValidationError()
+     const tokenProps = this.tokenUtils.isValidUserToken(userToken);
+    if (tokenProps.isVerified && tokenProps.payload.id) {
+      const user = await this.userRepository.getUserById(tokenProps.payload.id);
+      return user.sanitizeUser()
+    }
+    throw new AuthorizeError()
+  }
   async refreshToken(refreshToken: string): Promise<validUserResponseType> {
     //cheak the refreshToken valid or not
     const tokenProps = this.tokenUtils.isValidUserToken(refreshToken);

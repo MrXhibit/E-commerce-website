@@ -28,7 +28,7 @@ class ProductSearchService {
       if (category) queryParams.append('category', category);
 
       const response = await apiService.get(`/products?${queryParams.toString()}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Get products error:', error);
       throw error;
@@ -38,7 +38,7 @@ class ProductSearchService {
   async getCategories() {
     try {
       const response = await apiService.get('/categories');
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Get categories error:', error);
       throw error;

@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import apiService from "../../services/api";
+import { addToWishlistService,clearWishlistService,getWishlistService,removeFromWishlistService  } from "../../services/product.service"
 
 export const fetchWishlist = createAsyncThunk("wishlist/fetchWishlist", async (_, { rejectWithValue }) => {
   try {
-    const response = await apiService.getWishlist();
+    const response = await getWishlistService();
     if (response.success) {
       return response.data;
     }
@@ -17,7 +17,7 @@ export const addToWishlist = createAsyncThunk(
   "wishlist/addToWishlist",
   async (productId, { rejectWithValue }) => {
     try {
-      const response = await apiService.addToWishlist(productId);
+      const response = await addToWishlistService(productId);
       if (response.success) {
         return response.data;
       }
@@ -32,7 +32,7 @@ export const removeFromWishlist = createAsyncThunk(
   "wishlist/removeFromWishlist",
   async (productId, { rejectWithValue }) => {
     try {
-      const response = await apiService.removeFromWishlist(productId);
+      const response = await removeFromWishlistService(productId);
       if (response.success) {
         return response.data;
       }
@@ -47,7 +47,7 @@ export const clearWishlistAsync = createAsyncThunk(
   "wishlist/clearWishlistAsync",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.clearWishlist();
+      const response = await clearWishlistService();
       if (response.success) {
         return response.data;
       }

@@ -7,3 +7,5 @@ export * from "./admin/admin.controller"
 export * from "./cart/cart.controller";
 export * from "./wishlist/wishlist.controller";
 export * from "./admin/admin.controller";
+export * from "./user/user.controller";
+export * from "./address/address.controller"

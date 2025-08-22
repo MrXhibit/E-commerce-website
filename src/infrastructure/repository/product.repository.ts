@@ -6,6 +6,17 @@ import { Types } from "mongoose";
 import CategoryModel from "../model/category.model";
 
 export class productRepository implements productRepositoryInterface {
+ async getProductByIds(productIds: string[]): Promise<Product[]> {
+  try {
+        const products = await ProductModel.find({
+          _id : { $in :  productIds }
+        });
+      return products.map((product)=>this.mapToProduct(product))
+  } catch (error) {
+    throw new APIError()
+  }
+
+  }
   getPopulatedProduct(productId: string): Promise<Product> {
     throw new Error("Method not implemented.");
   }
@@ -229,7 +240,7 @@ export class productRepository implements productRepositoryInterface {
   }
   async getSingleProduct(id: string): Promise<Product> {
     try {
-      const product = await ProductModel.findById(id).populate("category", "name");
+      const product = await ProductModel.findById(id).populate("category");
       if (!product) throw new ValidationError("product id didnt exist");
       return this.mapToProduct(product);
     } catch (error) {
@@ -240,7 +251,7 @@ export class productRepository implements productRepositoryInterface {
       throw new APIError(`Failed to get single product: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
-  mapToProduct(productDb: IProduct): Product {
+  mapToProduct(productDb: IProduct): Product {    
     // Handle populated category (object with name) or ObjectId
     let categoryValue;
     if (

@@ -2,29 +2,31 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import apiService from "../../services/api";
 import { clearCart } from "./cartSlice";
 import { clearWishlist } from "./wishlistSlice";
+import { userLoginService,registerUserService,getCurrentUser } from "../../services/auth.service"
 
 // Async thunks for API calls
 export const loginUser = createAsyncThunk("auth/loginUser", async (credentials, { rejectWithValue }) => {
   try {
-    const response = await apiService.login(credentials);
-    if (response.success) {
-      return response.data;
+    const response = await userLoginService(credentials);
+    console.log(response);
+    if (response?.user) {
+      return response
     }
-    return rejectWithValue(response.message);
-  } catch (error) {
-    return rejectWithValue(error.message);
+    return rejectWithValue("something went wrong try again");
+  } catch (error) {    
+    return rejectWithValue(error.message || "login failed try again");
   }
 });
 
 export const registerUser = createAsyncThunk("auth/registerUser", async (userData, { rejectWithValue }) => {
   try {
-    const response = await apiService.register(userData);
-    if (response.success) {
-      return response.data;
+    const response = await registerUserService(userData)
+    if (response?.user) {
+      return response.user;
     }
-    return rejectWithValue(response.message);
+    return rejectWithValue("something went wrong try again");
   } catch (error) {
-    return rejectWithValue(error.message);
+    return rejectWithValue(error.message || "register failed try again");
   }
 });
 
@@ -37,9 +39,9 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async (_, { dispat
 
 export const checkAuthStatus = createAsyncThunk("auth/checkAuthStatus", async (_, { rejectWithValue }) => {
   try {
-    const currentUser = apiService.getCurrentUser();
-    if (currentUser && apiService.isAuthenticated()) {
-      return { user: currentUser };
+    const response = await getCurrentUser()
+    if (response?.user) {
+      return response.user;
     }
     return rejectWithValue("Not authenticated");
   } catch (error) {
@@ -107,6 +109,11 @@ const authSlice = createSlice({
         state.error = null;
       })
       // Check auth status cases
+      .addCase(checkAuthStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.isAuthenticated = false
+      })
       .addCase(checkAuthStatus.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.isAuthenticated = true;

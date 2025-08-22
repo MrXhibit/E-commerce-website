@@ -70,13 +70,13 @@ export class InvoiceUtils {
 
         // Draw items
         let currentY = 330;
-        order.items.forEach(item => {
-          doc.text(item.productName, 50, currentY)
-             .text(item.quantity.toString(), 200, currentY)
-             .text(`$${item.price.toFixed(2)}`, 300, currentY)
-             .text(`$${(item.quantity * item.price).toFixed(2)}`, 400, currentY);
-          currentY += 20;
-        });
+        // order.items.forEach(item => {
+        //   doc.text(item.productName, 50, currentY)
+        //      .text(item.quantity.toString(), 200, currentY)
+        //      .text(`$${item.price.toFixed(2)}`, 300, currentY)
+        //      .text(`$${(item.quantity * item.price).toFixed(2)}`, 400, currentY);
+        //   currentY += 20;
+        // });
         
         // Summary
         this.addSummary(doc, order);
@@ -100,30 +100,30 @@ export class InvoiceUtils {
    */
   static generateInvoiceData(order: Order): any {
     return {
-      invoiceNumber: order.orderId,
+      invoiceNumber: order.id,
       orderDate: order.createdAt,
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       companyInfo: this.COMPANY_INFO,
       customerInfo: {
-        name: order.shippingAddress.fullName,
-        email: order.userId, // Assuming userId is email
-        address: `${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}`,
-        phone: order.shippingAddress.phone
+        //name: order.shippingAddress.fullName,
+        //email: order.userId, // Assuming userId is email
+        //address: `${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}`,
+        //phone: order.shippingAddress.phone
       },
       items: order.items.map(item => ({
-        name: item.productName,
+        //name: item.productName,
         quantity: item.quantity,
         price: item.price,
         total: item.quantity * item.price
       })),
       summary: {
-        subtotal: order.orderSummary.subtotal,
-        deliveryFee: order.orderSummary.deliveryFee,
-        serviceFee: order.orderSummary.serviceFee,
-        tax: order.orderSummary.tax,
-        tip: order.orderSummary.tip,
-        discount: order.orderSummary.discountAmount,
-        total: order.orderSummary.total
+       // subtotal: order.orderSummary.subtotal,
+       // deliveryFee: order.orderSummary.deliveryFee,
+       // serviceFee: order.orderSummary.serviceFee,
+       // tax: order.orderSummary.tax,
+       // tip: order.orderSummary.tip,
+       //discount: order.orderSummary.discountAmount,
+       // total: order.orderSummary.total
       },
       paymentInfo: {
         method: order.paymentInfo.method,
@@ -135,24 +135,24 @@ export class InvoiceUtils {
   }
 
   private static addHeader(doc: PDFKit.PDFDocument, order: Order): void {
-    doc.fontSize(20)
-       .text('INVOICE', 50, 50, { align: 'center' })
-       .fontSize(12)
-       .text(`Invoice #${order.orderId}`, 50, 80, { align: 'center' })
-       .moveDown();
+    // doc.fontSize(20)
+    //    .text('INVOICE', 50, 50, { align: 'center' })
+    //    .fontSize(12)
+    //    .text(`Invoice #${order.orderId}`, 50, 80, { align: 'center' })
+    //    .moveDown();
   }
 
   private static addCustomerInfo(doc: PDFKit.PDFDocument, order: Order): void {
     const startY = 120;
-    const { shippingAddress } = order;
+    //const { shippingAddress } = order;
     
-    doc.fontSize(12)
-       .text('Bill To:', 350, startY)
-       .fontSize(10)
-       .text(shippingAddress.fullName, 350, startY + 20)
-       .text(shippingAddress.addressLine1, 350, startY + 35)
-       .text(`${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zipCode}`, 350, startY + 50)
-       .text(`Phone: ${shippingAddress.phone}`, 350, startY + 65);
+    // doc.fontSize(12)
+    //    .text('Bill To:', 350, startY)
+    //    .fontSize(10)
+    //    .text(shippingAddress.fullName, 350, startY + 20)
+    //    .text(shippingAddress.addressLine1, 350, startY + 35)
+    //    .text(`${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zipCode}`, 350, startY + 50)
+    //    .text(`Phone: ${shippingAddress.phone}`, 350, startY + 65);
   }
 
   private static addInvoiceDetails(doc: PDFKit.PDFDocument, order: Order): void {
@@ -164,37 +164,37 @@ export class InvoiceUtils {
        .text(`Payment Status: ${order.paymentInfo.paymentStatus}`, 50, startY + 30)
        .text(`Payment Method: ${order.paymentInfo.method}`, 50, startY + 45);
        
-    if (order.trackingNumber) {
-      doc.text(`Tracking Number: ${order.trackingNumber}`, 50, startY + 60);
-    }
+    // if (order.trackingNumber) {
+    //   doc.text(`Tracking Number: ${order.trackingNumber}`, 50, startY + 60);
+    // }
   }
 
   private static addSummary(doc: PDFKit.PDFDocument, order: Order): void {
-    const { orderSummary } = order;
+   // const { orderSummary } = order;
     let currentY = 450;
     
-    const summaryItems = [
-      { label: 'Subtotal:', amount: orderSummary.subtotal },
-      { label: 'Delivery Fee:', amount: orderSummary.deliveryFee },
-      { label: 'Service Fee:', amount: orderSummary.serviceFee },
-      { label: 'Tax:', amount: orderSummary.tax },
-      { label: 'Tip:', amount: orderSummary.tip },
-      { label: 'Discount:', amount: -orderSummary.discountAmount },
-    ];
+    // const summaryItems = [
+    //   { label: 'Subtotal:', amount: orderSummary.subtotal },
+    //   { label: 'Delivery Fee:', amount: orderSummary.deliveryFee },
+    //   { label: 'Service Fee:', amount: orderSummary.serviceFee },
+    //   { label: 'Tax:', amount: orderSummary.tax },
+    //   { label: 'Tip:', amount: orderSummary.tip },
+    //   { label: 'Discount:', amount: -orderSummary.discountAmount },
+    // ];
     
-    summaryItems.forEach(item => {
-      if (item.amount > 0 || item.label === 'Discount:') {
-        doc.fontSize(10)
-           .text(item.label, 400, currentY)
-           .text(`$${Math.abs(item.amount).toFixed(2)}`, 500, currentY);
-        currentY += 15;
-      }
-    });
+    // summaryItems.forEach(item => {
+    //   if (item.amount > 0 || item.label === 'Discount:') {
+    //     doc.fontSize(10)
+    //        .text(item.label, 400, currentY)
+    //        .text(`$${Math.abs(item.amount).toFixed(2)}`, 500, currentY);
+    //     currentY += 15;
+    //   }
+    // });
     
-    // Total
-    doc.fontSize(12)
-       .text('Total:', 400, currentY + 10)
-       .text(`$${orderSummary.total.toFixed(2)}`, 500, currentY + 10);
+    // // Total
+    // doc.fontSize(12)
+    //    .text('Total:', 400, currentY + 10)
+    //    .text(`$${orderSummary.total.toFixed(2)}`, 500, currentY + 10);
     
     // Draw line above total
     doc.moveTo(400, currentY + 5)
@@ -207,7 +207,8 @@ export class InvoiceUtils {
    */
   static generateInvoiceFilename(order: Order): string {
     const date = new Date(order.createdAt).toISOString().split('T')[0];
-    return `invoice-${order.orderId}-${date}.pdf`;
+    return ""
+   // return `invoice-${order.orderId}-${date}.pdf`;
   }
 }
 

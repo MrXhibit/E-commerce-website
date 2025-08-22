@@ -41,22 +41,9 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
 
 export const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req.user as { id: string })?.id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    const user = await userRepo.getUserById(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    const sanitizedUser = user.sanitizeUser();
-    return res.status(200).json({
-      success: true,
-      message: "Profile retrieved successfully",
-      data: { user: sanitizedUser },
-    });
+    const token = req.cookies.access_token;
+    const user = await userServ.getCurentUser(token)
+    return res.status(200).json({user})
   } catch (error) {
     next(error);
   }

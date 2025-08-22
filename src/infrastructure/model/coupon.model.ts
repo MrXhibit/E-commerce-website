@@ -65,7 +65,6 @@ const couponSchema: Schema<ICoupon> = new Schema(
 );
 
 // Add index for better query performance
-couponSchema.index({ code: 1 });
 couponSchema.index({ isActive: 1, expiryDate: 1 });
 
 const CouponModel = model<ICoupon>("Coupon", couponSchema);

@@ -19,6 +19,7 @@ import CategoryPage from "./CategoryPage";
 import CartPage from "./CartPage";
 import WishlistPage from "./WishlistPage";
 import ProfilePage from "./ProfilePage";
+import CheckoutPage from "./CheckoutPage"
 
 // Individual Category Pages
 import ComputersPage from "./ComputersPage";
@@ -31,6 +32,7 @@ import HomeKitchenPage from "./HomeKitchenPage";
 import SportsPage from "./SportsPage";
 import BooksPage from "./BooksPage";
 import FashionPage from "./FashionPage";
+import OrderConfirmationPage from "./OrderConfirmationPage";
 
 function UserApp() {
   const dispatch = useAppDispatch();
@@ -39,7 +41,6 @@ function UserApp() {
     // Initialize auth state on app load
     dispatch(checkAuthStatus()).then((result) => {
       if (result.type === "auth/checkAuthStatus/fulfilled") {
-        // Load cart and wishlist if user is authenticated
         dispatch(fetchCart());
         dispatch(fetchWishlist());
       }
@@ -60,6 +61,8 @@ function UserApp() {
         <Route path="/products/:id" element={<ProductDetailPage />} />
         // Keep only:
         <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-conform" element={<OrderConfirmationPage />} />
         {/* Individual Category Pages - Electronics & Technology */}
         <Route path="/electronics" element={<ElectronicsPage />} />
         <Route path="/computers" element={<ComputersPage />} />

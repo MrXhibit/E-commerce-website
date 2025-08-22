@@ -6,3 +6,4 @@ export * from "./admin";
 export * from "./cart";
 export * from "./wishlist";
 export * from "./order";
+export * from "./address"

@@ -49,9 +49,7 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
       minPrice,
       maxPrice,
     );
-      return res.status(200).json({products})
-
-    // return res.status(200).json(ResponseUtils.success(products, "Products fetched successfully"));
+   return res.status(200).json({products})
   } catch (error) {
     next(error);
   }

@@ -5,6 +5,7 @@ export interface OrderRepositoryInterface {
   findById(id: string): Promise<Order | null>;
   findByUserId(userId: string): Promise<Order[]>;
   findByStatus(status: string): Promise<Order[]>;
-  update(id: string, updates: Partial<Order>): Promise<Order | null>;
+  update(order:Order): Promise<Order | null>;
   delete(id: string): Promise<boolean>;
+  mapToOrder(orderDb:unknown):Order
 }

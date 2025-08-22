@@ -27,3 +27,23 @@ export const addProductFormSubmit = async (values, { setStatus }) => {
     axiosStopLoadingFunction();
   }
 };
+
+export const editProductFormSubmit = async (values, { setStatus }) => {
+  
+}
+
+export const deleteProductImage = async(image,productId)=>{
+  axiosStartLoadingFunction()
+  try {
+    const response = await axiosInstance.delete(`/delete-image/${productId}`,{
+      data : {
+        image
+      }
+    })
+    return response
+  } catch (error) {
+    
+  }finally{
+    axiosStopLoadingFunction()
+  }
+}

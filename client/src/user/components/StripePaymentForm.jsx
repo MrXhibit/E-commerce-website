@@ -1,86 +1,46 @@
-import React, { useState } from 'react';
-import {
-  PaymentElement,
-  useStripe,
-  useElements
-} from '@stripe/react-stripe-js';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Alert
-} from '@mui/material';
+import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 
-const StripePaymentForm = ({ onPaymentSuccess, onPaymentError, loading, total }) => {
+function StripePaymentForm({ clientSecret, onSuccess, onError }) {
   const stripe = useStripe();
   const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!stripe || !elements) return;
 
-    setIsProcessing(true);
-    setErrorMessage('');
+    const billingDetails = {
+      name: "Customer Name",   
+      email: "customer@example.com", 
+      address: {
+        line1: "123 Main St",
+        city: "Mumbai",
+        state: "MH",
+        postal_code: "400001",
+        country: "IN",
+      },
+    };
 
-    try {
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/order-confirmation`
-        },
-        redirect: 'if_required'
-      });
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+        billing_details: billingDetails,
+      },
+    });
 
-      if (error) {
-        setErrorMessage(error.message);
-        onPaymentError(error);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        onPaymentSuccess(paymentIntent);
-      }
-    } catch (err) {
-      setErrorMessage('An unexpected error occurred.');
-      onPaymentError(err);
-    } finally {
-      setIsProcessing(false);
+    if (result.error) {
+      onError(result.error);
+    } else if (result.paymentIntent && result.paymentIntent.status === "succeeded") {
+      onSuccess(result.paymentIntent.id);
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit}>
-      {errorMessage && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-      
-      <PaymentElement 
-        options={{
-          layout: 'tabs'
-        }}
-      />
-      
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="primary"
-        size="large"
-        disabled={!stripe || loading || isProcessing}
-        sx={{ fontWeight: 700, py: 1.5, mt: 3 }}
-      >
-        {isProcessing || loading ? (
-          <CircularProgress size={24} color="inherit" />
-        ) : (
-          `Pay $${total.toFixed(2)}`
-        )}
-      </Button>
-    </Box>
+    <form onSubmit={handleSubmit}>
+      <CardElement />
+      {/* Add input fields to collect billing details here */}
+      <button type="submit" disabled={!stripe}>Pay</button>
+    </form>
   );
-};
-
-export default StripePaymentForm;
+}
+export default StripePaymentForm

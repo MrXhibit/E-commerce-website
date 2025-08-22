@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ProductCard from "./components/ProductCard";
 import {
   Box,
   Container,
@@ -37,6 +38,7 @@ import { addToCart } from "../store/slices/cartSlice";
 import { addToWishlist } from "../store/slices/wishlistSlice";
 import apiService from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { useFetchData } from "./hooks/useFetchData"
 
 // Mock data
 const hero = {
@@ -115,9 +117,6 @@ const mockProducts = [
 
 const Home = () => {
   const [tab, setTab] = useState("new");
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
@@ -127,69 +126,70 @@ const Home = () => {
   const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
 
   const navigate = useNavigate();
+  const [data,loading,error] = useFetchData("/product")  
+  const products = data?.products || []
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //     try {
+  //       const response = await apiService.getProducts(20, 0);                
+  //       if (response.products) {
+  //         setProducts(response.products);
+  //       } else {
+  //         console.log("Backend fetch failed, using mock products");
+  //         setProducts(mockProducts);
+  //       }
+  //     } catch (err) {
+  //       console.log("API call failed, using mock products as fallback");
+  //       setProducts(mockProducts);
+  //       setError(null); // Clear error since we have fallback data
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchProducts();
+  // }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await apiService.getProducts(20, 0);
-        if (response.success && response.data) {
-          setProducts(response.data);
-        } else {
-          console.log("Backend fetch failed, using mock products");
-          setProducts(mockProducts);
-        }
-      } catch (err) {
-        console.log("API call failed, using mock products as fallback");
-        setProducts(mockProducts);
-        setError(null); // Clear error since we have fallback data
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+  // const handleAddToCart = async (productId, event) => {
+  //   event.stopPropagation();
+  //   if (!isAuthenticated) {
+  //     setSnackbar({ open: true, message: "Please login to add items to cart", severity: "warning" });
+  //     return;
+  //   }
 
-  const handleAddToCart = async (productId, event) => {
-    event.stopPropagation();
-    if (!isAuthenticated) {
-      setSnackbar({ open: true, message: "Please login to add items to cart", severity: "warning" });
-      return;
-    }
+  //   setActionLoading((prev) => ({ ...prev, [`cart-${productId}`]: true }));
+  //   try {
+  //     const result = await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
+  //     setSnackbar({ open: true, message: "Added to cart successfully!", severity: "success" });
+  //   } catch (error) {
+  //     setSnackbar({ open: true, message: "Failed to add to cart", severity: "error" });
+  //   } finally {
+  //     setActionLoading((prev) => ({ ...prev, [`cart-${productId}`]: false }));
+  //   }
+  // };
 
-    setActionLoading((prev) => ({ ...prev, [`cart-${productId}`]: true }));
-    try {
-      const result = await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
-      setSnackbar({ open: true, message: "Added to cart successfully!", severity: "success" });
-    } catch (error) {
-      setSnackbar({ open: true, message: "Failed to add to cart", severity: "error" });
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [`cart-${productId}`]: false }));
-    }
-  };
+  // const handleAddToWishlist = async (productId, event) => {
+  //   event.stopPropagation();
+  //   if (!isAuthenticated) {
+  //     setSnackbar({ open: true, message: "Please login to add items to wishlist", severity: "warning" });
+  //     return;
+  //   }
 
-  const handleAddToWishlist = async (productId, event) => {
-    event.stopPropagation();
-    if (!isAuthenticated) {
-      setSnackbar({ open: true, message: "Please login to add items to wishlist", severity: "warning" });
-      return;
-    }
+  //   setActionLoading((prev) => ({ ...prev, [`wishlist-${productId}`]: true }));
+  //   try {
+  //     const result = await dispatch(addToWishlist(productId)).unwrap();
+  //     setSnackbar({ open: true, message: "Added to wishlist successfully!", severity: "success" });
+  //   } catch (error) {
+  //     setSnackbar({ open: true, message: "Failed to add to wishlist", severity: "error" });
+  //   } finally {
+  //     setActionLoading((prev) => ({ ...prev, [`wishlist-${productId}`]: false }));
+  //   }
+  // };
 
-    setActionLoading((prev) => ({ ...prev, [`wishlist-${productId}`]: true }));
-    try {
-      const result = await dispatch(addToWishlist(productId)).unwrap();
-      setSnackbar({ open: true, message: "Added to wishlist successfully!", severity: "success" });
-    } catch (error) {
-      setSnackbar({ open: true, message: "Failed to add to wishlist", severity: "error" });
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [`wishlist-${productId}`]: false }));
-    }
-  };
-
-  const isInWishlist = (productId) => {
-    return wishlistItems.some((item) => item.productId === productId);
-  };
+  // const isInWishlist = (productId) => {
+  //   return wishlistItems.some((item) => item.productId === productId);
+  // };
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -350,49 +350,8 @@ const Home = () => {
           ) : products.length > 0 ? (
             <Box sx={{ width: "100%" }}>
               <Slider {...sliderSettings}>
-                {products.map((product) => (
-                  <Box key={product._id || product.id} sx={{ px: 2 }}>
-                    <Card sx={{ height: "100%", display: "flex", flexDirection: "column", boxShadow: 2 }}>
-                      <CardMedia
-                        component="img"
-                        height="180"
-                        image={product.images?.[0]?.url || "https://source.unsplash.com/featured/?product"}
-                        alt={product.name}
-                      />
-                      <CardContent>
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          {product.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          ${product.price}
-                        </Typography>
-                      </CardContent>
-                      <CardActions sx={{ mt: "auto" }}>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          endIcon={<ShoppingCartIcon />}
-                          onClick={(e) => handleAddToCart(product._id || product.id, e)}
-                          disabled={actionLoading[`cart-${product._id || product.id}`]}
-                        >
-                          {actionLoading[`cart-${product._id || product.id}`] ? "Adding..." : "Add to Cart"}
-                        </Button>
-                        <IconButton
-                          color="primary"
-                          onClick={(e) => handleAddToWishlist(product._id || product.id, e)}
-                          disabled={actionLoading[`wishlist-${product._id || product.id}`]}
-                        >
-                          {isInWishlist(product._id || product.id) ? (
-                            <FavoriteIcon />
-                          ) : (
-                            <FavoriteBorderIcon />
-                          )}
-                        </IconButton>
-                      </CardActions>
-                    </Card>
-                  </Box>
-                ))}
-              </Slider>
+                {products.map((product) => <ProductCard key={product.id} product={product}/>)}
+                </Slider>
             </Box>
           ) : (
             <Box sx={{ textAlign: "center", py: 4 }}>

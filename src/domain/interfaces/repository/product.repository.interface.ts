@@ -37,4 +37,5 @@ export interface productRepositoryInterface {
     minPrice?: number,
     maxPrice?: number,
   ): Promise<Product[]>;
+  getProductByIds(productIds:string[]):Promise<Product[]>
 }
