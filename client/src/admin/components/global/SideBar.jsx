@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton, Typography, useTheme, Avatar } from "@mui/material";
 import { Sidebar as ProSidebar, Menu, MenuItem, sidebarClasses, menuClasses } from "react-pro-sidebar";
 import { useLocation } from "react-router-dom";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
@@ -10,33 +10,59 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { useContext } from "react";
 
 import { AdminContext, ThemeContext } from "../../state/GlobalContext";
-import { tokens } from "../../theme";
 import Item from "../sidebar/Item";
 
 function SideBar() {
   const theme = useTheme();
   const { admin } = useContext(AdminContext);
   const location = useLocation();
-  const colors = tokens(theme.palette.mode);
+  
+  // Fallback colors if theme is not available
+  const colors = {
+    grey: {
+      100: "#f8fafc",
+      300: "#cbd5e1",
+      400: "#94a3b8",
+      500: "#64748b",
+      600: "#475569",
+    },
+    sidebar: {
+      main: "#212B36",
+      light: "#2D3748",
+      dark: "#1A1D29",
+    },
+    blueAccent: {
+      400: "#60a5fa",
+      500: "#3b82f6",
+    },
+  };
+  
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
   return (
     <ProSidebar
       rootStyles={{
         [`.${sidebarClasses.container}`]: {
-          backgroundColor: colors.primary[400],
+          backgroundColor: colors.sidebar.main,
+          borderRight: "none",
         },
         [`.${menuClasses.icon}`]: {
           backgroundColor: "transparent !important",
         },
         [`.${menuClasses.button}`]: {
-          padding: "5px 35px 5px 20px !important",
-          color: colors.grey[100],
+          padding: "12px 24px !important",
+          color: colors.grey[300],
           backgroundColor: "transparent !important",
+          borderRadius: "8px",
+          margin: "4px 16px",
           "&:hover": {
-            color: "#868dfb !important",
+            color: colors.grey[100],
+            backgroundColor: `${colors.sidebar.light} !important`,
           },
           "&.ps-active": {
-            color: "#6870fa !important",
+            color: colors.blueAccent[400],
+            backgroundColor: `${colors.blueAccent[500]}20 !important`,
+            borderLeft: `3px solid ${colors.blueAccent[400]}`,
           },
         },
       }}
@@ -47,43 +73,67 @@ function SideBar() {
           onClick={() => setIsCollapsed(!isCollapsed)}
           icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
           rootStyles={{
-            margin: "10px 0 20px 0",
+            margin: "16px 16px 24px 16px",
             color: colors.grey[100],
           }}
         >
           {!isCollapsed && (
             <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
-              <Typography variant="h3" color={colors.grey[100]}>
+              <Typography 
+                variant="h3" 
+                color={colors.blueAccent[400]}
+                sx={{ 
+                  fontWeight: 700,
+                  letterSpacing: "0.5px"
+                }}
+              >
                 ADMINIS
               </Typography>
-              <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
+              <IconButton 
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                sx={{ color: colors.grey[400] }}
+              >
                 <MenuOutlinedIcon />
               </IconButton>
             </Box>
           )}
         </MenuItem>
+        
         {!isCollapsed && (
-          <Box mb="25px">
-            <Box display="flex" justifyContent="center" alignItems="center">
-              <img
+          <Box mb="32px" px="16px">
+            <Box display="flex" justifyContent="center" alignItems="center" mb="16px">
+              <Avatar
                 alt="profile-user"
-                width="100px"
-                height="100px"
-                src={admin.profile}
-                style={{ cursor: "pointer", borderRadius: "50%" }}
+                src={admin?.profile}
+                sx={{ 
+                  width: 80, 
+                  height: 80,
+                  backgroundColor: colors.grey[600],
+                  border: `2px solid ${colors.grey[500]}`,
+                }}
               />
             </Box>
             <Box textAlign="center">
-              <Typography variant="h2" color={colors.grey[100]} fontWeight="bold" sx={{ m: "10px 0 0 0" }}>
-                {admin.name}
+              <Typography 
+                variant="h5" 
+                color={colors.grey[100]} 
+                fontWeight="600" 
+                sx={{ mb: "4px" }}
+              >
+                {admin?.name || "Admin"}
               </Typography>
-              <Typography variant="h5" color={colors.greenAccent[500]}>
-                {admin.email}
+              <Typography 
+                variant="body2" 
+                color={colors.grey[400]}
+                sx={{ fontSize: "12px" }}
+              >
+                {admin?.email || "admin@example.com"}
               </Typography>
             </Box>
           </Box>
         )}
-        <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+        
+        <Box paddingLeft={isCollapsed ? undefined : "16px"}>
           <Item
             title="Dashboard"
             to="/admin"
@@ -92,19 +142,19 @@ function SideBar() {
             exact={true}
           />
           <Item
-            title="Categories"
+            title="Categorys"
             to="/admin/categories"
             icon={<CategoryIcon />}
             currentPath={location.pathname}
           />
           <Item
-            title="products"
+            title="Products"
             to="/admin/products"
             icon={<InventoryIcon />}
             currentPath={location.pathname}
           />
           <Item
-            title="orders"
+            title="Orders"
             to="/admin/orders"
             icon={<FactCheckIcon />}
             currentPath={location.pathname}

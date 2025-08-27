@@ -1,13 +1,18 @@
 import { Link } from "react-router-dom";
 import { Typography, useTheme } from "@mui/material";
 import { MenuItem } from "react-pro-sidebar";
-import { tokens } from "../../theme";
 
 const Item = ({ title, to, icon, currentPath, exact = false }) => {
   const theme = useTheme();
   const isActive = exact ? currentPath === to : currentPath.startsWith(to);
 
-  const colors = tokens(theme.palette.mode);
+  // Fallback colors if theme is not available
+  const colors = {
+    grey: {
+      100: "#f8fafc",
+    },
+  };
+  
   return (
     <MenuItem
       active={isActive}

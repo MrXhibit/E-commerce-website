@@ -2,12 +2,24 @@ import React, { useState } from "react";
 import { Box, TableRow, TableCell, IconButton, Button, Typography } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowRight } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { tokens } from "../../theme";
 import { useTheme } from "@mui/material";
 
 function RenderRow({ data, level = 0 }) {
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+  
+  // Fallback colors if theme is not available
+  const colors = {
+    grey: {
+      100: "#f8fafc",
+    },
+    primary: {
+      400: "#94a3b8",
+    },
+    greenAccent: {
+      500: "#22c55e",
+    },
+  };
+  
   const navigate = useNavigate();
   const [openIds, setOpenIds] = useState(new Set());
   const toggleExpand = (id) => {

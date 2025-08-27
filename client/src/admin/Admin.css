@@ -1,30 +1,92 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap");
 
-.admin-app,
-.content {
-  height: 100%;
-  width: 100%;
-  font-family: "Source Code Pro", "sans-sarif";
-}
-
 .admin-app {
   display: flex;
-  position: relative;
-  overflow: hidden;
-}
-.content {
-  overflow-y: scroll;
+  height: 100vh;
+  background-color: #0f172a;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
+.content {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #0f172a;
 }
-::-webkit-scrollbar-track {
-  background: #e0e0e0;
+
+/* Custom scrollbar */
+.content::-webkit-scrollbar {
+  width: 8px;
 }
-::-webkit-scrollbar-thumb {
-  background: #888;
+
+.content::-webkit-scrollbar-track {
+  background: #1e293b;
 }
-::-webkit-scrollbar-track:hover {
-  background: #555;
+
+.content::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Hover effects for cards */
+.MuiCard-root:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Hover effects for table rows */
+.MuiTableRow-root:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Hover effects for buttons */
+.MuiButton-root:hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Focus styles for text fields */
+.MuiTextField-root .MuiOutlinedInput-root.Mui-focused {
+  transform: scale(1.02);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Chip styles */
+.MuiChip-root {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Icon button hover effects */
+.MuiIconButton-root:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Responsive form adjustments */
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+  }
+  
+  .MuiCard-root {
+    margin: 0;
+    border-radius: 8px;
+  }
+  
+  .MuiCardContent-root {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 12px;
+  }
+  
+  .MuiCardContent-root {
+    padding: 12px !important;
+  }
 }
