@@ -1,9 +1,14 @@
 import { Router } from 'express';
-import { createOrder,verifyOnlineOrder } from '@/presentation/controller/order/order.controller';
+import { createOrder,verifyOnlineOrder,cancelOrder,editOrder,getUserOrders,getAllOrders,getSingleOrder } from '@/presentation/controller/order/order.controller';
 
 const router = Router();
 router.post("/",createOrder)
-router.post("/veryfy-online-order",verifyOnlineOrder)
+router.post("/verify-online-order",verifyOnlineOrder)
+router.put("/:orderId",editOrder)
+router.put("/cancel-order/:orderId",cancelOrder)
+router.get('/admin',getAllOrders)
+router.get("/:id",getSingleOrder)
+router.get("/",getUserOrders)
 // Initialize services
 // const orderRepository = new OrderRepository();
 // const cartRepository = new CartRepository();

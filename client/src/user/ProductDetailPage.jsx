@@ -318,14 +318,12 @@ const ProductDetailPage = () => {
   if (loading) {
     return (
       <>
-        <Header />
         <Container sx={{ py: 8, textAlign: "center" }}>
           <CircularProgress />
           <Typography variant="h6" sx={{ mt: 2 }}>
             Loading product details...
           </Typography>
         </Container>
-        <Footer />
       </>
     );
   }

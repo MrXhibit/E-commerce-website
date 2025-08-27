@@ -13,4 +13,5 @@ export interface userServiceInterface {
   ): Promise<Partial<userProperties>>;
   googleSucessess(user: Partial<userProperties>): Promise<validUserResponseType>;
   getCurentUser(userToken:string):Promise<Partial<userProperties>>
+  LogoutUser(userToken:string):Promise<boolean>
 }

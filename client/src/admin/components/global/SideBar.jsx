@@ -6,6 +6,7 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CategoryIcon from "@mui/icons-material/Category";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { useContext } from "react";
 
 import { AdminContext, ThemeContext } from "../../state/GlobalContext";
@@ -100,6 +101,12 @@ function SideBar() {
             title="products"
             to="/admin/products"
             icon={<InventoryIcon />}
+            currentPath={location.pathname}
+          />
+          <Item
+            title="orders"
+            to="/admin/orders"
+            icon={<FactCheckIcon />}
             currentPath={location.pathname}
           />
         </Box>

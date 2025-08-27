@@ -17,17 +17,20 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
 import Header from "./Header";
 import Footer from "./Footer";
-import { Elements } from "@stripe/react-stripe-js";
-import StripePaymentForm from "./components/StripePaymentForm";
-import stripePromise from "../services/stripe.service";
 import { getAddress, createAddress } from "../services/address.service";
 import { createOrder,verifyOnlinePayment } from "../services/order.service";
+import PaymentModal from "./components/PaymentForm";
+import OrderSuccessModal from "./components/OrderSuccessModal";
+import { useDispatch } from "react-redux";
+import { clearCart } from "../store/slices/cartSlice"
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { items: cartItems, totalAmount } = useAppSelector((state) => state.cart);
   const [addresses, setAddresses] = useState([]);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const fullNameRef = useRef();
   const addressLine1Ref = useRef();
@@ -37,17 +40,30 @@ const CheckoutPage = () => {
   const phoneRef = useRef();
   const countryRef = useRef();
   const couponRef = useRef();
-  const paymentMethodRef = useRef();
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const[selectedPaymentMethod,setSelectedPaymentMethod] = useState("")
   const [error, setError] = useState("");
   const [stripeClientSecret, setStripeClientSecret] = useState("");
+  const [openPayment, setOpenPayment] = React.useState(false);
   const [orderId, setOrderId] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState({
     isApplied: false,
     couponId: null,
     discount: null,
   });
+   async function handleSuccess(paymentIntentId){
+      console.log(paymentIntentId);
+      const response = await verifyOnlinePayment(paymentIntentId)  
+      if(response?.order){
+        dispatch(clearCart())
+        setOrderModalOpen(true)
+      }
+     console.log("verified response");
+   }
+   function handleError(err){
+    setError(err.message)
+    setOpenPayment(false)
+   }
 
   useEffect(() => {
     async function fetechAddress() {
@@ -116,15 +132,16 @@ const CheckoutPage = () => {
   if(selectedPaymentMethod === "online" && response?.order?.publish_key && response?.order?.secret && response?.order?.amount && response?.order?.orderId){
     setStripeClientSecret(response.order.secret)
     setOrderId(response.order.orderId)
+    setOpenPayment(true)
   }
   if(selectedPaymentMethod === "cod" && response?.order?.id){
-   console.log("order placed");
+    dispatch(clearCart())
+    setOrderModalOpen(true)
   }
   };
 
   return (
     <>
-      <Header />
       <Box sx={{ background: "#f8f5f2", minHeight: "100vh", py: 6 }}>
         <Container maxWidth="lg">
           <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
@@ -208,7 +225,7 @@ const CheckoutPage = () => {
                   <FormControlLabel value="online" control={<Radio />} label="Online Payment" />
                 </RadioGroup>
               </Paper>
-              <Paper sx={{ p: 3 }}>
+              {/* <Paper sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
                   Apply Coupon
                 </Typography>
@@ -218,33 +235,12 @@ const CheckoutPage = () => {
                     Apply
                   </Button>
                 </Box>
-              </Paper>
+              </Paper> */}
 
               <Box sx={{ mt: 3 }}>
                 <Button variant="contained" color="primary" size="large" fullWidth onClick={handlePlaceOrder}>
                   Order Now
                 </Button>
-                {stripeClientSecret && (
-                  <Box sx={{ mt: 4 }}>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      Complete Payment
-                    </Typography>
-                    <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret }}>
-                      <StripePaymentForm
-                       clientSecret={stripeClientSecret}
-                        orderId={orderId}
-                        onSuccess={async (paymentIntentId) => {
-                          console.log(paymentIntentId);
-                         const response = await verifyOnlinePayment(paymentIntentId)  
-                         console.log("verified response");
-                                                 
-                        }
-                      }
-                        onError={(err) => setError(err.message)}
-                      />
-                    </Elements>
-                  </Box>
-                )}
               </Box>
             </Grid>
 
@@ -282,7 +278,24 @@ const CheckoutPage = () => {
           </Grid>
         </Container>
       </Box>
-      <Footer />
+      {stripeClientSecret && openPayment &&
+      <PaymentModal
+      open={openPayment}
+      onClose={() => setOpenPayment(false)}
+      clientSecret={stripeClientSecret}
+      onSuccess={handleSuccess}
+      onError={handleError}
+    />
+      }
+      {
+        orderModalOpen && <OrderSuccessModal
+        open={orderModalOpen}
+        onClose={()=>setOrderModalOpen(false)}
+        />
+      }
+
+    {error && <Typography color="error">{error}</Typography>}
+
     </>
   );
 };

@@ -75,7 +75,6 @@ const WishlistPage = () => {
 
   return (
     <>
-      <Header />
       <Box sx={{ background: "#fafbfc", minHeight: "100vh", py: 6 }}>
         <Container maxWidth="md">
           <Typography variant="h4" fontWeight={700} align="center" gutterBottom>
@@ -221,7 +220,6 @@ const WishlistPage = () => {
           )}
         </Container>
       </Box>
-      <Footer />
     </>
   );
 };

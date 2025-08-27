@@ -84,6 +84,7 @@ export class Order{
     order.items = this.items
     order.address = this.address
     order.appliedCoupon = this.appliedCoupon
+    order.paymentInfo = this.paymentInfo
     order.user = this.user
    return order;
   }

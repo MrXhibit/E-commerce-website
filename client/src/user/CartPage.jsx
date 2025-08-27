@@ -163,7 +163,6 @@ const CartPage = () => {
 
   return (
     <>
-      <Header />
       <Box sx={{ background: "#f8f5f2", minHeight: "100vh", py: 6 }}>
         <Container maxWidth={false} sx={{ px: { xs: 1, sm: 3, md: 6, lg: 12 } }}>
           <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
@@ -184,7 +183,7 @@ const CartPage = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => navigate("/products")}
+                onClick={() => navigate("/")}
                 sx={{ fontWeight: 600 }}
               >
                 Continue Shopping
@@ -273,7 +272,7 @@ const CartPage = () => {
                     </Box>
                   ))}
                   <Divider sx={{ my: 2 }} />
-                  <Button
+                  {/* <Button
                     variant="outlined"
                     color="error"
                     onClick={handleClearCart}
@@ -281,7 +280,7 @@ const CartPage = () => {
                     sx={{ fontWeight: 600 }}
                   >
                     Clear Cart
-                  </Button>
+                  </Button> */}
                   <Button 
                     variant="contained" 
                     color="primary" 
@@ -300,7 +299,6 @@ const CartPage = () => {
           )}
         </Container>
       </Box>
-      <Footer />
     </>
   );
 };

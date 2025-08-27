@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import apiService from "../../services/api";
 import { clearCart } from "./cartSlice";
 import { clearWishlist } from "./wishlistSlice";
-import { userLoginService,registerUserService,getCurrentUser } from "../../services/auth.service"
+import { userLoginService,registerUserService,getCurrentUser,logoutUserService } from "../../services/auth.service"
 
 // Async thunks for API calls
 export const loginUser = createAsyncThunk("auth/loginUser", async (credentials, { rejectWithValue }) => {
@@ -31,7 +31,7 @@ export const registerUser = createAsyncThunk("auth/registerUser", async (userDat
 });
 
 export const logoutUser = createAsyncThunk("auth/logoutUser", async (_, { dispatch }) => {
-  await apiService.logout();
+  await logoutUserService();
   dispatch(clearCart());
   dispatch(clearWishlist());
   return null;

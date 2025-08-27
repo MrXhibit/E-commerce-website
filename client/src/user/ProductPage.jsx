@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { 
   Box, 
   Container, 
@@ -7,83 +7,76 @@ import {
   CircularProgress, 
   Alert, 
   Pagination,
-  Paper
+  Paper,
+  Chip,
+  Stack
 } from '@mui/material';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useAppDispatch } from '../store/hooks';
-import { fetchCart } from '../store/slices/cartSlice';
-import { fetchWishlist } from '../store/slices/wishlistSlice';
-import productSearchService from '../services/productSearch.service';
-import Header from './Header';
-import Footer from './Footer';
 import ProductSearch from './components/ProductSearch';
 import ProductCard from './components/ProductCard';
-
+import { useLocation } from "react-router-dom";
+import { getCategories,getProducts } from "../services/product.service"
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [searchResults, setSearchResults] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [wishlistItems, setWishlistItems] = useState([]);
-  const productsPerPage = 20;
-  
+  const [categories, setCategories] = useState([]); 
+  const [wishlistItems, setWishlistItems] = useState([]); 
+  const [error, setError] = useState(null); 
+  const [loading, setLoading] = useState(true); 
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const productsPerPage = 20;  
   const { user } = useAuth();
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  // Load initial data
+  const location = useLocation();
+  const defaultCategory = location.state?.id;
+  const search = location.state?.search
+  console.log('search tearm  ',search);
+   console.log('selected',selectedCategoryId);
+   useEffect(()=>{
+     const fetchCategory = async()=>{
+      try {
+      const response = await getCategories('/category')
+      if(response.categories) setCategories(response.categories)
+        setLoading(false)
+      } catch (error) {
+        setError(error.message || "category not get")
+        setLoading(false)
+      }
+     }
+     fetchCategory()
+   },[])
+   useEffect(()=>{
+     const fetchProducts = async()=>{
+      try {
+        let url = '/product' 
+        const params = new URLSearchParams();
+        if(defaultCategory){
+         params.set('category', defaultCategory);
+        }
+        if(search){
+         params.set('search', search);
+        }
+        if(selectedCategoryId){
+        params.set('category', selectedCategoryId);
+        }
+        const queryString = params.toString();
+        const finalUrl = queryString ? `${url}?${queryString}` : url;
+        setLoading(true)
+      const response = await getProducts(finalUrl)
+      console.log(response);
+      if(response.products) setProducts(response.products)
+        setLoading(false)
+      } catch (error) {
+        setError(error.message || "products not get")
+        setLoading(false)
+      }
+     }
+     fetchProducts()
+   },[defaultCategory,search,selectedCategoryId])
+   
   useEffect(() => {
-    loadInitialData();
     if (user) {
       loadWishlist();
     }
   }, [user]);
-
-  useEffect(() => {
-    const categoryParam = searchParams.get('category');
-    const searchParam = searchParams.get('search');
-    
-    if (categoryParam || searchParam) {
-      const filters = {
-        limit: productsPerPage,
-        skip: 0
-      };
-      
-      if (categoryParam) {
-        filters.category = categoryParam;
-      }
-      
-      if (searchParam) {
-        filters.query = searchParam;
-      }
-      
-      handleSearch(filters);
-    }
-  }, [searchParams]);
-
-  const loadInitialData = async () => {
-    setLoading(true);
-    try {
-      const [productsResponse, categoriesResponse] = await Promise.all([
-        productSearchService.getProducts(productsPerPage, 0),
-        productSearchService.getCategories().catch(() => ({ data: [] }))
-      ]);
-      
-      setProducts(productsResponse.products || []);
-      setCategories(categoriesResponse.products || []);
-      setTotalProducts(productsResponse.total || productsResponse.data?.length || 0);
-    } catch (err) {
-      setError('Failed to load products');
-      console.error('Error loading initial data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadWishlist = async () => {
     try {
@@ -99,56 +92,29 @@ const ProductPage = () => {
     }
   };
 
-  const handleSearch = async (filters) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await productSearchService.searchProducts({
-        ...filters,
-        skip: (currentPage - 1) * productsPerPage
-      });
-      
-      setSearchResults(response.data);
-      setProducts(response.products || []);
-      setTotalProducts(response.data?.total || 0);
-    } catch (err) {
-      setError('Search failed. Please try again.');
-      console.error('Search error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePageChange = (event, page) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const displayProducts = searchResults ? searchResults.products : products;
-
   return (
     <Box>
-      <Header />
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Search Component */}
         <ProductSearch
-          onSearch={handleSearch}
           categories={categories}
-          loading={loading}
-          initialFilters={{
-            category: searchParams.get('category') || '',
-            query: searchParams.get('search') || ''
-          }}
+          defaultCategory={defaultCategory}
+          onCategoryChange={(id) => setSelectedCategoryId(id)}
         />
 
         {/* Results Summary */}
-        {searchResults && (
-          <Box mb={2}>
-            <Typography variant="h6">
+        {/* {searchResults && (
+          <Box mb={3}>
+            <Typography variant="h5" gutterBottom>
               {totalProducts} {totalProducts === 1 ? 'result' : 'results'} found
             </Typography>
+            {getSearchSummary() && (
+              <Typography variant="body1" color="text.secondary">
+                Showing results for: {getSearchSummary()}
+              </Typography>
+            )}
           </Box>
-        )}
+        )} */}
 
         {/* Error Display */}
         {error && (
@@ -165,13 +131,13 @@ const ProductPage = () => {
         )}
 
         {/* Products Grid */}
-        {!loading && displayProducts.length > 0 && (
+        {!loading && products.length > 0 && (
           <Grid container spacing={3}>
-            {displayProducts.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+            {products.map((product) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
                 <ProductCard 
                   product={product} 
-                  isInWishlist={wishlistItems.includes(product._id)}
+                   isInWishlist={wishlistItems.includes(product.id)}
                 />
               </Grid>
             ))}
@@ -179,7 +145,7 @@ const ProductPage = () => {
         )}
 
         {/* No Results */}
-        {!loading && !error && displayProducts.length === 0 && (
+        {!loading && !error && products.length === 0 && (
           <Paper sx={{ p: 8, textAlign: 'center' }}>
             <Typography variant="h6" color="text.secondary" gutterBottom>
               No products found
@@ -191,7 +157,7 @@ const ProductPage = () => {
         )}
 
         {/* Pagination */}
-        {totalProducts > productsPerPage && (
+        {/* {totalProducts > productsPerPage && (
           <Box display="flex" justifyContent="center" mt={4}>
             <Pagination
               count={Math.ceil(totalProducts / productsPerPage)}
@@ -201,9 +167,8 @@ const ProductPage = () => {
               size="large"
             />
           </Box>
-        )}
+        )} */}
       </Container>
-      <Footer />
     </Box>
   );
 };

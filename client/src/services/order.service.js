@@ -14,9 +14,15 @@ export async function createOrder(reqBody){
 }
 
 export async function verifyOnlinePayment(paymentId){
-    const response = await apiFetcher.request('/order/veryfy-online-order',{
+    const response = await apiFetcher.request('/order/verify-online-order',{
         method : "POST",
         body : {paymentId}
+    })
+    return response
+}
+export async function cancelOrderService(orderId){
+    const response = await apiFetcher.request(`/order/cancel-order/${orderId}`,{
+        method : "PUT"    
     })
     return response
 }

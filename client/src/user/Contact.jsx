@@ -42,7 +42,6 @@ const faqs = [
 const Contact = () => {
   return (
     <>
-      <Header />
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Typography variant="h4" align="center" fontWeight={700} gutterBottom>
           Contact Us
@@ -156,7 +155,6 @@ const Contact = () => {
           </Grid>
         </Box>
       </Container>
-      <Footer />
     </>
   );
 };

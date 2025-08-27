@@ -22,8 +22,6 @@ import {
   Alert,
   Snackbar,
 } from "@mui/material";
-import Header from "./Header";
-import Footer from "./Footer";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import ReplayIcon from "@mui/icons-material/Replay";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
@@ -216,7 +214,6 @@ const Home = () => {
 
   return (
     <>
-      <Header />
       <Box sx={{ background: "#fafbfc", minHeight: "100vh" }}>
         {/* Hero Section */}
         <Box sx={{ background: "white", py: { xs: 4, md: 8 }, px: 2 }}>
@@ -362,7 +359,6 @@ const Home = () => {
           )}
         </Container>
       </Box>
-      <Footer />
 
       {/* Snackbar for notifications */}
       <Snackbar

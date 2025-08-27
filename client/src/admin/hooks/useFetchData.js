@@ -17,7 +17,7 @@ export function useFetchData(endpoint) {
         });
         setData(response.data);
         stopLoading();
-      } catch (error) {
+      } catch (error) {        
         setError(error?.message || "failed to fetch data");
         stopLoading();
       }

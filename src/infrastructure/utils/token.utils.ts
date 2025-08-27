@@ -27,7 +27,7 @@ const isValidAdminToken = (token: string): { payload: Partial<adminProperties>; 
     return { isVerified: true, payload };
   } catch (error) {
     if (error instanceof TokenExpiredError) {
-      throw new AuthorizeError("token expired");
+      throw new AuthorizeError("admin token expired");
     }
     if (error instanceof JsonWebTokenError) {
       throw new AuthorizeError("invalid token");

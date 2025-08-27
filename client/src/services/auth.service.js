@@ -20,3 +20,7 @@ export async function getCurrentUser(){
     const response = await apiFetcher.request('/user')
     return response
 }
+export async function logoutUserService(){
+    const response = await apiFetcher.request('/user/logout')
+    return response
+}

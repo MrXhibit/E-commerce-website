@@ -16,7 +16,7 @@ import { Formik } from "formik";
 import * as yup from "yup";
 
 import Header from "../components/global/Header";
-import { editProductFormSubmit,deleteProductImage } from "../services/product.form.service";
+import { deleteProductImage } from "../services/product.form.service";
 import { useFetchData } from "../hooks/useFetchData";
 
 
@@ -62,6 +62,18 @@ function EditProduct() {
     const response = await deleteProductImage(image,productId)
     if(response.data?.product) setProduct(response.data.product)
   }
+ const editProductFormSubmit = async (values, formikHelpers) => {
+   const { images, ...productData } = values;
+   await editProductDetails(productData, formikHelpers, productId);
+ 
+ }
+ const editProductDetails = async (values, { setStatus }) => {
+   
+ }
+ const uploadProductImages = async (values, { setStatus, setFieldValue }) => {
+   
+ }
+ 
 
   return (
     <Box m="20px">

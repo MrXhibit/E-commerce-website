@@ -1,11 +1,42 @@
-import { addressProperties, APIError, Order,orderItem, orderProperties, userProperties, ValidationError } from "@/domain/entities";
+import { addressProperties, APIError, Order,orderItem, orderProperties, productProperties, userProperties, ValidationError } from "@/domain/entities";
 import { OrderRepositoryInterface } from "@/domain/interfaces/repository/order.repository.interface";
 import OrderModel,{IOrder} from "../model/order.model";
-import mongoose from "mongoose";
 import { IProduct, IUser } from "../model";
 import { IAddress } from "../model/address.model";
 
 export class OrderRepository implements OrderRepositoryInterface {
+ async getAllOrders(limit: number, skip: number, 
+    paymentStatus?: "pending" | "processing" | "completed" | "failed" | "refunded", 
+    orderStatus?: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled", 
+    paymentMethod?: "cod" | "online", 
+    appliedCoupon?: string): Promise<Order[]> {
+   try {
+      const query: any = {};
+
+  if (paymentStatus) {
+    query['paymentInfo.paymentStatus'] = paymentStatus;
+  }
+
+  if (orderStatus) {
+    query['orderStatus'] = orderStatus;
+  }
+
+  if (paymentMethod) {
+    query['paymentInfo.method'] = paymentMethod;
+  }
+
+  if (appliedCoupon) {
+    query['appliedCoupon'] = appliedCoupon;
+  }
+
+  const orders = await OrderModel.find(query).limit(limit).skip(skip)
+  return orders.map((order)=>this.mapToOrder(order))
+
+      } catch (error) {
+        throw new APIError()
+      }
+  }
+
   async create(order: Order): Promise<Order> {
     try {
       const newOrder = new OrderModel({
@@ -24,12 +55,20 @@ export class OrderRepository implements OrderRepositoryInterface {
     }
   }
   async findById(id: string): Promise<Order | null> {
-    const order = await OrderModel.findById(id).populate('items.productId').populate('address')
+    const order = await OrderModel.findById(id).populate('user').populate('items.productId').populate('address')
     if(!order) throw new ValidationError()
     return this.mapToOrder(order)
   }
-  findByUserId(userId: string): Promise<Order[]> {
-    throw new Error("Method not implemented.");
+  async findByUserId(userId: string): Promise<Order[]> {
+    try {
+      const orders = await OrderModel.find({
+        user : userId
+      }).populate('items.productId').populate('address').sort({ createdAt: -1 });
+
+      return orders.map((order)=>this.mapToOrder(order))
+    } catch (error) {      
+      throw new APIError()
+    }
   }
   findByStatus(status: string): Promise<Order[]> {
     throw new Error("Method not implemented.");
@@ -62,47 +101,95 @@ export class OrderRepository implements OrderRepositoryInterface {
     throw new Error("Method not implemented.");
   }
   mapToOrder(orderDb: IOrder): Order {
-    const items = [] as orderItem[]
-    let address:string | Partial<addressProperties> 
-    let user:string | Partial<userProperties>
-    orderDb.items.forEach((item)=>{
-      const orderItem = {} as orderItem
-      if(mongoose.isValidObjectId(item.productId)){
-        orderItem.productId = item.productId.toString()
-      }else{
-        const dbItem = item.productId as IProduct
-        orderItem.productId = dbItem.id
-      }
-       orderItem.price = item.price
-        orderItem.quantity = item.quantity
-        orderItem.totalPrice = item.totalPrice
-        items.push(orderItem)
-    })
-    if(mongoose.isValidObjectId(orderDb.address)){
-       address = orderDb.address.toString()
-    }else{
-       const addressProp = {} as addressProperties
-       const dbAdress = orderDb.address as IAddress
-       addressProp.addressLine1 = dbAdress.addressLine1
-       addressProp.id = dbAdress.id
-       addressProp.city = dbAdress.city
-       addressProp.country = dbAdress.country
-       addressProp.fullName = dbAdress.fullName
-       address = addressProp
+    const items: orderItem[] = orderDb.items.map((item) => {
+    const orderItem: orderItem = {
+      price: item.price,
+      quantity: item.quantity,
+      totalPrice: item.totalPrice,
+      productId: (() => {
+        const product = item.productId;
+        if (
+          typeof product === 'object' &&
+          product !== null &&
+          'brandName' in product &&
+          'modelName' in product &&
+          'price' in product
+        ) {
+          const dbItem = product as IProduct;
+
+          return {
+            id: dbItem.id ?? dbItem._id?.toString(),
+            brandName: dbItem.brandName,
+            modelName: dbItem.modelName,
+            images: dbItem.images,
+            price: dbItem.price,
+            description: dbItem.description
+          } as Partial<productProperties>;
+        }
+
+        return product.toString(); // fallback: unpopulated ObjectId
+      })()
+    };
+
+    return orderItem;
+  });
+
+  const address: string | Partial<addressProperties> = (() => {
+    const addr = orderDb.address;
+
+    if (
+      typeof addr === 'object' &&
+      addr !== null &&
+      'addressLine1' in addr &&
+      'city' in addr &&
+      'country' in addr
+    ) {
+      const dbAddress = addr as IAddress;
+
+      return {
+        id: dbAddress.id ?? dbAddress._id?.toString(),
+        addressLine1: dbAddress.addressLine1,
+        city: dbAddress.city,
+        country: dbAddress.country,
+        fullName: dbAddress.fullName
+      };
     }
-      if(mongoose.isValidObjectId(orderDb.user)){
-       user = orderDb.user.toString()
-    }else{
-       const userProp = {} as userProperties
-       const dbUser = orderDb.user as IUser
-       userProp.id = dbUser.id
-       userProp.email = dbUser.email
-       user = userProp
+
+    return addr.toString();
+  })();
+
+  const user: string | Partial<userProperties> = (() => {
+    const usr = orderDb.user;
+
+    if (
+      typeof usr === 'object' &&
+      usr !== null &&
+      'email' in usr
+    ) {
+      const dbUser = usr as IUser;
+
+      return {
+        id: dbUser.id ?? dbUser._id?.toString(),
+        email: dbUser.email
+      };
     }
-    const order = new Order(orderDb.id,items,address,user,orderDb.paymentInfo.method,orderDb.paymentInfo.payableAmount)
-    order.paymentInfo = orderDb.paymentInfo
-    order.orderStatus = orderDb.orderStatus
-    return order
+
+    return usr.toString();
+  })();
+
+  const order = new Order(
+    orderDb.id,
+    items,
+    address,
+    user,
+    orderDb.paymentInfo.method,
+    orderDb.paymentInfo.payableAmount
+  );
+
+  order.paymentInfo = orderDb.paymentInfo;
+  order.orderStatus = orderDb.orderStatus;
+  return order;
+    
   }
   
   // async createOrder(orderData: CreateOrderRequest & { userId: string }): Promise<Order> {

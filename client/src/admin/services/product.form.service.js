@@ -28,10 +28,32 @@ export const addProductFormSubmit = async (values, { setStatus }) => {
   }
 };
 
-export const editProductFormSubmit = async (values, { setStatus }) => {
-  
-}
+export const editFormService = async(productId,data)=>{
+  axiosStartLoadingFunction()
+  try {
+    const response = await axiosInstance.delete(`/delete-image/${productId}`,{
+      data : data})
+    return response
+  } catch (error) {
+    
+  }finally{
+    axiosStopLoadingFunction()
+  }
 
+}
+export const uploadImagesService = async(productId,data)=>{
+  axiosStartLoadingFunction()
+  try {
+    const response = await axiosInstance.delete(`/delete-image/${productId}`,{
+      data : data})
+    return response
+  } catch (error) {
+    
+  }finally{
+    axiosStopLoadingFunction()
+  }
+
+}
 export const deleteProductImage = async(image,productId)=>{
   axiosStartLoadingFunction()
   try {

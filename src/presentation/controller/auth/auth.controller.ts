@@ -199,3 +199,24 @@ export const googleLoginSucessController = async (req: Request, res: Response, n
     next(error);
   }
 };
+
+export const LogOutUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+    const token = req.cookies.access_token;
+    const isLogout = await userServ.LogoutUser(token)
+    res.cookie("access_token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.cookie("refresh_token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    return res.status(200).json({ isLogout });
+  } catch (error) {
+    next(error);
+  }
+
+}
+

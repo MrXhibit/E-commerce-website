@@ -1,4 +1,4 @@
-import { AuthorizeError, User, userProperties, ValidationError } from "@/domain/entities";
+import { APIError, AuthorizeError, User, userProperties, ValidationError } from "@/domain/entities";
 import { userRepositoryInterface } from "@/domain/interfaces/repository";
 import { userServiceInterface } from "@/domain/interfaces/services";
 import { authUtillsInterface } from "@/domain/interfaces/utils";
@@ -11,6 +11,18 @@ export class userService implements userServiceInterface {
     private authUtills: authUtillsInterface,
     private tokenUtils: tokenValidationUtillsInterface,
   ) {}
+  async LogoutUser(userToken: string): Promise<boolean> {
+        if (!userToken) throw new ValidationError("token not found");
+        const tokenProps = this.tokenUtils.isValidUserToken(userToken);
+        if (tokenProps.isVerified && tokenProps.payload.id) {
+          const user = await this.userRepository.getUserById(tokenProps.payload.id);
+          user.setRefreshToken("")
+          const newUser = await this.userRepository.editUser(user);
+          return true;
+        }
+        throw new APIError();
+    
+  }
   async getCurentUser(userToken: string): Promise<Partial<userProperties>> {
      if(!userToken) throw new ValidationError()
      const tokenProps = this.tokenUtils.isValidUserToken(userToken);

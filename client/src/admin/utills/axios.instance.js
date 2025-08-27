@@ -21,7 +21,7 @@ axiosInstance.interceptors.response.use(
     const failedReq = error.config;
     if (
       error?.response?.status == "401" &&
-      error?.response?.data?.error == "token expired" &&
+      error?.response?.data?.error == "admin token expired" &&
       !failedReq._retry
     ) {
       failedReq._retry = true;

@@ -48,7 +48,6 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <>
-        <Header />
         <Box
           sx={{
             background: "#f4f6fa",
@@ -590,8 +589,6 @@ const ProfilePage = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-
-      <Footer />
     </>
   );
 };

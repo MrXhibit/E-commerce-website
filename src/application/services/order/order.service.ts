@@ -5,7 +5,7 @@
 // import { CustomError, ValidationError } from '@/domain/entities/errors';
 // import { STATUS_CODES } from '@/domain/entities/status.code';
 
-import { addressProperties, Order, orderItem, orderProperties, ValidationError } from "@/domain/entities";
+import { addressProperties, AuthorizeError, Order, orderItem, orderProperties, productProperties, ValidationError } from "@/domain/entities";
 import { cartRepositoryInterface, productRepositoryInterface } from "@/domain/interfaces/repository";
 import { OrderRepositoryInterface } from "@/domain/interfaces/repository/order.repository.interface";
 import { OrderServiceInterface } from "@/domain/interfaces/services";
@@ -264,6 +264,117 @@ export class orderService implements OrderServiceInterface{
     this.tokenUtils = tokenUtils
     this.productRepo = productRepo
    }
+  async getAdminSingleOrder(adminToken: string, orderId: string): Promise<orderProperties> {
+        const isValidToken = this.tokenUtils.isValidAdminToken(adminToken)
+    if(isValidToken && isValidToken.isVerified) {
+      const order = await this.orederRepo.findById(orderId)
+      if(!order) throw new ValidationError()
+     return order.sanitizeOrder()  
+    }
+    throw new AuthorizeError();
+  }
+  async getAdminAllOrders(adminToken: string, limit: number, page: number, paymentStatus?: "pending" | "processing" | "completed" | "failed" | "refunded", orderStatus?: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled", paymentMethod?: "cod" | "online", appliedCoupon?: string): Promise<orderProperties[]> {
+    const isValidToken = this.tokenUtils.isValidAdminToken(adminToken)
+    if(isValidToken && isValidToken.isVerified) {
+      const orders = await this.orederRepo.getAllOrders(0,0,paymentStatus,orderStatus,paymentMethod)
+      return orders.map((order)=>order.sanitizeOrder())
+    }
+    throw new AuthorizeError()
+  }
+  async getCurentUserOrder(userToken: string): Promise<orderProperties[]> {
+    const isValidUser = this.tokenUtils.isValidUserToken(userToken)
+    if(isValidUser && isValidUser.isVerified){
+     const orders = await this.orederRepo.findByUserId(isValidUser.payload.id!)
+     return orders.map((order)=>order.sanitizeOrder())
+    }
+    throw new AuthorizeError()
+  }
+  async cancelOrderId(userToken: string, orderId: string): Promise<orderProperties> {
+    const isValidUser = this.tokenUtils.isValidUserToken(userToken)
+    if(isValidUser && isValidUser.isVerified){
+      const order = await this.orederRepo.findById(orderId)
+      if(order){
+        let orderdUserId
+        if(typeof order.user === "string") orderdUserId = order.user
+        if(typeof order.user === "object") orderdUserId = order.user.id!
+          if(orderdUserId == isValidUser.payload.id && (order.orderStatus === "pending" || order.orderStatus === "processing")){
+           const productIds = order.items.map((order)=>typeof order.productId ==="string" ? order.productId : order.productId.id!)
+           const products = await this.productRepo.getProductByIds(productIds)
+           for(const orderItem of order.items){
+            let productId:string
+            if(typeof orderItem.productId === "string") productId = orderItem.productId
+            if(typeof orderItem.productId === "object") productId = orderItem.productId.id!
+            const product = products.find((prod)=>prod.id == productId)
+            if(product){
+              const stock = product.stock
+              const incresedStock = stock + orderItem.quantity
+              product.setStock(incresedStock)
+              await this.productRepo.saveProduct(product)
+            }
+           }
+           order.setOrderStatus("cancelled")
+           const cancelledOrder = await this.orederRepo.update(order)
+           if(cancelledOrder) return cancelledOrder.sanitizeOrder()
+          } 
+      }
+    }
+    throw new AuthorizeError()
+  }
+  async editOrderId(adminToken: string, orderId: string, orderProp: unknown): Promise<orderProperties> {
+        const isValidAdmin = this.tokenUtils.isValidAdminToken(adminToken)
+    if(isValidAdmin && isValidAdmin.isVerified){
+      const updatedDetails = this.orderUtils.editOrderRequestValidator(orderProp)
+      const order = await this.orederRepo.findById(orderId)
+      if(order && updatedDetails){
+        if(updatedDetails.orderStatus){
+          if(updatedDetails.orderStatus === "cancelled"){
+           if(
+            order.paymentInfo.method === "online" && order.paymentInfo.paymentStatus === "completed"){
+           throw new AuthorizeError("you cant cancel the users payed order")
+           }
+           const productIds = order.items.map((order)=>typeof order.productId ==="string" ? order.productId : order.productId.id!)
+           const products = await this.productRepo.getProductByIds(productIds)
+           for(const orderItem of order.items){
+            let productId:string
+            if(typeof orderItem.productId === "string") productId = orderItem.productId
+            if(typeof orderItem.productId === "object") productId = orderItem.productId.id!
+            const product = products.find((prod)=>prod.id == productId)
+            if(product){
+              const stock = product.stock
+              const incresedStock = stock + orderItem.quantity
+              product.setStock(incresedStock)
+              await this.productRepo.saveProduct(product)
+            }
+           }
+           order.setOrderStatus("cancelled")
+          } else{
+            order.setOrderStatus(updatedDetails.orderStatus)
+          }
+        }
+          if(updatedDetails.paymentStatus){
+            if(
+              updatedDetails.paymentStatus ==="failed" && 
+              order.paymentInfo.method === "online" && 
+              order.paymentInfo.paymentStatus === "completed")
+           {
+             throw new AuthorizeError("the user is alredy payed via online")
+           }
+           order.setPaymentStatus(updatedDetails.paymentStatus)
+          } 
+        
+        if(updatedDetails.paymentIntentId){
+          order.setPaymentIntentId(updatedDetails.paymentIntentId)
+        }
+        if(updatedDetails.transactionId){
+          order.setTransactionId(updatedDetails.transactionId)
+        }
+       const updatedOrder = await this.orederRepo.update(order)
+       if(!updatedOrder) throw new ValidationError()
+       return updatedOrder.sanitizeOrder()
+      }
+    }
+    throw new AuthorizeError()
+  }
   async getOrderById(userToken: string, orderId: string): Promise<orderProperties> {
     const isValidToken = this.tokenUtils.isValidUserToken(userToken)
     if(isValidToken) {
@@ -272,7 +383,7 @@ export class orderService implements OrderServiceInterface{
       if(!order) throw new ValidationError()
         let orderUser
         typeof order.user === "string" ? orderUser = order.user : orderUser = order.user.id
-      if(order.user == curentUser) return order.sanitizeOrder()
+      if(orderUser == curentUser) return order.sanitizeOrder()
       
     }
     throw new ValidationError()

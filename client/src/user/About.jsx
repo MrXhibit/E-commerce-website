@@ -27,7 +27,6 @@ const team = [
 
 const About = () => (
   <>
-    <Header />
     <Container maxWidth="md" sx={{ py: 8 }}>
       {/* Title & Subtitle */}
       <Typography variant="h2" align="center" fontWeight={700} gutterBottom>
@@ -165,7 +164,6 @@ const About = () => (
         ))}
       </Grid>
     </Container>
-    <Footer />
   </>
 );
 

@@ -5,3 +5,5 @@ export * from "./create.product.validator";
 export * from "./edit.product.validator";
 export * from "./edit.category.validator";
 export * from "./create.address.validator";
+export * from "./edit.order.validator";
+export * from "./create.order.validator";

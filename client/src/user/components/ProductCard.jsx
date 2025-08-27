@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+
 import {
   Box,
   Typography,
@@ -16,27 +17,29 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addToCart } from "../../store/slices/cartSlice";
 import { addToWishlist } from "../../store/slices/wishlistSlice";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../store/snackbar/SnackbarContext"
 
 function ProductCard({ product }) {
+    const { showSnackbar } = useSnackbar();
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [actionLoading, setActionLoading] = useState({});
 
   const handleAddToCart = async (productId, event) => {
     event.stopPropagation();
     if (!isAuthenticated) {
-      setSnackbar({ open: true, message: "Please login to add items to cart", severity: "warning" });
+      showSnackbar("Please login to add items to cart","warning")
       return;
     }
     setActionLoading((prev) => ({ ...prev, [`cart-${productId}`]: true }));
     try {
       await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
-      setSnackbar({ open: true, message: "Added to cart successfully!", severity: "success" });
+      showSnackbar("Added to cart successfully!","success");
     } catch (error) {
-      setSnackbar({ open: true, message: "Failed to add to cart", severity: "error" });
+      showSnackbar("Failed to add to cart","error")
     } finally {
       setActionLoading((prev) => ({ ...prev, [`cart-${productId}`]: false }));
     }
@@ -45,15 +48,15 @@ function ProductCard({ product }) {
   const handleAddToWishlist = async (productId, event) => {
     event.stopPropagation();
     if (!isAuthenticated) {
-      setSnackbar({ open: true, message: "Please login to add items to wishlist", severity: "warning" });
+      showSnackbar("Please login to add items to wishlist","warning")
       return;
     }
     setActionLoading((prev) => ({ ...prev, [`wishlist-${productId}`]: true }));
     try {
       await dispatch(addToWishlist(productId)).unwrap();
-      setSnackbar({ open: true, message: "Added to wishlist successfully!", severity: "success" });
+      showSnackbar("Added to wishlist successfully!","success");
     } catch (error) {
-      setSnackbar({ open: true, message: "Failed to add to wishlist", severity: "error" });
+      showSnackbar("Failed to add to wishlist","error");
     } finally {
       setActionLoading((prev) => ({ ...prev, [`wishlist-${productId}`]: false }));
     }
@@ -64,6 +67,7 @@ function ProductCard({ product }) {
   };
 
   return (
+  
     <Box sx={{ px: 2 }}>
       <Card
         sx={{ height: "100%", display: "flex", flexDirection: "column", boxShadow: 2 }}
@@ -72,7 +76,7 @@ function ProductCard({ product }) {
         <CardMedia
           component="img"
           height="180"
-          image={product.images?.[0]?.url || "https://source.unsplash.com/featured/?product"}
+          image={product.images?.[0]?.url}
           alt={product.name}
         />
         <CardContent>

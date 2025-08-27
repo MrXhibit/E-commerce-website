@@ -18,6 +18,8 @@ import {
   setAxiosStopLoading,
 } from "./utills/axios.delete.admin";
 import EditProduct from "./pages/EditProduct";
+import OrderList from "./pages/OrderList";
+import EditOrder from "./pages/EditOrder";
 
 function Layout() {
   const { admin, deleteAdmin, createAdmin } = useContext(AdminContext);
@@ -49,6 +51,8 @@ function Layout() {
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/add-category/:parentId" element={<AddCategory />} />
           <Route path="/edit-product/:productId" element={<EditProduct />} />
+          <Route path="/orders" element={<OrderList />} />
+          <Route path="/order/:orderId" element={<EditOrder />} />
         </Routes>
       </main>
     </>

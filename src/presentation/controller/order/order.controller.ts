@@ -32,6 +32,76 @@ const orderServ = new orderService(orderUtils,paymentUtills,orderRepo,cartRepo,t
       next(error)
     }
   }
+  export const changeOrderStatus = async(req: Request, res: Response, next: NextFunction)=> {
+    try {
+      const token = req.cookies.access_token;
+      const order = await orderServ.verifyOnlinePayment(token,req.body.paymentId)
+      return res.status(200).json({ order });
+    } catch (error) {
+      
+      next(error)
+    }
+  }
+  export const changePaymentStatus = async(req: Request, res: Response, next: NextFunction)=> {
+    try {
+      const token = req.cookies.access_token;
+      const order = await orderServ.verifyOnlinePayment(token,req.body.paymentId)
+      return res.status(200).json({ order });
+    } catch (error) {
+      
+      next(error)
+    }
+  }
+  export const cancelOrder = async(req: Request, res: Response, next: NextFunction)=> {
+    try {
+      const token = req.cookies.access_token;
+      const orderId = req.params.orderId
+      const order = await orderServ.cancelOrderId(token,orderId)
+      return res.status(200).json({ order });
+    } catch (error) {
+      
+      next(error)
+    }
+  }
+  export const editOrder = async(req: Request, res: Response, next: NextFunction)=> {
+    try {
+      const token = req.cookies.access_token_admin;
+      const oredrId = req.params.orderId
+      const order = await orderServ.editOrderId(token,oredrId,req.body)
+      return res.status(200).json({ order });
+    } catch (error) { 
+      next(error)
+    }
+  }
+  export const getUserOrders = async(req: Request, res: Response, next: NextFunction)=> {
+    try {
+      const token = req.cookies.access_token;
+      const orders = await orderServ.getCurentUserOrder(token)
+      return res.status(200).json({ orders });
+    } catch (error) { 
+      next(error)
+    }
+  }
+  export const getAllOrders = async(req: Request, res: Response, next: NextFunction)=> {
+    try {
+      const token = req.cookies.access_token_admin;
+      const orders = await orderServ.getAdminAllOrders(token,0,0)
+      return res.status(200).json({ orders });
+    } catch (error) { 
+      next(error)
+    }
+  }
+    export const getSingleOrder = async(req: Request, res: Response, next: NextFunction)=> {
+    try {
+      const token = req.cookies.access_token_admin;
+      const orderId = req.params.id
+      const order = await orderServ.getAdminSingleOrder(token,orderId)
+      return res.status(200).json({ order });
+    } catch (error) { 
+      next(error)
+    }
+  }
+
 
   // async getOrderById(req: Request, res: Response, next: NextFunction) {
   //   try {

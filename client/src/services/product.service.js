@@ -2,10 +2,9 @@
  
  export const getCartService = async()=>{
     const response = await apiFetcher.request('/cart')
-    console.log("---cart response");
-    console.log(response);
     return response
   }
+
 
   export const addToCartService = async(productId, quantity = 1)=>{
 
@@ -65,3 +64,14 @@
     });
     return response
   }
+
+    export const  getProducts = async(productUrl)=>{
+    const response = await apiFetcher.request(productUrl);
+    return response
+  }
+  export const  getCategories = async(categoryUrl)=>{
+    const response = await apiFetcher.request(categoryUrl);
+    return response
+
+  }
+
