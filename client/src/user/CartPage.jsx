@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Paper, Button, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Box, Container, Typography, Paper, Button, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { createCheckoutSession, redirectToCheckout } from '../services/stripe.service';
 import { useAppDispatch, useAppSelector } from '../store/hooks';

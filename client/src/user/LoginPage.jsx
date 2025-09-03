@@ -12,10 +12,10 @@ import {
   Divider,
   Avatar,
   Chip,
+  Grid
 
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
-import Grid from '@mui/material/Grid2';
 import AppleIcon from '@mui/icons-material/Apple';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Link, useNavigate } from 'react-router-dom';

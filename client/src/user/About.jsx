@@ -1,6 +1,5 @@
 import React from 'react';
-import { Container, Typography, Box, Paper, Avatar } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Container, Typography, Box, Paper, Avatar, Grid } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';

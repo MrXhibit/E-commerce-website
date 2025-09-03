@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, Container, Typography, Button, Stack, Chip, CircularProgress, Alert,
   IconButton, Card, CardContent, CardMedia, Rating, Avatar,
-  useTheme, useMediaQuery
+  useTheme, useMediaQuery, Grid
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { 
   PlayArrow as PlayIcon, Favorite as FavoriteIcon, 
   FavoriteBorder as FavoriteBorderIcon, ShoppingCart as ShoppingCartIcon,

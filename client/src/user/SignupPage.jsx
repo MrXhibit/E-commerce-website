@@ -14,10 +14,10 @@ import {
   Checkbox,
   Avatar,
   Chip,
+  Grid
 
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
-import Grid from '@mui/material/Grid2';
 import AppleIcon from '@mui/icons-material/Apple';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import { Link, useNavigate } from 'react-router-dom';

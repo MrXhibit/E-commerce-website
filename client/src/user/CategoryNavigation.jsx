@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Card, CardContent, CardActionArea } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Box, Container, Typography, Card, CardContent, CardActionArea, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const categories = [

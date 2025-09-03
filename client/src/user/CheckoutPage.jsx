@@ -7,9 +7,9 @@ import {
   TextField,
   Divider,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Grid
 } from '@mui/material'
-import Grid from '@mui/material/Grid2';
 import { Elements } from '@stripe/react-stripe-js';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';

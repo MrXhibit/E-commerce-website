@@ -19,9 +19,9 @@ import {
   MenuItem,
   Pagination,
   Card,
-  CardContent
+  CardContent,
+  Grid
 } from '@mui/material'
-import Grid from '@mui/material/Grid2';
 import {
   Search as SearchIcon,
   Add as AddIcon,

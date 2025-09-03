@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, TextField, Button, Paper, Accordion, AccordionSummary, AccordionDetails, TextareaAutosize } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Box, Container, Typography, TextField, Button, Paper, Accordion, AccordionSummary, AccordionDetails, TextareaAutosize, Grid } from '@mui/material';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';

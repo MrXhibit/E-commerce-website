@@ -19,6 +19,7 @@ import {
   IconButton,
   Tabs,
   Tab,
+  Grid
 
 } from '@mui/material';
 import {
@@ -30,7 +31,6 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
-import Grid from '@mui/material/Grid2';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import Header from './Header';

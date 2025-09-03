@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, TextField, Button, Divider, Alert, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Box, Paper, Typography, TextField, Button, Divider, Alert, CircularProgress, Grid } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
 import { Link, useNavigate } from 'react-router-dom';

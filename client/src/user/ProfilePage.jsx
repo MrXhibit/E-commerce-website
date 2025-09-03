@@ -2,10 +2,9 @@ import React, { useState, useRef } from 'react';
 import { 
   Box, Container, Card, Typography, Avatar, Button, Divider, 
   IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Snackbar, Alert, Badge
+  TextField, Snackbar, Alert, Badge, Grid
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import Grid from '@mui/material/Grid2';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';

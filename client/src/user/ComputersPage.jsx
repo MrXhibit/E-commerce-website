@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Box, Container, Typography, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link, Slider, Checkbox, FormControlLabel, FormGroup, Divider, Chip, Rating, Stack, Paper } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Box, Container, Typography, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link, Slider, Checkbox, FormControlLabel, FormGroup, Divider, Chip, Rating, Stack, Paper, Grid } from '@mui/material';
 import Carousel from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Card, CardMedia, CardContent, CardActions, Button, IconButton, Chip, Stack, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Box, Container, Typography, Card, CardMedia, CardContent, CardActions, Button, IconButton, Chip, Stack, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link, Grid } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';

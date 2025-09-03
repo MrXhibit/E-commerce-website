@@ -9,10 +9,10 @@ import {
   Paper,
   Chip,
   Stack,
+  Grid
 
 } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Grid from '@mui/material/Grid2';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppDispatch } from '../store/hooks';
 import { fetchCart } from '../store/slices/cartSlice';

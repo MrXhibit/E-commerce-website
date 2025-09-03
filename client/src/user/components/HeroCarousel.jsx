@@ -2,12 +2,12 @@ import React from 'react';
 import {
   Box,
   Container,
-  Typography
+  Typography,
   Button,
   Stack,
-  IconButton
+  IconButton,
+  Grid
 } from '@mui/material'
-import Grid from '@mui/material/Grid2';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Slider from 'react-slick';

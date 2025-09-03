@@ -17,9 +17,9 @@ import {
   AccordionDetails,
   Checkbox,
   FormControlLabel,
-  Divider
+  Divider,
+  Grid
 } from '@mui/material'
-import Grid from '@mui/material/Grid2';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
