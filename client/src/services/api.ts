@@ -1,6 +1,6 @@
 import { ApiResponse, Product, Cart, Wishlist, User, LoginCredentials, RegisterData } from '../types';
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api/v1';
 
 interface FailedRequest {
   resolve: (value: any) => void;
@@ -11,19 +11,21 @@ class ApiService {
   private baseURL: string;
   private isRefreshing: boolean;
   private failedQueue: FailedRequest[];
+  private refreshPromise: Promise<any> | null;
 
   constructor() {
     this.baseURL = API_BASE_URL;
     this.isRefreshing = false;
     this.failedQueue = [];
+    this.refreshPromise = null;
   }
 
   // Helper method to get auth headers
   private getAuthHeaders(): Record<string, string> {
-    const token = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem('accessToken');
     return {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` })
+      ...(accessToken && { 'Authorization': `Bearer ${accessToken}` })
     };
   }
 
@@ -59,8 +61,17 @@ class ApiService {
       this.isRefreshing = true;
 
       try {
+        // Check if we have a refresh token before attempting refresh
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
         const refreshResult = await this.refreshToken();
-        if (refreshResult.success) {
+        if (refreshResult.success && refreshResult.data?.accessToken) {
+          // Store new access token
+          localStorage.setItem('accessToken', refreshResult.data.accessToken);
+          
           this.processQueue(null, refreshResult.data.accessToken);
           
           // Retry original request with new token
@@ -75,11 +86,15 @@ class ApiService {
         }
       } catch (error) {
         this.processQueue(error, null);
-        // Redirect to login
+        // Clear tokens and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        
+        // Only redirect if we're not already on login page
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+          window.location.href = '/login';
+        }
         throw error;
       } finally {
         this.isRefreshing = false;
@@ -88,57 +103,121 @@ class ApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      console.error('API Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+        data: errorData
+      });
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
-    return response.json();
+
+    try {
+      const data = await response.json();
+      return {
+        success: true,
+        data: data
+      };
+    } catch (error) {
+      console.error('Error parsing JSON response:', error);
+      throw new Error('Invalid JSON response from server');
+    }
   }
 
-  // Enhanced fetch method with retry capability
+  // Enhanced fetch method with proper headers and error handling
   private async fetchWithAuth(url: string, options: RequestInit = {}): Promise<any> {
     const requestOptions: RequestInit = {
       ...options,
-      credentials: 'include', // Include cookies
       headers: {
+        'Content-Type': 'application/json',
         ...this.getAuthHeaders(),
-        ...options.headers
-      }
+        ...options.headers,
+      },
+      credentials: 'include', // Include cookies for authentication
     };
-  
-    const response = await fetch(url, requestOptions);
-    return this.handleResponse(response, { url, ...requestOptions } as Request);
+
+    console.log('Making API request to:', url, 'with options:', requestOptions);
+
+    try {
+      const response = await fetch(url, requestOptions);
+      return await this.handleResponse(response, { url, ...requestOptions } as Request);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
   }
 
   // Auth methods
-  async login(credentials: LoginCredentials): Promise<ApiResponse<{ user: User; accessToken: string }>> {
-    return this.fetchWithAuth(`${this.baseURL}/users/login`, {
+  async login(credentials: LoginCredentials): Promise<ApiResponse<{ user: User }>> {
+    console.log('API Login - Request payload:', credentials);
+    console.log('API Login - Request URL:', `${this.baseURL}/auth/login`);
+    const response = await this.fetchWithAuth(`${this.baseURL}/auth/login`, {
       method: 'POST',
       body: JSON.stringify(credentials)
     });
+    console.log('API Login - Response:', response);
+    return response;
   }
 
-  async register(userData: RegisterData): Promise<ApiResponse<{ user: User; accessToken: string }>> {
-    return this.fetchWithAuth(`${this.baseURL}/users/register`, {
+  async register(userData: RegisterData): Promise<ApiResponse<{ user: User }>> {
+    console.log('API Register - Request payload:', userData);
+    console.log('API Register - Request URL:', `${this.baseURL}/auth/register`);
+    const response = await this.fetchWithAuth(`${this.baseURL}/auth/register`, {
       method: 'POST',
       body: JSON.stringify(userData)
     });
+    console.log('API Register - Response:', response);
+    return response;
   }
 
   async logout(): Promise<ApiResponse<void>> {
-    return this.fetchWithAuth(`${this.baseURL}/users/logout`, {
-      method: 'POST'
-    });
+    try {
+      const response = await this.fetchWithAuth(`${this.baseURL}/auth/logout`, {
+        method: 'POST'
+      });
+      return response;
+    } catch (error) {
+      // Even if logout fails on backend, clear local tokens
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      throw error;
+    }
   }
 
-  async refreshToken(): Promise<ApiResponse<{ accessToken: string }>> {
+  async refreshToken(): Promise<ApiResponse<{ accessToken: string; user?: User }>> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
 
-    return this.fetchWithAuth(`${this.baseURL}/users/refresh-token`, {
+    // If already refreshing, return the existing promise
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = fetch(`${this.baseURL}/auth/refresh-token`, {
       method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ refreshToken })
+    }).then(async (response) => {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Token refresh failed');
+      }
+      const data = await response.json();
+      return {
+        success: true,
+        data: data
+      };
+    }).finally(() => {
+      this.refreshPromise = null;
     });
+
+    return this.refreshPromise;
   }
 
   // User methods
@@ -148,8 +227,7 @@ class ApiService {
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('accessToken');
-    return !!token;
+    return !!localStorage.getItem('accessToken');
   }
 
   // Product methods
@@ -160,11 +238,19 @@ class ApiService {
     } else if (params) {
       queryString = `?${new URLSearchParams(params).toString()}`;
     }
-    return this.fetchWithAuth(`${this.baseURL}/products${queryString}`);
+    const url = `${this.baseURL}/product${queryString}`;
+    console.log('API GetProducts - Request URL:', url);
+    const response = await this.fetchWithAuth(url);
+    console.log('API GetProducts - Response:', response);
+    return response;
   }
 
   async getProductById(id: string): Promise<ApiResponse<Product>> {
-    return this.fetchWithAuth(`${this.baseURL}/products/${id}`);
+    return this.fetchWithAuth(`${this.baseURL}/product/${id}`);
+  }
+
+  async getProductsByCategory(category: string, limit: number = 20): Promise<ApiResponse<Product[]>> {
+    return this.fetchWithAuth(`${this.baseURL}/product?category=${category}&limit=${limit}`);
   }
 
   // Cart methods
@@ -224,30 +310,30 @@ class ApiService {
 
   // Order methods
   async createOrder(orderData: any): Promise<ApiResponse<any>> {
-    return this.fetchWithAuth(`${this.baseURL}/orders`, {
+    return this.fetchWithAuth(`${this.baseURL}/order`, {
       method: 'POST',
       body: JSON.stringify(orderData)
     });
   }
 
   async getOrders(): Promise<ApiResponse<any[]>> {
-    return this.fetchWithAuth(`${this.baseURL}/orders`);
+    return this.fetchWithAuth(`${this.baseURL}/order`);
   }
 
   async getOrderById(id: string): Promise<ApiResponse<any>> {
-    return this.fetchWithAuth(`${this.baseURL}/orders/${id}`);
+    return this.fetchWithAuth(`${this.baseURL}/order/${id}`);
   }
 
   // Payment methods
   async createPaymentIntent(amount: number, currency: string = 'usd'): Promise<ApiResponse<any>> {
-    return this.fetchWithAuth(`${this.baseURL}/payment/create-payment-intent`, {
+    return this.fetchWithAuth(`${this.baseURL}/payments/create-payment-intent`, {
       method: 'POST',
       body: JSON.stringify({ amount, currency })
     });
   }
 
   async confirmPayment(paymentIntentId: string): Promise<ApiResponse<any>> {
-    return this.fetchWithAuth(`${this.baseURL}/payment/confirm`, {
+    return this.fetchWithAuth(`${this.baseURL}/payments/confirm`, {
       method: 'POST',
       body: JSON.stringify({ paymentIntentId })
     });

@@ -1,6 +1,8 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 
 // Stripe configuration
+// NOTE: For local development, HTTP is fine for testing.
+// For production, HTTPS is REQUIRED for live Stripe integrations.
 const STRIPE_PUBLISHABLE_KEY = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key_here';
 
 // Load Stripe instance

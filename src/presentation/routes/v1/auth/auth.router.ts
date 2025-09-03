@@ -1,6 +1,7 @@
 import {
   userLogin,
   userRegister,
+  LogOutUser,
   googleLogin,
   adminLogin,
   userRefreshToken,
@@ -14,6 +15,7 @@ const authRouter = Router();
 
 authRouter.post("/login", userLogin);
 authRouter.post("/register", userRegister);
+authRouter.post("/logout", LogOutUser);
 authRouter.get("/google-login", googleLogin);
 authRouter.get("/google/callback", googleLoginMiddleware, googleLoginSucessController);
 authRouter.post("/refresh-token", userRefreshToken);

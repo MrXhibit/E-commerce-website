@@ -6,8 +6,7 @@ import { clearWishlist } from './wishlistSlice';
 // Types
 export interface User {
   _id: string;
-  firstName: string;
-  lastName: string;
+  userName: string;
   email: string;
   role: 'user' | 'admin';
   profilePicture?: string;
@@ -27,10 +26,9 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  firstName: string;
-  lastName: string;
   email: string;
   password: string;
+  conformPassword: string;
 }
 
 // Async thunks for API calls
@@ -38,13 +36,20 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
+      console.log('Auth Slice - Logging in user with credentials:', credentials);
       const response = await apiService.login(credentials);
+      console.log('Auth Slice - Login response:', response);
+      
       if (response.success) {
+        // Store user data in localStorage since tokens are in cookies
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         return response.data;
       }
-      return rejectWithValue(response.message);
+      console.error('Auth Slice - Login failed:', response.message);
+      return rejectWithValue(response.message || 'Login failed');
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      console.error('Auth Slice - Login error:', error);
+      return rejectWithValue(error.message || 'Login failed');
     }
   }
 );
@@ -53,13 +58,20 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData: RegisterData, { rejectWithValue }) => {
     try {
+      console.log('Auth Slice - Registering user with data:', userData);
       const response = await apiService.register(userData);
+      console.log('Auth Slice - Register response:', response);
+      
       if (response.success) {
+        // Store user data in localStorage since tokens are in cookies
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         return response.data;
       }
-      return rejectWithValue(response.message);
+      console.error('Auth Slice - Registration failed:', response.message);
+      return rejectWithValue(response.message || 'Registration failed');
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      console.error('Auth Slice - Registration error:', error);
+      return rejectWithValue(error.message || 'Registration failed');
     }
   }
 );

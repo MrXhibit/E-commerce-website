@@ -1,5 +1,6 @@
 import React from 'react';
-import { Container, Typography, Grid, TextField, Button, Box, List, ListItem, ListItemIcon, ListItemText, Divider, Paper } from '@mui/material';
+import { Box, Container, Typography, TextField, Button, Paper, Accordion, AccordionSummary, AccordionDetails, TextareaAutosize } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -39,28 +40,28 @@ const Contact = () => {
         </Typography>
         <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
           {/* Contact Form */}
-          <Grid item xs={12} md={7}>
+          <Grid xs={12} md={7}>
             <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 2 }}>
               Send us a Message
             </Typography>
             <Box component="form" noValidate autoComplete="off">
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                   <TextField label="First Name" fullWidth size="small" />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                   <TextField label="Last Name" fullWidth size="small" />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <TextField label="Email" fullWidth size="small" />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <TextField label="Subject" fullWidth size="small" />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <TextField label="Message" fullWidth multiline rows={4} size="small" />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <Button variant="contained" color="primary" fullWidth sx={{ py: 1.2, fontWeight: 600 }}>
                     Send Message
                   </Button>
@@ -69,7 +70,7 @@ const Contact = () => {
             </Box>
           </Grid>
           {/* Contact Info & Map */}
-          <Grid item xs={12} md={5}>
+          <Grid xs={12} md={5}>
             <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 2 }}>
               Get in Touch
             </Typography>
@@ -107,7 +108,7 @@ const Contact = () => {
           </Typography>
           <Grid container spacing={2} justifyContent="center">
             {faqs.map((faq, idx) => (
-              <Grid item xs={12} sm={6} md={3} key={idx}>
+              <Grid xs={12} sm={6} md={3} key={idx}>
                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>{faq.q}</Typography>
                 <Typography variant="body2" color="text.secondary">{faq.a}</Typography>
               </Grid>

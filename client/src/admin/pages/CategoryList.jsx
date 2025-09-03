@@ -18,10 +18,10 @@ import {
   Select,
   MenuItem,
   Pagination,
-  Grid,
   Card,
   CardContent
-} from '@mui/material';
+} from '@mui/material'
+import Grid from '@mui/material/Grid2';
 import {
   Search as SearchIcon,
   Add as AddIcon,
@@ -200,8 +200,8 @@ function CategoryList() {
       {/* Filters */}
       <Card sx={{ mb: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={4}>
+          <Grid spacing={2} alignItems="center">
+            <Grid xs={12} sm={6} md={4}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Status</Typography>
               <FormControl fullWidth size="small">
                 <Select
@@ -214,7 +214,7 @@ function CategoryList() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Type</Typography>
               <FormControl fullWidth size="small">
                 <Select
@@ -227,7 +227,7 @@ function CategoryList() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Parent Category</Typography>
               <FormControl fullWidth size="small">
                 <Select

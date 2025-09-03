@@ -5,7 +5,6 @@ import {
   Container,
   Paper,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -26,8 +25,10 @@ import {
   TableContainer,
   TableRow,
   IconButton,
-  Tooltip
+  Tooltip,
+
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
   CheckCircle,
   ShoppingBag,
@@ -256,17 +257,17 @@ const OrderConfirmationPage = () => {
         </Typography>
       </Paper>
 
-      <Grid container spacing={3}>
+      <Grid spacing={3}>
         {/* Order Summary */}
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
             <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <ShoppingBag color="primary" />
               Order Summary
             </Typography>
             
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
+            <Grid spacing={2} sx={{ mt: 1 }}>
+              <Grid xs={12} sm={6}>
                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="body2" color="text.secondary">Order Number</Typography>
                   <Typography variant="h6" fontFamily="monospace" color="primary">
@@ -274,7 +275,7 @@ const OrderConfirmationPage = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid xs={12} sm={6}>
                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="body2" color="text.secondary">Order Date</Typography>
                   <Typography variant="h6">
@@ -282,7 +283,7 @@ const OrderConfirmationPage = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid xs={12} sm={6}>
                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="body2" color="text.secondary">Status</Typography>
                   <Chip
@@ -296,7 +297,7 @@ const OrderConfirmationPage = () => {
                   />
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid xs={12} sm={6}>
                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="body2" color="text.secondary">Payment Status</Typography>
                   <Chip
@@ -324,8 +325,8 @@ const OrderConfirmationPage = () => {
               {order.items.map((item, index) => (
                 <Card key={index} variant="outlined">
                   <CardContent>
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} sm={3}>
+                    <Grid spacing={2} alignItems="center">
+                      <Grid xs={12} sm={3}>
                         <CardMedia
                           component="img"
                           height="100"
@@ -337,7 +338,7 @@ const OrderConfirmationPage = () => {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      <Grid xs={12} sm={6}>
                         <Typography variant="h6" gutterBottom>
                           {item.name}
                         </Typography>
@@ -348,7 +349,7 @@ const OrderConfirmationPage = () => {
                           Quantity: {item.quantity}
                         </Typography>
                       </Grid>
-                      <Grid item xs={12} sm={3} textAlign="right">
+                      <Grid xs={12} sm={3} textAlign="right">
                         <Typography variant="h6" fontWeight="bold">
                           {formatCurrency(item.price * item.quantity)}
                         </Typography>
@@ -367,8 +368,8 @@ const OrderConfirmationPage = () => {
               Shipping Information
             </Typography>
             
-            <Grid container spacing={3} sx={{ mt: 1 }}>
-              <Grid item xs={12} md={6}>
+            <Grid spacing={3} sx={{ mt: 1 }}>
+              <Grid xs={12} md={6}>
                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="h6" gutterBottom>Delivery Address</Typography>
                   <Typography variant="body1" fontWeight="bold">
@@ -390,7 +391,7 @@ const OrderConfirmationPage = () => {
                 </Box>
               </Grid>
               {order.trackingNumber && (
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <Box sx={{ p: 2, bgcolor: blue[50], borderRadius: 1, border: `1px solid ${blue[200]}` }}>
                     <Typography variant="h6" gutterBottom color="primary">
                       Tracking Information
@@ -406,7 +407,7 @@ const OrderConfirmationPage = () => {
         </Grid>
 
         {/* Order Total & Actions */}
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Paper elevation={2} sx={{ p: 3, mb: 3, position: 'sticky', top: 20 }}>
             <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <CreditCard color="primary" />

@@ -10,11 +10,12 @@ import {
   Alert, 
   CircularProgress,
   Divider,
-  Grid,
   Avatar,
-  Chip
+  Chip,
+
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
+import Grid from '@mui/material/Grid2';
 import AppleIcon from '@mui/icons-material/Apple';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Link, useNavigate } from 'react-router-dom';
@@ -339,8 +340,8 @@ const LoginPage = () => {
               </Divider>
 
               {/* Social Login Buttons */}
-              <Grid container spacing={2} sx={{ mb: 4 }}>
-                <Grid item xs={6}>
+              <Grid spacing={2} sx={{ mb: 4 }}>
+                <Grid xs={6}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -363,7 +364,7 @@ const LoginPage = () => {
                     Google
                   </Button>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid xs={6}>
                   <Button
                     variant="outlined"
                     fullWidth

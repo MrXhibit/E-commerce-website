@@ -10,13 +10,14 @@ import {
   Alert, 
   CircularProgress,
   Divider,
-  Grid,
   FormControlLabel,
   Checkbox,
   Avatar,
-  Chip
+  Chip,
+
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
+import Grid from '@mui/material/Grid2';
 import AppleIcon from '@mui/icons-material/Apple';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import { Link, useNavigate } from 'react-router-dom';
@@ -430,8 +431,8 @@ const SignupPage = () => {
               </Divider>
 
               {/* Social Signup Buttons */}
-              <Grid container spacing={2} sx={{ mb: 4 }}>
-                <Grid item xs={6}>
+              <Grid spacing={2} sx={{ mb: 4 }}>
+                <Grid xs={6}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -457,7 +458,7 @@ const SignupPage = () => {
                     Google
                   </Button>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid xs={6}>
                   <Button
                     variant="outlined"
                     fullWidth

@@ -13,6 +13,13 @@ const adminRepo = new adminRepository();
 const adminServ = new adminService(adminRepo, tokenUtils, authUtills);
 export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log('Login request received:', {
+      body: req.body,
+      headers: req.headers,
+      method: req.method,
+      url: req.url
+    });
+    
     const result = await userServ.loginUser(req.body);
     const { access_token, refresh_token, user } = result;
     res.cookie("access_token", access_token, {
@@ -33,16 +40,25 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
       expires: new Date(0),
     });
 
+    console.log('Login successful for user:', user.email);
     return res
       .status(200)
       .json({user});
   } catch (error) {
+    console.error('Login error:', error);
     next(error);
   }
 };
 
 export const userRegister = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log('Registration request received:', {
+      body: req.body,
+      headers: req.headers,
+      method: req.method,
+      url: req.url
+    });
+    
     const result = await userServ.registerUser(req.body);
     const { access_token, refresh_token, user } = result;
     res.cookie("access_token", access_token, {
@@ -63,10 +79,13 @@ export const userRegister = async (req: Request, res: Response, next: NextFuncti
       httpOnly: true,
       expires: new Date(0),
     });
+    
+    console.log('Registration successful for user:', user.email);
     return res
       .status(201)
       .json({user});
   } catch (error) {
+    console.error('Registration error:', error);
     next(error);
   }
 };

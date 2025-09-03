@@ -33,12 +33,30 @@ export class productRepository implements productRepositoryInterface {
     try {
       const query: any = {};
       if (category) {
-        const categoryId = new Types.ObjectId(category);
-        const allCategories = await CategoryModel.find({
-          $or: [{ _id: categoryId }, { ancestors: categoryId }],
-        }).select("_id");
-        const categoryIds = allCategories.map((cat) => cat._id);
-        query.category = { $in: categoryIds };
+        try {
+          // Try to treat category as ObjectId first
+          if (Types.ObjectId.isValid(category)) {
+            const categoryId = new Types.ObjectId(category);
+            const allCategories = await CategoryModel.find({
+              $or: [{ _id: categoryId }, { ancestors: categoryId }],
+            }).select("_id");
+            const categoryIds = allCategories.map((cat) => cat._id);
+            query.category = { $in: categoryIds };
+          } else {
+            // If not a valid ObjectId, treat as category name
+            const categoryDoc = await CategoryModel.findOne({ name: category });
+            if (categoryDoc) {
+              const allCategories = await CategoryModel.find({
+                $or: [{ _id: categoryDoc._id }, { ancestors: categoryDoc._id }],
+              }).select("_id");
+              const categoryIds = allCategories.map((cat) => cat._id);
+              query.category = { $in: categoryIds };
+            }
+          }
+        } catch (error) {
+          console.error('Error processing category parameter:', error);
+          // Continue without category filter if there's an error
+        }
       }
       if (search) {
         query.$or = [
@@ -52,9 +70,12 @@ export class productRepository implements productRepositoryInterface {
         if (minPrice) query.price.$gte = minPrice;
         if (maxPrice) query.price.$lte = maxPrice;
       }
+      console.log('productRepository.getPopulatedProducts query:', JSON.stringify(query));
       const products = await ProductModel.find(query).populate("category").limit(limit).skip(skip);
+      console.log('productRepository.getPopulatedProducts found:', products.length, 'products');
       return products.map((product) => this.mapToProduct(product));
     } catch (error) {
+      console.error('Error in productRepository.getPopulatedProducts:', error);
       throw new APIError();
     }
   }

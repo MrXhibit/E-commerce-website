@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Paper, Button, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress, Grid } from '@mui/material';
+import { Box, Container, Typography, Paper, Button, TextField, Divider, Radio, RadioGroup, FormControlLabel, Checkbox, Stack, LinearProgress } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import { createCheckoutSession, redirectToCheckout } from '../services/stripe.service';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -204,7 +205,7 @@ const CartPage = () => {
           ) : (
             <Grid container spacing={4} alignItems="flex-start" justifyContent="center">
               {/* Cart List */}
-              <Grid item xs={12} md={8} lg={8}>
+              <Grid xs={12} md={8} lg={8}>
                 <Paper sx={{ p: 3, mb: 3 }}>
                   <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
                     My Cart ({cartItems.length})
@@ -278,7 +279,7 @@ const CartPage = () => {
               </Grid>
               
               {/* Cart Summary & Coupon */}
-              <Grid item xs={12} md={4} lg={4}>
+              <Grid xs={12} md={4} lg={4}>
                 {/* Coupon */}
                 <Paper sx={{ p: 2, mb: 3 }}>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Coupons</Typography>

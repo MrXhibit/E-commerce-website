@@ -6,10 +6,10 @@ import {
   Paper,
   TextField,
   Divider,
-  Grid,
   Alert,
   CircularProgress
-} from '@mui/material';
+} from '@mui/material'
+import Grid from '@mui/material/Grid2';
 import { Elements } from '@stripe/react-stripe-js';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';
@@ -193,16 +193,16 @@ const CheckoutPage = () => {
             </Alert>
           )}
           
-          <Grid container spacing={4}>
+          <Grid spacing={4}>
             {/* Left Column - Forms */}
-            <Grid item xs={12} md={8}>
+            <Grid xs={12} md={8}>
               {/* Shipping Address */}
               <Paper sx={{ p: 3, mb: 3 }}>
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
                   Shipping Address
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
+                <Grid spacing={2}>
+                  <Grid xs={12}>
                     <TextField
                       fullWidth
                       label="Full Name"
@@ -211,7 +211,7 @@ const CheckoutPage = () => {
                       required
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid xs={12}>
                     <TextField
                       fullWidth
                       label="Address Line 1"
@@ -220,7 +220,7 @@ const CheckoutPage = () => {
                       required
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid xs={12}>
                     <TextField
                       fullWidth
                       label="Address Line 2 (Optional)"
@@ -228,7 +228,7 @@ const CheckoutPage = () => {
                       onChange={(e) => handleShippingChange('addressLine2', e.target.value)}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid xs={12} sm={6}>
                     <TextField
                       fullWidth
                       label="City"
@@ -237,7 +237,7 @@ const CheckoutPage = () => {
                       required
                     />
                   </Grid>
-                  <Grid item xs={12} sm={3}>
+                  <Grid xs={12} sm={3}>
                     <TextField
                       fullWidth
                       label="State"
@@ -246,7 +246,7 @@ const CheckoutPage = () => {
                       required
                     />
                   </Grid>
-                  <Grid item xs={12} sm={3}>
+                  <Grid xs={12} sm={3}>
                     <TextField
                       fullWidth
                       label="ZIP Code"
@@ -255,7 +255,7 @@ const CheckoutPage = () => {
                       required
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid xs={12}>
                     <TextField
                       fullWidth
                       label="Phone Number"
@@ -293,7 +293,7 @@ const CheckoutPage = () => {
             </Grid>
             
             {/* Right Column - Order Summary */}
-            <Grid item xs={12} md={4}>
+            <Grid xs={12} md={4}>
               <Paper sx={{ p: 3, position: 'sticky', top: 20 }}>
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
                   Order Summary

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link, Slider, Checkbox, FormControlLabel, FormGroup, Divider, Chip, Rating, Stack, Paper } from '@mui/material';
+import { Box, Container, Typography, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link, Slider, Checkbox, FormControlLabel, FormGroup, Divider, Chip, Rating, Stack, Paper } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import Carousel from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -379,7 +380,7 @@ const BooksPage = () => {
           ) : (
             <Grid container spacing={3}>
               {filteredProducts.map((product) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={product._id || product.id}>
+                <Grid xs={12} sm={6} md={4} lg={3} key={product._id || product.id}>
                   <Card 
                     sx={{ 
                       height: '100%', 
@@ -456,7 +457,7 @@ const BooksPage = () => {
             Browse Books & Media Categories
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={6} sm={4} md={3} lg={2}>
+            <Grid xs={6} sm={4} md={3} lg={2}>
               <Card 
                 sx={{ 
                   height: '100%',
@@ -476,7 +477,7 @@ const BooksPage = () => {
                 </CardContent>
               </Card>
             </Grid>
-            <Grid item xs={6} sm={4} md={3} lg={2}>
+            <Grid xs={6} sm={4} md={3} lg={2}>
               <Card 
                 sx={{ 
                   height: '100%',
@@ -496,7 +497,7 @@ const BooksPage = () => {
                 </CardContent>
               </Card>
             </Grid>
-            <Grid item xs={6} sm={4} md={3} lg={2}>
+            <Grid xs={6} sm={4} md={3} lg={2}>
               <Card 
                 sx={{ 
                   height: '100%',

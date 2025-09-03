@@ -13,7 +13,8 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { alpha, styled } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Container, Grid, Card, Chip, Collapse } from '@mui/material';
+import { Container, Card, Chip, Collapse } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -427,9 +428,9 @@ const Header = () => {
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2, color: 'primary.main' }}>
               Shop by Category
             </Typography>
-            <Grid container spacing={{ xs: 2, sm: 3 }} justifyContent="flex-start">
+            <Grid spacing={{ xs: 2, sm: 3 }} justifyContent="flex-start">
               {categories.map((category) => (
-                <Grid item xs={4} sm={3} md={2} lg={1.5} xl={1.33} key={category.name}>
+                <Grid xs={4} sm={3} md={2} lg={1.5} xl={1.33} key={category.name}>
                   <Card 
                     onClick={() => handleCategoryClick(category.name)}
                     sx={{ 

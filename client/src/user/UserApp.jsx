@@ -11,6 +11,7 @@ import { fetchWishlist } from '../store/slices/wishlistSlice';
 import Home from './Home';
 import Contact from './Contact';
 import About from './About';
+import ErrorBoundary from './components/ErrorBoundary';
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
 import ForgotPasswordPage from './ForgotPasswordPage';
@@ -55,15 +56,27 @@ function UserApp() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={
+          <ErrorBoundary>
+            <Home />
+          </ErrorBoundary>
+        } />
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/products" element={<ProductPage />} />
-        <Route path="/products/:id" element={<ProductDetailPage />} />
-        <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/products/:id" element={
+          <ErrorBoundary>
+            <ProductDetailPage />
+          </ErrorBoundary>
+        } />
+        <Route path="/product/:id" element={
+          <ErrorBoundary>
+            <ProductDetailPage />
+          </ErrorBoundary>
+        } />
         
         {/* Individual Category Pages - Electronics & Technology */}
         <Route path='/electronics' element={<ElectronicsPage />} />

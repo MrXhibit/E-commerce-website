@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link } from '@mui/material';
+import { Box, Container, Typography, Card, CardMedia, CardContent, CardActions, Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment, Breadcrumbs, Link } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -300,9 +301,9 @@ const LaptopsPage = () => {
           ) : displayProducts.length === 0 ? (
             <Alert severity="info" sx={{ mb: 4 }}>No products found matching your criteria.</Alert>
           ) : (
-            <Grid container spacing={3}>
+            <Grid spacing={3}>
               {displayProducts.map((product) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={product._id || product.id}>
+                <Grid xs={12} sm={6} md={4} lg={3} key={product._id || product.id}>
                   <Card 
                     sx={{ 
                       height: '100%', 

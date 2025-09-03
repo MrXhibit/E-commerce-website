@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Container, Grid, TextField, Button, Link, IconButton } from '@mui/material';
+import { Box, Typography, Container, TextField, Button, Link, IconButton } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -30,8 +31,8 @@ const Footer = () => {
       </Container>
       {/* Footer Links */}
       <Container maxWidth="lg">
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} md={3}>
+        <Grid spacing={4} justifyContent="center">
+          <Grid xs={12} md={3}>
             <Typography variant="h6" fontWeight={700} gutterBottom>
               Buy Nest
             </Typography>
@@ -45,7 +46,7 @@ const Footer = () => {
               <IconButton color="inherit" size="small"><LinkedInIcon /></IconButton>
             </Box>
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid xs={12} md={2}>
             <Typography variant="h6" fontWeight={700} gutterBottom>
               Quick Links
             </Typography>
@@ -56,7 +57,7 @@ const Footer = () => {
               <Link href="/contact" color="inherit" underline="hover" display="block">Contact</Link>
             </Box>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <Typography variant="h6" fontWeight={700} gutterBottom>
               Customer Service
             </Typography>
@@ -67,7 +68,7 @@ const Footer = () => {
               <Link href="#" color="inherit" underline="hover" display="block">Support</Link>
             </Box>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <Typography variant="h6" fontWeight={700} gutterBottom>
               Contact Info
             </Typography>

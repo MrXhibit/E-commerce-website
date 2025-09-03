@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions, Button, IconButton, Chip, Stack, Divider, Paper, CircularProgress, Alert, TextField, Snackbar, InputAdornment } from '@mui/material';
+import { Box, Container, Typography, Card, CardMedia, CardContent, CardActions, Button, IconButton, Chip, Stack, Divider, Paper, CircularProgress, Alert, TextField, Snackbar, InputAdornment } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -83,6 +84,14 @@ const ProductPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Helper function to safely get category string
+  const getCategoryString = (product) => {
+    if (!product || !product.category) return '';
+    if (typeof product.category === 'string') return product.category;
+    if (typeof product.category === 'object' && product.category.name) return product.category.name;
+    return '';
+  };
+
   // Helper function to format price
   const formatPrice = (price) => {
     if (typeof price === 'string') {
@@ -98,11 +107,32 @@ const ProductPage = () => {
         setLoading(true);
         setError(null);
         const response = await apiService.getProducts(50, 0); // Fetch 50 products
+        console.log('Full API response:', response);
+        
         if (response.success && response.data) {
-          setProducts(response.data.products || response.data);
-          console.log('Products fetched from backend:', response.data.products?.length || response.data.length);
+          // Backend returns { success, data, message } where data contains the products array
+          let productsArray;
+          if (Array.isArray(response.data)) {
+            productsArray = response.data;
+          } else if (response.data.products && Array.isArray(response.data.products)) {
+            productsArray = response.data.products;
+          } else {
+            console.error('Unexpected response structure:', response.data);
+            setError('Invalid response format from server');
+            return;
+          }
+          
+          // Ensure products is always an array before setting state
+          if (Array.isArray(productsArray)) {
+            setProducts(productsArray);
+            console.log('Products fetched successfully:', productsArray.length);
+          } else {
+            console.error('Products is not an array:', productsArray);
+            setError('Invalid products format from server');
+          }
         } else {
-          setError('Failed to fetch products');
+          console.error('API response indicates failure:', response);
+          setError(response.message || 'Failed to fetch products');
         }
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -180,13 +210,18 @@ const ProductPage = () => {
   };
 
   const filteredProducts = products.filter(product => {
+    // Ensure product is valid before filtering
+    if (!product || typeof product !== 'object') {
+      console.warn('Invalid product found during filtering:', product);
+      return false;
+    }
+    
     const matchesSearch = searchTerm === '' || 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      (product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesCategory = !selectedCategory || 
-      product.category?.name?.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      product.category?.toLowerCase().includes(selectedCategory.toLowerCase());
+      getCategoryString(product).toLowerCase().includes(selectedCategory.toLowerCase());
     
     return matchesSearch && matchesCategory;
   });
@@ -198,8 +233,8 @@ const ProductPage = () => {
         {/* Hero Banner */}
         <Box sx={{ backgroundColor: 'primary.main', py: 6, mb: 4, color: 'primary.contrastText' }}>
           <Container>
-            <Grid container spacing={4} alignItems="center">
-              <Grid item xs={12} md={6}>
+            <Grid spacing={4} alignItems="center">
+                              <Grid xs={12} md={6}>
                 <Typography variant="h2" fontWeight={700} gutterBottom>
                   Everything You Need
                 </Typography>
@@ -281,12 +316,20 @@ const ProductPage = () => {
               <Box sx={{ overflowX: 'auto', pb: 2 }}>
                 <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
                   {(() => {
-                    const electronicsProducts = products.filter(product => 
-                      product.category?.name?.toLowerCase() === 'electronics' ||
-                      product.category?.toLowerCase() === 'electronics'
-                    );
+                    const electronicsProducts = products.filter(product => {
+                      if (!product || typeof product !== 'object') {
+                        console.warn('Invalid product found during electronics filtering:', product);
+                        return false;
+                      }
+                      return getCategoryString(product).toLowerCase() === 'electronics';
+                    });
                     console.log('Electronics products found:', electronicsProducts.length);
-                    return electronicsProducts.slice(0, 8).map((product) => (
+                    return electronicsProducts.slice(0, 8).map((product) => {
+                      if (!product || !product._id) {
+                        console.warn('Invalid product found during electronics mapping:', product);
+                        return null;
+                      }
+                      return (
                     <Card 
                       key={product._id || product.id} 
                       sx={{ 
@@ -346,7 +389,8 @@ const ProductPage = () => {
                         </Button>
                       </CardActions>
                     </Card>
-                    ));
+                    );
+                    }).filter(Boolean);
                   })()} 
                 </Stack>
               </Box>
@@ -371,10 +415,10 @@ const ProductPage = () => {
                 <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
                   {(() => {
                     const homeProducts = products.filter(product => 
-                      product.category?.name?.toLowerCase() === 'home' ||
-                      product.category?.toLowerCase() === 'home' ||
-                      product.category?.name?.toLowerCase() === 'furniture' ||
-                      product.category?.toLowerCase() === 'furniture'
+                      getCategoryString(product).toLowerCase() === 'home' ||
+                      getCategoryString(product).toLowerCase() === 'home' ||
+                      getCategoryString(product).toLowerCase() === 'furniture' ||
+                      getCategoryString(product).toLowerCase() === 'furniture'
                     );
                     return homeProducts.slice(0, 8).map((product) => (
                     <Card 
@@ -461,10 +505,10 @@ const ProductPage = () => {
                 <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
                   {(() => {
                     const fashionProducts = products.filter(product => 
-                      product.category?.name?.toLowerCase() === 'fashion' ||
-                      product.category?.toLowerCase() === 'fashion' ||
-                      product.category?.name?.toLowerCase() === 'clothing' ||
-                      product.category?.toLowerCase() === 'clothing'
+                      getCategoryString(product).toLowerCase() === 'fashion' ||
+                      getCategoryString(product).toLowerCase() === 'fashion' ||
+                      getCategoryString(product).toLowerCase() === 'clothing' ||
+                      getCategoryString(product).toLowerCase() === 'clothing'
                     );
                     return fashionProducts.slice(0, 8).map((product) => (
                     <Card 
@@ -551,10 +595,10 @@ const ProductPage = () => {
                 <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
                   {(() => {
                     const sportsProducts = products.filter(product => 
-                      product.category?.name?.toLowerCase() === 'sports' ||
-                      product.category?.toLowerCase() === 'sports' ||
-                      product.category?.name?.toLowerCase() === 'fitness' ||
-                      product.category?.toLowerCase() === 'fitness'
+                      getCategoryString(product).toLowerCase() === 'sports' ||
+                      getCategoryString(product).toLowerCase() === 'sports' ||
+                      getCategoryString(product).toLowerCase() === 'fitness' ||
+                      getCategoryString(product).toLowerCase() === 'fitness'
                     );
                     return sportsProducts.slice(0, 8).map((product) => (
                     <Card 
@@ -641,10 +685,10 @@ const ProductPage = () => {
                 <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
                   {(() => {
                     const healthProducts = products.filter(product => 
-                      product.category?.name?.toLowerCase() === 'health' ||
-                      product.category?.toLowerCase() === 'health' ||
-                      product.category?.name?.toLowerCase() === 'personal care' ||
-                      product.category?.toLowerCase() === 'personal care'
+                      getCategoryString(product).toLowerCase() === 'health' ||
+                      getCategoryString(product).toLowerCase() === 'health' ||
+                      getCategoryString(product).toLowerCase() === 'personal care' ||
+                      getCategoryString(product).toLowerCase() === 'personal care'
                     );
                     return healthProducts.slice(0, 8).map((product) => (
                     <Card 
@@ -731,10 +775,10 @@ const ProductPage = () => {
                 <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ minWidth: 'max-content' }}>
                   {(() => {
                     const mediaProducts = products.filter(product => 
-                      product.category?.name?.toLowerCase() === 'books' ||
-                      product.category?.toLowerCase() === 'books' ||
-                      product.category?.name?.toLowerCase() === 'media' ||
-                      product.category?.toLowerCase() === 'media'
+                      getCategoryString(product).toLowerCase() === 'books' ||
+                      getCategoryString(product).toLowerCase() === 'books' ||
+                      getCategoryString(product).toLowerCase() === 'media' ||
+                      getCategoryString(product).toLowerCase() === 'media'
                     );
                     return mediaProducts.slice(0, 8).map((product) => (
                     <Card 

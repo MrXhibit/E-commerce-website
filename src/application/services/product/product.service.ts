@@ -50,6 +50,7 @@ export class productService implements ProductServiceInterface {
     minPrice?: number,
     maxPrice?: number,
   ): Promise<Partial<productProperties>[]> {
+    console.log('productService.getProducts called with:', { limit, skip, category, search, brand, model, minPrice, maxPrice });
     const allProducts = await this.productRepo.getPopulatedProducts(
       limit,
       skip,
@@ -61,16 +62,26 @@ export class productService implements ProductServiceInterface {
       maxPrice,
     );
     let products;
-    let totelPages;
-    if (adminToken) {
-      const isAdmin = this.tokenUtils.isValidAdminToken(adminToken);
-      if (!isAdmin) throw new AuthorizeError();
-      products = allProducts;
+    
+    if (adminToken && adminToken.trim() !== '') {
+      try {
+        const isAdmin = this.tokenUtils.isValidAdminToken(adminToken);
+        if (!isAdmin) throw new AuthorizeError();
+        products = allProducts;
+      } catch (error) {
+        // If admin token is invalid, treat as regular user
+        products = allProducts.filter(
+          (product) => product.isListed && typeof product.category === "object" && product.category.isListed,
+        );
+      }
     } else {
+      // No admin token provided, show only listed products
       products = allProducts.filter(
         (product) => product.isListed && typeof product.category === "object" && product.category.isListed,
       );
     }
+    
+    console.log('productService.getProducts returning:', products.length, 'products');
     return products.map((product) => product.sanitizeProduct());
   }
   async editProduct(id: string, reqBody: any, adminToken: string): Promise<Partial<productProperties>> {

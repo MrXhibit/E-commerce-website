@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
-  Box, Container, Typography, Grid, Card, CardContent, CardActionArea
-} from '@mui/material';
+  Box, Container, Typography, Card, CardContent, CardActionArea
+} from '@mui/material'
+import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 
@@ -271,7 +272,7 @@ const EnhancedCategoryNavigation = ({ title = "Shop by Category", showTitle = tr
         {/* Category Grid with 3 rows as shown in the image */}
         <Grid container spacing={2}>
           {categories.map((item, itemIndex) => (
-            <Grid item xs={6} sm={4} md={3} lg={2} key={itemIndex}>
+            <Grid xs={6} sm={4} md={3} lg={2} key={itemIndex}>
               <StyledCard>
                 <CardActionArea 
                   onClick={() => handleCategoryClick(item.path)}

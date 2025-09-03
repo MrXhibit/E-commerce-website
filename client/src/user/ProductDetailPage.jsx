@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
-  Grid,
   Typography,
   Button,
   Card,
@@ -20,6 +19,7 @@ import {
   IconButton,
   Tabs,
   Tab,
+
 } from '@mui/material';
 import {
   ShoppingCart as CartIcon,
@@ -30,6 +30,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
+import Grid from '@mui/material/Grid2';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import Header from './Header';
@@ -109,13 +110,33 @@ const ProductDetailPage = () => {
         const currentProduct = response.success ? response.data : response.product;
         if (currentProduct?.category) {
           try {
-            const relatedResponse = await apiService.getProductsByCategory(currentProduct.category, 8);
-            if (relatedResponse.success && relatedResponse.data) {
-              const filteredRelated = relatedResponse.data.filter(p => p._id !== id);
-              setRelatedProducts(filteredRelated.slice(0, 4));
+            // Extract category ID safely - backend expects ObjectId
+            let categoryParam;
+            if (typeof currentProduct.category === 'string') {
+              categoryParam = currentProduct.category;
+            } else if (currentProduct.category._id) {
+              categoryParam = currentProduct.category._id;
+            } else if (currentProduct.category.name) {
+              categoryParam = currentProduct.category.name;
+            }
+            
+            console.log('Category for related products:', currentProduct.category);
+            console.log('Category param being sent:', categoryParam);
+            
+            if (categoryParam) {
+              const relatedResponse = await apiService.getProductsByCategory(categoryParam, 8);
+              if (relatedResponse.success && relatedResponse.data) {
+                const filteredRelated = relatedResponse.data.filter(p => p._id !== id);
+                setRelatedProducts(filteredRelated.slice(0, 4));
+              } else {
+                console.warn('Related products response not successful:', relatedResponse);
+              }
+            } else {
+              console.warn('No valid category found for related products');
             }
           } catch (relatedError) {
             console.warn('Failed to fetch related products:', relatedError);
+            // Don't fail the entire product load if related products fail
           }
         }
       } catch (err) {
@@ -284,9 +305,9 @@ const ProductDetailPage = () => {
           </Breadcrumbs>
         </Box>
 
-        <Grid container spacing={4}>
+        <Grid spacing={4}>
           {/* Product Images with Carousel */}
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 2, borderRadius: 2, overflow: 'hidden' }}>
               {/* Main Image with Carousel */}
               <Box sx={{ position: 'relative', mb: 2 }}>
@@ -379,9 +400,9 @@ const ProductDetailPage = () => {
               
               {/* Thumbnail Images */}
               {productImages.length > 1 && (
-                <Grid container spacing={1}>
+                <Grid spacing={1}>
                   {productImages.slice(0, 4).map((image, index) => (
-                    <Grid item xs={3} key={index}>
+                    <Grid xs={3} key={index}>
                       <Card 
                         sx={{ 
                           cursor: 'pointer',
@@ -409,7 +430,7 @@ const ProductDetailPage = () => {
           </Grid>
 
           {/* Product Details */}
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
               <Typography variant="h4" gutterBottom>
                 {product.name}
@@ -440,7 +461,7 @@ const ProductDetailPage = () => {
                   </Typography>
                 )}
                 <Typography variant="subtitle1" gutterBottom>
-                  <strong>Category:</strong> {product.category}
+                  <strong>Category:</strong> {typeof product.category === 'string' ? product.category : product.category?.name || 'Unknown'}
                 </Typography>
                 <Typography variant="subtitle1" gutterBottom>
                   <strong>Availability:</strong> {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
@@ -529,8 +550,8 @@ const ProductDetailPage = () => {
             )}
             
             {activeTab === 1 && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Grid spacing={2}>
+                <Grid xs={12} sm={6}>
                   {product.brandName && (
                     <>
                       <Typography variant="subtitle1" gutterBottom><strong>Brand</strong></Typography>
@@ -544,9 +565,9 @@ const ProductDetailPage = () => {
                     </>
                   )}
                   <Typography variant="subtitle1" gutterBottom><strong>Category</strong></Typography>
-                  <Typography variant="body1" paragraph>{product.category}</Typography>
+                  <Typography variant="body1" paragraph>{typeof product.category === 'string' ? product.category : product.category?.name || 'Unknown'}</Typography>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                   <Typography variant="subtitle1" gutterBottom><strong>Stock</strong></Typography>
                   <Typography variant="body1" paragraph>{product.stock} units</Typography>
                   
@@ -573,9 +594,9 @@ const ProductDetailPage = () => {
             <Typography variant="h5" gutterBottom>
               Related Products
             </Typography>
-            <Grid container spacing={3}>
+            <Grid spacing={3}>
               {relatedProducts.map((relatedProduct) => (
-                <Grid item xs={12} sm={6} md={3} key={relatedProduct._id}>
+                <Grid xs={12} sm={6} md={3} key={relatedProduct._id}>
                   <Card 
                     sx={{ 
                       height: '100%', 

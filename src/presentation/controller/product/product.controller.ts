@@ -27,6 +27,8 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
     const search = (req.query.search as string) || undefined;
     const brand = (req.query.brand as string) || undefined;
     const model = (req.query.model as string) || undefined;
+    
+    console.log('getProducts called with:', { limit, skip, category, search, brand, model });
     let minPrice: number | undefined;
     let maxPrice: number | undefined;
     if (typeof req.query.minPrice === "string") {
@@ -49,8 +51,13 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
       minPrice,
       maxPrice,
     );
-   return res.status(200).json({products})
+       return res.status(200).json({
+     success: true,
+     data: products,
+     message: 'Products fetched successfully'
+   })
   } catch (error) {
+    console.error('Error in getProducts:', error);
     next(error);
   }
 };
@@ -85,7 +92,11 @@ export const searchProducts = async (req: Request, res: Response, next: NextFunc
     };
 
     const result = await productServ.searchProducts(searchFilters);
-    return res.status(200).json(ResponseUtils.success(result, 'Products searched successfully'));
+    return res.status(200).json({
+      success: true,
+      data: result,
+      message: 'Products searched successfully'
+    });
   } catch (error) {
     next(error);
   }

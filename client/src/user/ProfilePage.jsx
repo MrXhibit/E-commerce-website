@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { 
-  Box, Container, Grid, Card, Typography, Avatar, Button, Divider, 
+  Box, Container, Card, Typography, Avatar, Button, Divider, 
   IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Snackbar, Alert, Badge
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import Grid from '@mui/material/Grid2';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -274,9 +275,9 @@ const ProfilePage = () => {
           <Typography variant="h4" fontWeight={700} sx={{ mb: 4 }}>
             Account
           </Typography>
-          <Grid container spacing={4}>
+          <Grid spacing={4}>
             {/* Profile Card */}
-            <Grid item xs={12} md={3}>
+            <Grid xs={12} md={3}>
               <Card sx={{ p: 3, textAlign: 'center', boxShadow: 2 }}>
                 <Box sx={{ position: 'relative', display: 'inline-block', mb: 2 }}>
                   <Badge
@@ -366,10 +367,10 @@ const ProfilePage = () => {
             </Grid>
             
             {/* Account Details, Shipping, Payment */}
-            <Grid item xs={12} md={9}>
-              <Grid container spacing={4}>
+            <Grid xs={12} md={9}>
+              <Grid spacing={4}>
                 {/* Account Details */}
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <Card sx={{ p: 3, boxShadow: 2, position: 'relative' }}>
                     <IconButton 
                       size="small" 
@@ -397,7 +398,7 @@ const ProfilePage = () => {
                 </Grid>
                 
                 {/* Shipping Address */}
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <Card sx={{ p: 3, boxShadow: 2, position: 'relative' }}>
                     <IconButton 
                       size="small" 
@@ -420,7 +421,7 @@ const ProfilePage = () => {
                 </Grid>
                 
                 {/* Payment Methods */}
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <Card sx={{ p: 3, boxShadow: 2, position: 'relative' }}>
                     <IconButton 
                       size="small" 
@@ -445,9 +446,9 @@ const ProfilePage = () => {
                   <Button size="small">View All</Button>
                 </Box>
                 {wishlist?.items?.length > 0 ? (
-                  <Grid container spacing={2}>
+                  <Grid spacing={2}>
                     {wishlist.items.slice(0, 4).map((item, index) => (
-                      <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                      <Grid xs={12} sm={6} md={4} lg={3} key={index}>
                         <Card sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
                           <img 
                             src={item.product?.images?.[0]?.url || 'https://via.placeholder.com/80'} 

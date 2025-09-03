@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Paper, Typography, TextField, Button, Checkbox, FormControlLabel, Divider, Alert, CircularProgress } from '@mui/material';
+import { Box, Paper, Typography, TextField, Button, Checkbox, FormControlLabel, Divider, Alert, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
 import { Link, useNavigate } from 'react-router-dom';
@@ -42,22 +43,31 @@ const Signup = () => {
       return;
     }
     
-    // ADD PASSWORD VALIDATION
+    // Password validation
     if (formData.password !== formData.conformPassword) {
-      // You could set a local error state here if needed
+      console.error('Password mismatch');
+      return;
+    }
+    
+    // Password strength validation
+    if (formData.password.length < 8) {
+      console.error('Password too short');
       return;
     }
     
     dispatch(clearError());
-    // Send the data that backend expects
+    // Send the data that backend expects - backend expects { email, password, conformPassword }
     const registrationData = {
       email: formData.email,
       password: formData.password,
       conformPassword: formData.conformPassword
     };
+    console.log('Signup component - Sending registration data:', registrationData);
     const result = await dispatch(registerUser(registrationData));
     if (result.type === 'auth/registerUser/fulfilled') {
       navigate('/');
+    } else if (result.type === 'auth/registerUser/rejected') {
+      console.error('Signup failed:', result.payload);
     }
   };
 
@@ -87,9 +97,8 @@ const Signup = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-              {/* Name removed to match backend validator which does not require it */}
-              <Grid item xs={12}>
+            <Grid spacing={2} sx={{ mb: 2 }}>
+              <Grid xs={12}>
                 <TextField 
                   label="Email" 
                   name="email"
@@ -104,7 +113,7 @@ const Signup = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <TextField 
                   label="Enter your password" 
                   name="password"
@@ -120,7 +129,7 @@ const Signup = () => {
                 />
               </Grid>
               {/* ADD CONFIRM PASSWORD FIELD */}
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <TextField 
                   label="Confirm Password" 
                   name="conformPassword"

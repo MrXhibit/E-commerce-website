@@ -3,15 +3,16 @@ import {
   Box, 
   Container, 
   Typography, 
-  Grid, 
   CircularProgress, 
   Alert, 
   Pagination,
   Paper,
   Chip,
-  Stack
+  Stack,
+
 } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import Grid from '@mui/material/Grid2';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppDispatch } from '../store/hooks';
 import { fetchCart } from '../store/slices/cartSlice';
@@ -203,9 +204,9 @@ const ProductPage = () => {
 
         {/* Products Grid */}
         {!loading && displayProducts.length > 0 && (
-          <Grid container spacing={3}>
+          <Grid spacing={3}>
             {displayProducts.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+              <Grid xs={12} sm={6} md={4} lg={3} key={product._id}>
                 <ProductCard 
                   product={product} 
                   isInWishlist={wishlistItems.includes(product._id)}

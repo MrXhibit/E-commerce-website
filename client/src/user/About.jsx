@@ -1,5 +1,6 @@
 import React from 'react';
-import { Container, Typography, Grid, Box, Paper, Avatar } from '@mui/material';
+import { Container, Typography, Box, Paper, Avatar } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import Header from './Header';
 import Footer from './Footer';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -37,8 +38,8 @@ const About = () => (
         We are passionate about providing the best shopping experience with quality products and exceptional customer service.
       </Typography>
       {/* Mission & Vision */}
-      <Grid container spacing={4} direction="row" justifyContent="center" alignItems="stretch" sx={{ mb: 6 }}>
-        <Grid item xs={12} sm={6} display="flex" justifyContent="center">
+      <Grid spacing={4} direction="row" justifyContent="center" alignItems="stretch" sx={{ mb: 6 }}>
+        <Grid xs={12} sm={6} display="flex" justifyContent="center">
           <Box sx={{ textAlign: 'center', width: 320 }}>
             <Typography variant="h6" fontWeight={700} gutterBottom>Our Mission</Typography>
             <Typography variant="body2" color="text.secondary">
@@ -46,7 +47,7 @@ const About = () => (
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={12} sm={6} display="flex" justifyContent="center">
+        <Grid xs={12} sm={6} display="flex" justifyContent="center">
           <Box sx={{ textAlign: 'center', width: 320 }}>
             <Typography variant="h6" fontWeight={700} gutterBottom>Our Vision</Typography>
             <Typography variant="body2" color="text.secondary">
@@ -59,22 +60,22 @@ const About = () => (
       <Typography variant="h5" align="center" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
         Our Values
       </Typography>
-      <Grid container spacing={4} justifyContent="center" direction="row" sx={{ mb: 6 }}>
-        <Grid item xs={12} sm={4} md={4} display="flex" justifyContent="center">
+      <Grid spacing={4} justifyContent="center" direction="row" sx={{ mb: 6 }}>
+        <Grid xs={12} sm={4} md={4} display="flex" justifyContent="center">
           <Box sx={{ textAlign: 'center', width: 220 }}>
             <VerifiedUserIcon color="primary" sx={{ fontSize: 48, mb: 1 }} />
             <Typography variant="subtitle1" fontWeight={700}>Trust</Typography>
             <Typography variant="body2" color="text.secondary">Building long-term relationships with our customers through transparency and reliability.</Typography>
           </Box>
         </Grid>
-        <Grid item xs={12} sm={4} md={4} display="flex" justifyContent="center">
+        <Grid xs={12} sm={4} md={4} display="flex" justifyContent="center">
           <Box sx={{ textAlign: 'center', width: 220 }}>
             <StarIcon color="primary" sx={{ fontSize: 48, mb: 1 }} />
             <Typography variant="subtitle1" fontWeight={700}>Quality</Typography>
-            <Typography variant="body2" color="text.secondary">Ensuring every product meets our high standards of quality and performance.</Typography>
+                        <Typography variant="body2" color="text.secondary">Ensuring every product meets our high standards of quality and performance.</Typography>
           </Box>
         </Grid>
-        <Grid item xs={12} sm={4} md={4} display="flex" justifyContent="center">
+        <Grid xs={12} sm={4} md={4} display="flex" justifyContent="center">
           <Box sx={{ textAlign: 'center', width: 220 }}>
             <LightbulbIcon color="primary" sx={{ fontSize: 48, mb: 1 }} />
             <Typography variant="subtitle1" fontWeight={700}>Innovation</Typography>
@@ -85,20 +86,20 @@ const About = () => (
       {/* Numbers */}
       <Paper elevation={0} sx={{ p: 4, mb: 6, background: '#f7f7fa', textAlign: 'center' }}>
         <Typography variant="h5" fontWeight={700} gutterBottom>Our Numbers</Typography>
-        <Grid container spacing={2} justifyContent="center">
-          <Grid item xs={6} sm={3}>
+        <Grid spacing={2} justifyContent="center">
+          <Grid xs={6} sm={3}>
             <Typography variant="h6" color="primary" fontWeight={700}>10K+</Typography>
             <Typography variant="body2" color="text.secondary">Happy Customers</Typography>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid xs={6} sm={3}>
             <Typography variant="h6" color="primary" fontWeight={700}>500+</Typography>
             <Typography variant="body2" color="text.secondary">Products</Typography>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid xs={6} sm={3}>
             <Typography variant="h6" color="primary" fontWeight={700}>50+</Typography>
             <Typography variant="body2" color="text.secondary">Brands</Typography>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid xs={6} sm={3}>
             <Typography variant="h6" color="primary" fontWeight={700}>24/7</Typography>
             <Typography variant="body2" color="text.secondary">Support</Typography>
           </Grid>
@@ -108,9 +109,9 @@ const About = () => (
       <Typography variant="h5" align="center" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
         Our Team
       </Typography>
-      <Grid container spacing={4} direction="row" justifyContent="center">
+      <Grid spacing={4} direction="row" justifyContent="center">
         {team.map((member, idx) => (
-          <Grid item xs={12} sm={4} key={idx} display="flex" justifyContent="center">
+          <Grid xs={12} sm={4} key={idx} display="flex" justifyContent="center">
             <Box sx={{ textAlign: 'center', width: 220 }}>
               <Avatar sx={{ width: 80, height: 80, mx: 'auto', mb: 2 }} />
               <Typography variant="subtitle1" fontWeight={700}>{member.name}</Typography>

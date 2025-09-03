@@ -19,10 +19,10 @@ import {
   Select,
   MenuItem,
   Pagination,
-  Grid,
   Card,
   CardContent
-} from '@mui/material';
+} from '@mui/material'
+import Grid from '@mui/material/Grid2';
 import {
   Search as SearchIcon,
   Add as AddIcon,
@@ -207,8 +207,8 @@ function ProductList() {
       {/* Filters */}
       <Card sx={{ mb: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={3}>
+          <Grid spacing={2} alignItems="center">
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Category</Typography>
               <FormControl fullWidth size="small">
                 <Select
@@ -222,7 +222,7 @@ function ProductList() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Status</Typography>
               <FormControl fullWidth size="small">
                 <Select
@@ -236,7 +236,7 @@ function ProductList() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Price</Typography>
               <FormControl fullWidth size="small">
                 <Select
@@ -250,7 +250,7 @@ function ProductList() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Store</Typography>
               <FormControl fullWidth size="small">
                 <Select

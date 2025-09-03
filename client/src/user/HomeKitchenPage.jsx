@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
-  Box, Container, Typography, Grid, Card, CardMedia, CardContent, CardActions,
+  Box, Container, Typography, Card, CardMedia, CardContent, CardActions,
   Button, IconButton, CircularProgress, Alert, TextField, Snackbar, InputAdornment,
   Breadcrumbs, Link, Slider, Chip, Rating, Paper, MenuItem
 } from '@mui/material';
 import Carousel from 'react-slick';
+import Grid from '@mui/material/Grid2';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -251,9 +252,9 @@ const HomeKitchenPage = () => {
         <Container sx={{ py: 4 }}>
           {loading ? <CircularProgress /> :
             error ? <Alert severity="error">{error}</Alert> :
-              <Grid container spacing={3}>
+              <Grid spacing={3}>
                 {filteredProducts.map(p => (
-                  <Grid item xs={12} sm={6} md={4} key={p._id}>
+                  <Grid xs={12} sm={6} md={4} key={p._id}>
                     <Card>
                       <CardMedia
                         component="img" height="200"

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Container, Typography, Button, Stack, Chip, CircularProgress, Alert,
-  IconButton, Grid, Card, CardContent, CardMedia, Rating, Avatar,
+  IconButton, Card, CardContent, CardMedia, Rating, Avatar,
   useTheme, useMediaQuery
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { 
   PlayArrow as PlayIcon, Favorite as FavoriteIcon, 
   FavoriteBorder as FavoriteBorderIcon, ShoppingCart as ShoppingCartIcon,
@@ -178,7 +179,7 @@ const Home = () => {
       try {
         const response = await apiService.getProducts({ limit: 10, skip: 0 });
         
-        if (response.success && response.data && response.data.length > 0) {
+        if (response && response.data && response.data.length > 0) {
           const featuredProducts = response.data.slice(0, 8).map(product => ({
             ...product,
             _id: product._id || product.id || `product_${Math.random()}`,
@@ -417,8 +418,8 @@ const Home = () => {
                   animation: index === currentSlide ? 'fadeIn 0.5s ease-in' : 'none'
                 }}
               >
-                <Grid container spacing={4} alignItems="center">
-                  <Grid item xs={12} md={6}>
+                <Grid spacing={4} alignItems="center">
+                  <Grid xs={12} md={6}>
                     <Typography variant="h1" sx={{ mb: 2, fontWeight: 700 }}>
                       {slide.title}
                     </Typography>
@@ -449,7 +450,7 @@ const Home = () => {
                       </Button>
                     </Stack>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid xs={12} md={6}>
                     <Box sx={{ position: 'relative', textAlign: 'center' }}>
                       <Box
                         component="img"
@@ -508,9 +509,9 @@ const Home = () => {
                      <Typography variant="h2" sx={{ textAlign: 'center', mb: 6, fontWeight: 600 }}>
              FEATURED PRODUCTS
            </Typography>
-                     <Grid container spacing={4}>
+                     <Grid spacing={4}>
              {promotionalProducts.map((product, index) => (
-               <Grid item xs={12} sm={6} md={4} key={index}>
+               <Grid xs={12} sm={6} md={4} key={index}>
                  <PromoCard>
                    <CardMedia
                      component="img"
@@ -620,9 +621,9 @@ const Home = () => {
        {/* Services Section */}
        <Box sx={{ py: 8, backgroundColor: 'grey.50' }}>
          <Container maxWidth="xl">
-           <Grid container spacing={4}>
+           <Grid spacing={4}>
              {services.map((service, index) => (
-               <Grid item xs={12} sm={6} md={2.4} key={index}>
+                               <Grid xs={12} sm={6} md={2.4} key={index}>
                  <ServiceCard>
                    {service.icon}
                    <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>

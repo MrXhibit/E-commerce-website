@@ -49,7 +49,7 @@ class ProductSearchService {
       if (params.page) queryParams.append('page', params.page.toString());
       if (params.limit) queryParams.append('limit', params.limit.toString());
 
-      const response = await fetch(`${this.baseURL}/products/search?${queryParams.toString()}`, {
+             const response = await fetch(`${this.baseURL}/product/search?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ class ProductSearchService {
   // Get featured products
   async getFeaturedProducts(limit: number = 8): Promise<Product[]> {
     try {
-      const response = await fetch(`${this.baseURL}/products/featured?limit=${limit}`, {
+      const response = await fetch(`${this.baseURL}/product?limit=${limit}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ class ProductSearchService {
   // Get trending products
   async getTrendingProducts(limit: number = 6): Promise<Product[]> {
     try {
-      const response = await fetch(`${this.baseURL}/products/trending?limit=${limit}`, {
+      const response = await fetch(`${this.baseURL}/product?limit=${limit}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ class ProductSearchService {
   // Get related products
   async getRelatedProducts(productId: string, limit: number = 4): Promise<Product[]> {
     try {
-      const response = await fetch(`${this.baseURL}/products/${productId}/related?limit=${limit}`, {
+      const response = await fetch(`${this.baseURL}/product?limit=${limit}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ class ProductSearchService {
   // Get product suggestions (for search autocomplete)
   async getProductSuggestions(query: string, limit: number = 5): Promise<string[]> {
     try {
-      const response = await fetch(`${this.baseURL}/products/suggestions?q=${encodeURIComponent(query)}&limit=${limit}`, {
+      const response = await fetch(`${this.baseURL}/product/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ class ProductSearchService {
   // Get available categories
   async getCategories(): Promise<{ _id: string; name: string; productCount: number }[]> {
     try {
-      const response = await fetch(`${this.baseURL}/categories`, {
+             const response = await fetch(`${this.baseURL}/category`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ class ProductSearchService {
   // Get price range for filters
   async getPriceRange(): Promise<{ min: number; max: number }> {
     try {
-      const response = await fetch(`${this.baseURL}/products/price-range`, {
+             const response = await fetch(`${this.baseURL}/product/price-range`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Box,
-  Grid,
   Card,
   CardContent,
   Typography,
@@ -18,7 +17,8 @@ import {
   Button,
   LinearProgress,
   useTheme
-} from '@mui/material';
+} from '@mui/material'
+import Grid from '@mui/material/Grid2';
 import {
   TrendingUp,
   ShoppingCart,
@@ -179,10 +179,10 @@ function DashBoard() {
       </Box>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} mb={3}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Grid spacing={3} mb={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
-            title="Total Salts"
+            title="Total Sales"
             value="12,463"
             subtitle="Compared to Apr 2024"
             icon={<TrendingUp />}
@@ -190,7 +190,7 @@ function DashBoard() {
             chartData={salesData}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
             title="Orders Value"
             value="78,596"
@@ -200,7 +200,7 @@ function DashBoard() {
             chartData={salesData}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
             title="Daily Orders"
             value="95,789"
@@ -210,22 +210,22 @@ function DashBoard() {
             chartData={salesData}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
             title="Daily Revenue"
             value="41,954"
             subtitle="Compared to July 2024"
             icon={<AttachMoney />}
-            color="#e91e63"
+            color="#ff9800"
             chartData={salesData}
           />
         </Grid>
       </Grid>
 
       {/* Main Content Grid */}
-      <Grid container spacing={3}>
+      <Grid spacing={3}>
         {/* Recent Orders */}
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <Card>
             <CardContent>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -295,7 +295,7 @@ function DashBoard() {
         </Grid>
 
         {/* Sales Overview */}
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -317,7 +317,7 @@ function DashBoard() {
         </Grid>
 
         {/* Recent Customers */}
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -343,7 +343,7 @@ function DashBoard() {
         </Grid>
 
         {/* Revenue By Category */}
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -386,7 +386,7 @@ function DashBoard() {
         </Grid>
 
         {/* User By Continent */}
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -411,7 +411,7 @@ function DashBoard() {
         </Grid>
 
         {/* Top Seller */}
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <Card>
             <CardContent>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>

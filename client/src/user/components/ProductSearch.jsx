@@ -9,7 +9,6 @@ import {
   Slider,
   Typography,
   Button,
-  Grid,
   Paper,
   Chip,
   InputAdornment,
@@ -19,7 +18,8 @@ import {
   Checkbox,
   FormControlLabel,
   Divider
-} from '@mui/material';
+} from '@mui/material'
+import Grid from '@mui/material/Grid2';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -151,7 +151,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
       {/* Main Search Bar */}
       <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <TextField
             fullWidth
             placeholder="Search products by name, description, or brand..."
@@ -178,7 +178,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
             disabled={loading}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Box display="flex" gap={1} alignItems="center">
             <Button
               variant={showFilters ? "contained" : "outlined"}
@@ -227,7 +227,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
           <Divider sx={{ mb: 3 }} />
           <Grid container spacing={3}>
             {/* Category Filter */}
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <FormControl fullWidth>
                 <InputLabel>Category</InputLabel>
                 <Select
@@ -247,7 +247,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
             </Grid>
 
             {/* Brand Filter */}
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <FormControl fullWidth>
                 <InputLabel>Brand</InputLabel>
                 <Select
@@ -267,7 +267,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
             </Grid>
 
             {/* Sort By */}
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <FormControl fullWidth>
                 <InputLabel>Sort By</InputLabel>
                 <Select
@@ -286,7 +286,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
             </Grid>
 
             {/* Stock Availability */}
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -300,7 +300,7 @@ const ProductSearch = ({ onSearch, categories = [], loading = false, initialFilt
             </Grid>
 
             {/* Price Range */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Typography gutterBottom>Price Range: ${priceRange[0]} - ${priceRange[1]}</Typography>
               <Slider
                 value={priceRange}

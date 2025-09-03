@@ -35,14 +35,13 @@ export interface Cart {
 // User types
 export interface User {
   _id: string;
-  firstName: string;
-  lastName: string;
+  userName: string;
   email: string;
   role: 'user' | 'admin';
   profilePicture?: string;
   isEmailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Auth types
@@ -52,10 +51,9 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  firstName: string;
-  lastName: string;
   email: string;
   password: string;
+  conformPassword: string;
 }
 
 // Order types

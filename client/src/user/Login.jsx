@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Paper, Typography, TextField, Button, Divider, Alert, CircularProgress } from '@mui/material';
+import { Box, Paper, Typography, TextField, Button, Divider, Alert, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
 import { Link, useNavigate } from 'react-router-dom';
@@ -70,8 +71,8 @@ const Login = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={12}>
+            <Grid spacing={2} sx={{ mb: 2 }}>
+              <Grid xs={12}>
                 <TextField 
                   label="Email" 
                   name="email"
@@ -86,7 +87,7 @@ const Login = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <TextField 
                   label="Enter your password" 
                   name="password"
@@ -116,13 +117,13 @@ const Login = () => {
           </form>
           
           <Divider sx={{ my: 2, background: '#444' }}>Or log in with</Divider>
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
+          <Grid spacing={2}>
+            <Grid xs={6}>
               <Button variant="outlined" fullWidth startIcon={<GoogleIcon />} sx={{ color: 'white', borderColor: '#b39ddb', borderRadius: 2, textTransform: 'none' }}>
                 Google
               </Button>
             </Grid>
-            <Grid item xs={6}>
+            <Grid xs={6}>
               <Button variant="outlined" fullWidth startIcon={<AppleIcon />} sx={{ color: 'white', borderColor: '#b39ddb', borderRadius: 2, textTransform: 'none' }}>
                 Apple
               </Button>

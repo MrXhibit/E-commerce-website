@@ -2,12 +2,12 @@ import React from 'react';
 import {
   Box,
   Container,
-  Typography,
-  Grid,
+  Typography
   Button,
   Stack,
   IconButton
-} from '@mui/material';
+} from '@mui/material'
+import Grid from '@mui/material/Grid2';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Slider from 'react-slick';
@@ -192,17 +192,13 @@ const HeroCarousel = ({ products, onAddToCart }) => {
                   py: { xs: 4, md: 6, xl: 8 }
                 }}
               >
-                <Grid 
-                  container 
+                <Grid container 
                   spacing={{ xs: 3, md: 4, xl: 6 }} 
                   alignItems="center" 
                   sx={{ height: '100%' }}
                 >
                   {/* Text Content - Left Side */}
-                  <Grid 
-                    item 
-                    xs={12} 
-                    md={6} 
+                  <Grid size={{ xs: 12, md: 6 }}
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
@@ -286,7 +282,7 @@ const HeroCarousel = ({ products, onAddToCart }) => {
                             fontWeight: 500
                           }}
                         >
-                          Category: {product.category}
+                          Category: {product.category?.name || product.category}
                         </Typography>
                       )}
                     </Box>
@@ -351,10 +347,7 @@ const HeroCarousel = ({ products, onAddToCart }) => {
                   </Grid>
                   
                   {/* Product Image - Right Side */}
-                  <Grid 
-                    item 
-                    xs={12} 
-                    md={6}
+                  <Grid size={{ xs: 12, md: 6 }}
                     sx={{
                       display: 'flex',
                       justifyContent: { xs: 'center', md: 'flex-end' },

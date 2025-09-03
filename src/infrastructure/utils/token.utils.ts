@@ -3,7 +3,7 @@ import { tokenValidationUtillsInterface } from "@/domain/interfaces/utils";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { env } from "@/infrastructure/config/environment";
 
-const APP_SECRET = env.APP_SECRET || "my secret";
+ const APP_SECRET = env.APP_SECRET || "my secret";
 
 const isValidUserToken = (token: string): { payload: Partial<userProperties>; isVerified: boolean } => {
   try {
