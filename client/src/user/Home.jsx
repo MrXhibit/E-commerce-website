@@ -17,7 +17,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist } from '../store/slices/wishlistSlice';
-import apiService from '../services/api';
+import userProductService from '../services/userProduct.service';
 import { useNavigate } from 'react-router-dom';
 
 const featuredTabs = [
@@ -26,7 +26,7 @@ const featuredTabs = [
   { label: "Featured", value: "featured" }
 ];
 
-const mockProducts = [
+const MOCK_PRODUCTS = [
   {
     _id: 'prod1',
     name: 'iPhone 15 Pro Max',
@@ -159,25 +159,14 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await apiService.getProducts(24, 0);
-        console.log('Backend products response:', response);
-        if (response.success && response.data) {
-          console.log('Setting products from backend:', response.data);
-          // Ensure all products have _id field
-          const normalizedProducts = response.data.map(product => ({
-            ...product,
-            _id: product._id || product.id || `prod_${Math.random().toString(36).substr(2, 9)}`
-          }));
-          console.log('Normalized products:', normalizedProducts);
-          setProducts(normalizedProducts);
-        } else {
-          console.log('Backend fetch failed, using mock products');
-          setProducts(mockProducts);
-        }
+        // Use the new user product service
+        const normalizedProducts = await userProductService.getAllProducts(24, 0);
+        console.log(`Fetched ${normalizedProducts.length} products from backend`);
+        setProducts(normalizedProducts);
       } catch (err) {
-        console.log('API call failed, using mock products as fallback');
-        setProducts(mockProducts);
-        setError(null);
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again later.');
+        // Don't set mock data - show error instead
       } finally {
         setLoading(false);
       }
@@ -190,32 +179,14 @@ const Home = () => {
     const fetchHeroProducts = async () => {
       setHeroLoading(true);
       try {
-        const response = await apiService.getProducts(12, 0); // Get more products for better selection
-        console.log('Hero products response:', response);
-        if (response.success && response.data) {
-          console.log('Hero products data:', response.data);
-          // Filter for featured products or use latest ones
-          const featuredProducts = response.data.filter(product => 
-            product.isFeatured || product.isNew
-          ).slice(0, 6);
-          
-          // If no featured products, use the first 6 products
-          const finalHeroProducts = featuredProducts.length > 0 ? featuredProducts : response.data.slice(0, 6);
-          // Ensure all hero products have _id field
-          const normalizedHeroProducts = finalHeroProducts.map(product => ({
-            ...product,
-            _id: product._id || product.id || `hero_${Math.random().toString(36).substr(2, 9)}`
-          }));
-          console.log('Normalized hero products:', normalizedHeroProducts);
-          setHeroProducts(normalizedHeroProducts);
-        } else {
-          // Use mock products for hero carousel - now with 6 products
-          console.log('Using mock products for hero');
-          setHeroProducts(mockProducts.slice(0, 6));
-        }
+        // Use the new user product service for featured products
+        const featuredProducts = await userProductService.getFeaturedProducts(6);
+        setHeroProducts(featuredProducts);
+        console.log(`Fetched ${featuredProducts.length} featured products for hero carousel`);
       } catch (err) {
-        console.log('Hero products fetch failed, using mock products');
-        setHeroProducts(mockProducts.slice(0, 6));
+        console.error('Error fetching hero products:', err);
+        // Don't set mock data - show empty state instead
+        setHeroProducts([]);
       } finally {
         setHeroLoading(false);
       }

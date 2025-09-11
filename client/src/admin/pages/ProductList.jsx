@@ -32,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { axiosInstance } from '../utills/axios.instance';
 import { useNavigate } from 'react-router-dom';
+import { useAdminRefresh } from '../hooks/useAdminRefresh';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -46,6 +47,7 @@ function ProductList() {
     store: 'All Store'
   });
   const navigate = useNavigate();
+  const { refreshProducts } = useAdminRefresh();
 
   // Mock data for demonstration (replace with actual API call)
   const mockProducts = [
@@ -117,11 +119,39 @@ function ProductList() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      // For now, use mock data. Replace with actual API call
-      setProducts(mockProducts);
-      setTotalPages(Math.ceil(mockProducts.length / 10));
+      // Fetch products from backend API
+      const response = await axiosInstance.get('/product?limit=50&skip=0');
+      
+      if (response.data?.data) {
+        // Transform backend data to match frontend format
+        const transformedProducts = response.data.data.map((product, index) => ({
+          id: product._id || product.id,
+          name: product.name,
+          image: product.images?.[0]?.url || 'https://via.placeholder.com/40',
+          price: product.price,
+          category: product.category?.name || product.category || 'Uncategorized',
+          brand: product.brandName || product.brand,
+          model: product.modelName || product.model,
+          stock: product.stock || 0,
+          status: product.isListed ? 'Active' : 'Inactive',
+          views: Math.floor(Math.random() * 20000), // Mock views for now
+          products: product.stock || 0
+        }));
+        
+        setProducts(transformedProducts);
+        setTotalPages(Math.ceil(transformedProducts.length / 10));
+        console.log(`Fetched ${transformedProducts.length} products from backend`);
+      } else {
+        // Fallback to mock data if API fails
+        console.log('API response invalid, using mock data');
+        setProducts(mockProducts);
+        setTotalPages(Math.ceil(mockProducts.length / 10));
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
+      // Fallback to mock data on error
+      setProducts(mockProducts);
+      setTotalPages(Math.ceil(mockProducts.length / 10));
     } finally {
       setLoading(false);
     }
@@ -130,6 +160,31 @@ function ProductList() {
   useEffect(() => {
     fetchProducts();
   }, [page]);
+
+  // Listen for product addition events to refresh the list
+  useEffect(() => {
+    const handleProductAdded = async (event) => {
+      console.log('Product added event received in ProductList:', event.detail);
+      // Refresh the product list when a new product is added
+      try {
+        const refreshedProducts = await refreshProducts();
+        setProducts(refreshedProducts);
+        setTotalPages(Math.ceil(refreshedProducts.length / 10));
+      } catch (error) {
+        console.error('Error refreshing products after addition:', error);
+        // Fallback to original fetch
+        fetchProducts();
+      }
+    };
+
+    // Listen for product addition events
+    window.addEventListener('productAdded', handleProductAdded);
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener('productAdded', handleProductAdded);
+    };
+  }, [refreshProducts]);
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({ ...prev, [filterType]: value }));

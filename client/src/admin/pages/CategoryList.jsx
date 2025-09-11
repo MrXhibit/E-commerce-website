@@ -32,6 +32,9 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useFetchData } from '../hooks/useFetchData';
+import { axiosInstance } from '../utills/axios.instance';
+import { categoryService } from '../services/category.service';
+import { useAdminRefresh } from '../hooks/useAdminRefresh';
 
 function CategoryList() {
   const [categories, setCategories] = useState([]);
@@ -46,6 +49,7 @@ function CategoryList() {
   });
   const navigate = useNavigate();
   const [data, error] = useFetchData("/category");
+  const { refreshCategories } = useAdminRefresh();
 
   // Mock data for demonstration (replace with actual API call)
   const mockCategories = [
@@ -106,10 +110,64 @@ function CategoryList() {
   ];
 
   useEffect(() => {
-    // Use mock data for now, replace with actual API call
-    setCategories(mockCategories);
-    setTotalPages(Math.ceil(mockCategories.length / 10));
+    fetchCategories();
   }, []);
+
+  // Listen for product addition events to refresh category counts
+  useEffect(() => {
+    const handleProductAdded = async (event) => {
+      console.log('Product added event received in CategoryList:', event.detail);
+      // Refresh the category list to update product counts
+      try {
+        const refreshedCategories = await refreshCategories();
+        setCategories(refreshedCategories);
+        setTotalPages(Math.ceil(refreshedCategories.length / 10));
+      } catch (error) {
+        console.error('Error refreshing categories after product addition:', error);
+        // Fallback to original fetch
+        fetchCategories();
+      }
+    };
+
+    // Listen for product addition events
+    window.addEventListener('productAdded', handleProductAdded);
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener('productAdded', handleProductAdded);
+    };
+  }, [refreshCategories]);
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      // Fetch categories with product counts from backend API
+      const categoriesWithCounts = await categoryService.getCategoriesWithProductCounts();
+      
+      if (categoriesWithCounts.length > 0) {
+        // Transform backend data to match frontend format
+        const transformedCategories = categoriesWithCounts.map(category => 
+          categoryService.transformCategoryForDisplay(category)
+        );
+        
+        setCategories(transformedCategories);
+        setTotalPages(Math.ceil(transformedCategories.length / 10));
+        console.log(`Fetched ${transformedCategories.length} categories with product counts from backend`);
+      } else {
+        // Fallback to mock data if API fails
+        console.log('API response invalid, using mock data');
+        setCategories(mockCategories);
+        setTotalPages(Math.ceil(mockCategories.length / 10));
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      // Fallback to mock data on error
+      setCategories(mockCategories);
+      setTotalPages(Math.ceil(mockCategories.length / 10));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({ ...prev, [filterType]: value }));

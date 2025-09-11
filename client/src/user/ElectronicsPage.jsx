@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addToCart } from '../store/slices/cartSlice';
 import apiService from '../services/api';
 import productSearchService from '../services/productSearch.service';
+import { filterProductsByCategory } from '../utils/categoryMapping';
 import Header from './Header';
 import Footer from './Footer';
 import ProductSearch from './components/ProductSearch';
@@ -89,105 +90,52 @@ const ElectronicsPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [productsResponse, categoriesResponse] = await Promise.all([
-          apiService.getProducts(50, 0),
-          productSearchService.getCategories().catch(() => ({ data: [] }))
-        ]);
+        setError(null);
+        
+        // Try to fetch products with electronics category filter first
+        const productsResponse = await apiService.getProducts(100, 0, 'electronics');
         
         if (productsResponse.success && productsResponse.data) {
-          const filtered = productsResponse.data.filter(p =>
-            ['electronics', 'gadgets', 'audio', 'computers', 'laptops', 'smartphones', 'accessories']
-              .includes(p.subcategory?.toLowerCase() || p.category?.toLowerCase())
-          );
-          setProducts(filtered);
+          // Use dynamic category filtering
+          const electronicsProducts = filterProductsByCategory(productsResponse.data, 'electronics');
+          
+          // Normalize product structure
+          const normalizedProducts = electronicsProducts.map(product => ({
+            _id: product._id || product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            brand: product.brandName || product.brand,
+            model: product.modelName || product.model,
+            category: product.category?.name || product.category,
+            categoryId: product.category?._id || product.categoryId,
+            stock: product.stock || 0,
+            images: product.images || [{ url: 'https://via.placeholder.com/300x200' }],
+            isListed: product.isListed !== false,
+            rating: product.rating || 0,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt
+          }));
+          
+          setProducts(normalizedProducts);
+          console.log(`Found ${normalizedProducts.length} electronics products from backend`);
         } else {
-          console.log('Backend fetch failed, using mock products');
-          // Create mock electronics products
-          const mockElectronicsProducts = [
-            {
-              _id: 'elec1',
-              name: 'Ultra HD Smart TV',
-              description: '55-inch 4K Smart TV with HDR and built-in streaming apps',
-              price: '699.99',
-              brand: 'Samsung',
-              subcategory: 'electronics',
-              images: [{ url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500' }]
-            },
-            {
-              _id: 'elec2',
-              name: 'Wireless Noise-Cancelling Headphones',
-              description: 'Premium over-ear headphones with active noise cancellation',
-              price: '299.99',
-              brand: 'Sony',
-              subcategory: 'audio',
-              images: [{ url: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500' }]
-            },
-            {
-              _id: 'elec3',
-              name: 'Smart Home Hub',
-              description: 'Control all your smart home devices from one central hub',
-              price: '129.99',
-              brand: 'Amazon',
-              subcategory: 'gadgets',
-              images: [{ url: 'https://images.unsplash.com/photo-1558002038-1055e2e28ed1?w=500' }]
-            },
-            {
-              _id: 'elec4',
-              name: 'Wireless Gaming Mouse',
-              description: 'High-precision gaming mouse with customizable RGB lighting',
-              price: '79.99',
-              brand: 'Logitech',
-              subcategory: 'accessories',
-              images: [{ url: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500' }]
-            }
-          ];
-          setProducts(mockElectronicsProducts);
+          throw new Error('Failed to fetch electronics products from backend');
         }
         
-        setCategories(categoriesResponse.data || []);
+        // Fetch categories for the search component
+        try {
+          const categoriesResponse = await productSearchService.getCategories();
+          setCategories(categoriesResponse.data || []);
+        } catch (catErr) {
+          console.log('Failed to fetch categories, using empty array');
+          setCategories([]);
+        }
+        
       } catch (err) {
-        console.log('API call failed, using mock products as fallback');
-        // Create mock electronics products
-        const mockElectronicsProducts = [
-          {
-            _id: 'elec1',
-            name: 'Ultra HD Smart TV',
-            description: '55-inch 4K Smart TV with HDR and built-in streaming apps',
-            price: '699.99',
-            brand: 'Samsung',
-            subcategory: 'electronics',
-            images: [{ url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500' }]
-          },
-          {
-            _id: 'elec2',
-            name: 'Wireless Noise-Cancelling Headphones',
-            description: 'Premium over-ear headphones with active noise cancellation',
-            price: '299.99',
-            brand: 'Sony',
-            subcategory: 'audio',
-            images: [{ url: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500' }]
-          },
-          {
-            _id: 'elec3',
-            name: 'Smart Home Hub',
-            description: 'Control all your smart home devices from one central hub',
-            price: '129.99',
-            brand: 'Amazon',
-            subcategory: 'gadgets',
-            images: [{ url: 'https://images.unsplash.com/photo-1558002038-1055e2e28ed1?w=500' }]
-          },
-          {
-            _id: 'elec4',
-            name: 'Wireless Gaming Mouse',
-            description: 'High-precision gaming mouse with customizable RGB lighting',
-            price: '79.99',
-            brand: 'Logitech',
-            subcategory: 'accessories',
-            images: [{ url: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500' }]
-          }
-        ];
-        setProducts(mockElectronicsProducts);
-        setError(null); // Clear error since we have fallback data
+        console.error('Error fetching electronics products:', err);
+        setError('Failed to load electronics products. Please try again later.');
+        // Don't set mock data - show error instead
       } finally {
         setLoading(false);
       }
@@ -211,13 +159,22 @@ const ElectronicsPage = () => {
       const response = await productSearchService.searchProducts(searchFilters);
       
       if (response.data && response.data.products) {
-        setSearchResults(response.data);
-        setProducts(response.data.products);
+        // Apply additional electronics filtering to ensure we only show electronics products
+        const electronicsProducts = filterProductsByCategory(response.data.products, 'electronics');
+        setSearchResults({
+          ...response.data,
+          products: electronicsProducts,
+          total: electronicsProducts.length
+        });
+        setProducts(electronicsProducts);
         setCurrentFilters(filters);
       } else {
         // Fallback to local filtering if backend search fails
         const filtered = products.filter(product => {
           let matches = true;
+          
+          // First check if it's an electronics product
+          matches = matches && filterProductsByCategory([product], 'electronics').length > 0;
           
           if (filters.query) {
             const query = filters.query.toLowerCase();

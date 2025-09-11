@@ -348,7 +348,7 @@ const CategoryPage = () => {
 
   // Use mock products for this category
   useEffect(() => {
-    const loadCategoryProducts = () => {
+    const loadCategoryProducts = async () => {
       if (!categoryConfig) {
         setError('Category not found');
         setLoading(false);
@@ -359,21 +359,48 @@ const CategoryPage = () => {
         setLoading(true);
         setError(null);
         
-        // Use mock data directly instead of API call
-        const filteredMockProducts = mockProducts.filter(product => {
-          const matchesSubcategory = product.subcategory?.toLowerCase() === category.toLowerCase();
-          const matchesKeywords = categoryConfig.keywords.some(keyword => 
-            product.name?.toLowerCase().includes(keyword.toLowerCase()) ||
-            product.description?.toLowerCase().includes(keyword.toLowerCase())
-          );
-          return matchesSubcategory || matchesKeywords;
-        });
+        // Fetch products from backend API for this category
+        const response = await apiService.getProducts(100, 0, category);
         
-        setProducts(filteredMockProducts);
-        console.log('Using mock products data for category:', category);
+        if (response.success && response.data) {
+          // Filter products by category and keywords
+          const filteredProducts = response.data.filter(product => {
+            const productCategory = product.category?.name || product.category;
+            const matchesCategory = productCategory?.toLowerCase() === category.toLowerCase();
+            const matchesKeywords = categoryConfig.keywords.some(keyword => 
+              product.name?.toLowerCase().includes(keyword.toLowerCase()) ||
+              product.description?.toLowerCase().includes(keyword.toLowerCase()) ||
+              product.brandName?.toLowerCase().includes(keyword.toLowerCase())
+            );
+            return matchesCategory || matchesKeywords;
+          });
+          
+          // Normalize product structure
+          const normalizedProducts = filteredProducts.map(product => ({
+            _id: product._id || product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            brand: product.brandName || product.brand,
+            model: product.modelName || product.model,
+            category: product.category?.name || product.category,
+            categoryId: product.category?._id || product.categoryId,
+            stock: product.stock || 0,
+            images: product.images || [{ url: 'https://via.placeholder.com/300x200' }],
+            isListed: product.isListed !== false,
+            rating: product.rating || 0,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt
+          }));
+          
+          setProducts(normalizedProducts);
+          console.log(`Fetched ${normalizedProducts.length} products for category: ${category}`);
+        } else {
+          throw new Error('Failed to fetch products from backend');
+        }
       } catch (err) {
-        console.error('Error loading mock products for category:', err);
-        setError('Failed to load products');
+        console.error('Error loading products for category:', err);
+        setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
       }

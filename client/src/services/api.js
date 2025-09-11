@@ -221,9 +221,14 @@ class ApiService {
   }
 
   // Fixed Product APIs - Align with backend /product routes
-  async getProducts(limit = 20, skip = 0) {
+  async getProducts(limit = 20, skip = 0, category = '') {
     try {
-      const response = await fetch(`${this.baseURL}/product?limit=${limit}&skip=${skip}`, {
+      let url = `${this.baseURL}/product?limit=${limit}&skip=${skip}`;
+      if (category) {
+        url += `&category=${encodeURIComponent(category)}`;
+      }
+      
+      const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json'
         }

@@ -3,7 +3,7 @@ import { Box, Container, Typography, Paper, Button, TextField, Divider, Radio, R
 import { useNavigate } from 'react-router-dom';
 import { createCheckoutSession, redirectToCheckout } from '../services/stripe.service';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { updateCartItem, removeFromCart, clearCart } from '../store/slices/cartSlice';
+import { updateCartItem, removeFromCart, clearCart, fetchCart } from '../store/slices/cartSlice';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -33,8 +33,11 @@ const CartPage = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
+    } else {
+      // Fetch cart data when component mounts
+      dispatch(fetchCart());
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, dispatch]);
 
   const handleQuantityChange = async (productId, delta) => {
     const item = cartItems.find(item => item.productId === productId);
@@ -129,20 +132,26 @@ const CartPage = () => {
     try {
       setLoading(true);
       
+      // Debug: Log cart items structure
+      console.log('Cart items:', cartItems);
+      
       // Validate cart items have required fields
       const invalidItems = cartItems.filter(item => 
-        !item.name || !item.price || !item.quantity || item.quantity <= 0
+        !item.product?.name || !item.price || !item.quantity || item.quantity <= 0
       );
       
       if (invalidItems.length > 0) {
+        console.error('Invalid cart items:', invalidItems);
         throw new Error('Some cart items are missing required information. Please refresh and try again.');
       }
       
       const lineItems = cartItems.map((item) => ({
-        name: item.name,
+        name: item.product.name,
         price: item.price,
         quantity: item.quantity,
       }));
+      
+      console.log('Line items for checkout:', lineItems);
       
       const successUrl = `${window.location.origin}/success`;
       const cancelUrl = `${window.location.origin}/cancel`;

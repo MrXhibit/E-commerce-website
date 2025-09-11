@@ -8,6 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
+import { filterProductsByCategory } from '../utils/categoryMapping';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -34,38 +35,40 @@ const SmartphonesPage = () => {
         setLoading(true);
         setError(null);
         
-        const response = await apiService.getProducts(50, 0);
+        // Try to fetch products with smartphones category filter first
+        const response = await apiService.getProducts(100, 0, 'smartphones');
+        
         if (response.success && response.data) {
-          const productsData = response.data;
-          const filteredProducts = productsData.filter(product => {
-            const matchesCategory = product.subcategory?.toLowerCase() === 'smartphones' ||
-              product.name?.toLowerCase().includes('phone') ||
-              product.name?.toLowerCase().includes('smartphone') ||
-              product.name?.toLowerCase().includes('mobile') ||
-              product.name?.toLowerCase().includes('iphone') ||
-              product.name?.toLowerCase().includes('android') ||
-              product.description?.toLowerCase().includes('phone') ||
-              product.description?.toLowerCase().includes('mobile');
-            return matchesCategory;
-          });
-          setProducts(filteredProducts);
+          // Use dynamic category filtering for smartphones
+          const smartphoneProducts = filterProductsByCategory(response.data, 'smartphones');
+          
+          // Normalize product structure
+          const normalizedProducts = smartphoneProducts.map(product => ({
+            _id: product._id || product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            brand: product.brandName || product.brand,
+            model: product.modelName || product.model,
+            category: product.category?.name || product.category,
+            categoryId: product.category?._id || product.categoryId,
+            stock: product.stock || 0,
+            images: product.images || [{ url: 'https://via.placeholder.com/300x200' }],
+            isListed: product.isListed !== false,
+            rating: product.rating || 0,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt
+          }));
+          
+          setProducts(normalizedProducts);
+          console.log(`Found ${normalizedProducts.length} smartphone products from backend`);
         } else {
-          // Mock data for smartphones
-          const mockProducts = [
-            { _id: 'phone1', name: 'iPhone 15 Pro Max', price: 1199, category: 'Electronics', subcategory: 'smartphones', images: [{ url: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400' }], description: 'Latest iPhone with advanced camera system' },
-            { _id: 'phone2', name: 'Samsung Galaxy S24', price: 999, category: 'Electronics', subcategory: 'smartphones', images: [{ url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400' }], description: 'Premium Android smartphone' },
-            { _id: 'phone3', name: 'Google Pixel 8', price: 699, category: 'Electronics', subcategory: 'smartphones', images: [{ url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400' }], description: 'Pure Android experience' },
-          ];
-          setProducts(mockProducts);
+          throw new Error('Failed to fetch smartphone products from backend');
         }
       } catch (err) {
-        const mockProducts = [
-          { _id: 'phone1', name: 'iPhone 15 Pro Max', price: 1199, category: 'Electronics', subcategory: 'smartphones', images: [{ url: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400' }], description: 'Latest iPhone with advanced camera system' },
-          { _id: 'phone2', name: 'Samsung Galaxy S24', price: 999, category: 'Electronics', subcategory: 'smartphones', images: [{ url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400' }], description: 'Premium Android smartphone' },
-          { _id: 'phone3', name: 'Google Pixel 8', price: 699, category: 'Electronics', subcategory: 'smartphones', images: [{ url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400' }], description: 'Pure Android experience' },
-        ];
-        setProducts(mockProducts);
-        setError(null);
+        console.error('Error fetching smartphone products:', err);
+        setError('Failed to load smartphone products. Please try again later.');
+        // Don't set mock data - show error instead
       } finally {
         setLoading(false);
       }

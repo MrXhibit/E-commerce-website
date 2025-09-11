@@ -11,7 +11,7 @@ import Header from './Header';
 import Footer from './Footer';
 
 // Comprehensive categories similar to Amazon
-const categories = [
+const CATEGORIES = [
   // Electronics & Technology
   { name: 'Computers', image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?w=100&h=100&fit=crop', highlight: true, category: 'electronics' },
   { name: 'Laptops', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=100&h=100&fit=crop', category: 'electronics' },
@@ -97,16 +97,38 @@ const ProductPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiService.getProducts(50, 0); // Fetch 50 products
+        
+        // Fetch products from backend API
+        const response = await apiService.getProducts(100, 0); // Fetch 100 products
+        
         if (response.success && response.data) {
-          setProducts(response.data.products || response.data);
-          console.log('Products fetched from backend:', response.data.products?.length || response.data.length);
+          // Ensure all products have proper structure
+          const normalizedProducts = response.data.map(product => ({
+            _id: product._id || product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            brand: product.brandName || product.brand,
+            model: product.modelName || product.model,
+            category: product.category?.name || product.category,
+            categoryId: product.category?._id || product.categoryId,
+            stock: product.stock || 0,
+            images: product.images || [{ url: 'https://via.placeholder.com/300x200' }],
+            isListed: product.isListed !== false,
+            rating: product.rating || 0,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt
+          }));
+          
+          setProducts(normalizedProducts);
+          console.log(`Fetched ${normalizedProducts.length} products from backend`);
         } else {
-          setError('Failed to fetch products');
+          throw new Error('Failed to fetch products from backend');
         }
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError(err.message || 'Failed to fetch products');
+        setError(err.message || 'Failed to fetch products. Please try again later.');
+        // Don't set mock data - show error instead
       } finally {
         setLoading(false);
       }

@@ -113,93 +113,34 @@ const HomeKitchenPage = () => {
             ['home', 'furniture', 'home-decor', 'kitchen', 'bedding', 'garden', 'tools']
               .includes(p.subcategory?.toLowerCase() || p.category?.toLowerCase())
           );
-          setProducts(filtered);
+          
+          // Normalize product structure
+          const normalizedProducts = filtered.map(product => ({
+            _id: product._id || product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            brand: product.brandName || product.brand,
+            model: product.modelName || product.model,
+            category: product.category?.name || product.category,
+            categoryId: product.category?._id || product.categoryId,
+            stock: product.stock || 0,
+            images: product.images || [{ url: 'https://via.placeholder.com/300x200' }],
+            isListed: product.isListed !== false,
+            rating: product.rating || 0,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt
+          }));
+          
+          setProducts(normalizedProducts);
+          console.log(`Found ${normalizedProducts.length} home & kitchen products from backend`);
         } else {
-          console.log('Backend fetch failed, using mock products');
-          // Create mock home & kitchen products
-          const mockHomeProducts = [
-            {
-              _id: 'home1',
-              name: 'Modern Coffee Table',
-              description: 'Sleek coffee table with storage compartment',
-              price: '249.99',
-              brand: 'IKEA',
-              subcategory: 'furniture',
-              images: [{ url: 'https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=500' }]
-            },
-            {
-              _id: 'home2',
-              name: 'Stainless Steel Cookware Set',
-              description: '10-piece cookware set for all your cooking needs',
-              price: '199.99',
-              brand: 'Cuisinart',
-              subcategory: 'kitchen',
-              images: [{ url: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=500' }]
-            },
-            {
-              _id: 'home3',
-              name: 'Luxury Bedding Set',
-              description: 'Egyptian cotton bedding set with duvet cover and pillowcases',
-              price: '129.99',
-              brand: 'Brooklinen',
-              subcategory: 'bedding',
-              images: [{ url: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=500' }]
-            },
-            {
-              _id: 'home4',
-              name: 'Indoor Plant Collection',
-              description: 'Set of 3 low-maintenance indoor plants',
-              price: '89.99',
-              brand: 'Plants.com',
-              subcategory: 'home-decor',
-              images: [{ url: 'https://images.unsplash.com/photo-1545165375-1b744b9ed444?w=500' }]
-            }
-          ];
-          setProducts(mockHomeProducts);
+          throw new Error('Failed to fetch home & kitchen products from backend');
         }
       } catch (err) {
-        console.log('API call failed, using mock products as fallback');
-        // Create mock home & kitchen products
-        const mockHomeProducts = [
-          {
-            _id: 'home1',
-            name: 'Modern Coffee Table',
-            description: 'Sleek coffee table with storage compartment',
-            price: '249.99',
-            brand: 'IKEA',
-            subcategory: 'furniture',
-            images: [{ url: 'https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=500' }]
-          },
-          {
-            _id: 'home2',
-            name: 'Stainless Steel Cookware Set',
-            description: '10-piece cookware set for all your cooking needs',
-            price: '199.99',
-            brand: 'Cuisinart',
-            subcategory: 'kitchen',
-            images: [{ url: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=500' }]
-          },
-          {
-            _id: 'home3',
-            name: 'Luxury Bedding Set',
-            description: 'Egyptian cotton bedding set with duvet cover and pillowcases',
-            price: '129.99',
-            brand: 'Brooklinen',
-            subcategory: 'bedding',
-            images: [{ url: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=500' }]
-          },
-          {
-            _id: 'home4',
-            name: 'Indoor Plant Collection',
-            description: 'Set of 3 low-maintenance indoor plants',
-            price: '89.99',
-            brand: 'Plants.com',
-            subcategory: 'home-decor',
-            images: [{ url: 'https://images.unsplash.com/photo-1545165375-1b744b9ed444?w=500' }]
-          }
-        ];
-        setProducts(mockHomeProducts);
-        setError(null); // Clear error since we have fallback data
+        console.error('Error fetching home & kitchen products:', err);
+        setError('Failed to load home & kitchen products. Please try again later.');
+        // Don't set mock data - show error instead
       } finally {
         setLoading(false);
       }

@@ -8,6 +8,7 @@ import { useAppDispatch } from '../store/hooks';
 import { checkAuthStatus } from '../store/slices/authSlice';
 import { fetchCart } from '../store/slices/cartSlice';
 import { fetchWishlist } from '../store/slices/wishlistSlice';
+import ProductRefreshListener from '../components/ProductRefreshListener';
 import Home from './Home';
 import Contact from './Contact';
 import About from './About';
@@ -52,6 +53,7 @@ function UserApp() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <ProductRefreshListener />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
