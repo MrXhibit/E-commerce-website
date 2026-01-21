@@ -6,6 +6,7 @@ import { tokenUtils } from "@/infrastructure/utills/token.utils";
 import { adminRepository } from "@/infrastructure/repository/admin.repository";
 import { adminService } from "@/application/services/admin/admin.service";
 import { userProperties, ValidationError } from "@/domain/entities";
+import { ResponseUtils } from "@/infrastructure/utills/response.utils";
 const userRepo = new userRepository();
 const userServ = new userService(userRepo, authUtills, tokenUtils);
 const adminRepo = new adminRepository();
@@ -25,7 +26,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
     });
-    return res.status(200).json({ user });
+    return res.status(200).json(ResponseUtils.success({ user, accessToken: access_token, refreshToken: refresh_token }, 'Login successful'));
   } catch (error) {
     next(error);
   }
@@ -46,7 +47,7 @@ export const userRegister = async (req: Request, res: Response, next: NextFuncti
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "none",
     });
-    return res.status(201).json({ user });
+    return res.status(201).json(ResponseUtils.success({ user, accessToken: access_token, refreshToken: refresh_token }, 'Registration successful'));
   } catch (error) {
     next(error);
   }

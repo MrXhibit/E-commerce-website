@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon --require tsconfig-paths/register --exec ts-node src/index.ts",
     "test": "jest",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "generate-mock-data": "ts-node --require tsconfig-paths/register src/scripts/generateMockData.ts"
   },
   "author": "",
   "license": "ISC",
@@ -39,6 +40,8 @@
     "mongoose": "^8.16.4",
     "multer": "^2.0.2",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1"
   }
 }

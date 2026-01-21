@@ -38,9 +38,9 @@ export class productService implements ProductServiceInterface {
     const savedProduct = await this.productRepo.saveProduct(product);
     return savedProduct.sanitizeProduct();
   }
-  async getProducts(): Promise<Partial<productProperties>[]> {
+  async getProducts(limit: number = 20, skip: number = 0, category?: string): Promise<Partial<productProperties>[]> {
     // impliment search,filter sort and pagenation
-    const products = await this.productRepo.getProducts(10, 0);
+    const products = await this.productRepo.getProducts(limit, skip, category);
     return products.map((product) => product.sanitizeProduct());
   }
   async editProduct(id: string, reqBody: any, adminToken: string): Promise<Partial<productProperties>> {
